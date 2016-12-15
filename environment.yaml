@@ -1,0 +1,9 @@
+name: sra2mongo
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - pytest=2.9.2
+  - mongodb=3.3.8
+  - pymongo=3.3.0
+  - bioconda::entrez-direct=5.80
