@@ -1,0 +1,29 @@
+# NCBI Schema
+
+NCBI provides defined schema for each of the XML outputs. I downloaded those
+schema and used them to guide creation of database schema. I do not use schema
+directly, but I used them to create possible values and fields.
+
+## SRA 1.5
+
+SRA release 1.5 schema can be found at
+![](https://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/sra/doc/SRA_1-5/). Schema were
+downloaded via:
+
+```bash
+for TYPE in analysis common experiment package run sample study submission; do
+    wget -O- https://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/sra/doc/SRA_1-5/SRA.$TYPE.xsd?view=co | xmllint --format - > SRA.$TYPE.xsd 
+done
+```
+
+## BioSample
+
+```bash
+wget -O- https://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/submit/public-docs/biosample/biosample.xsd?view=co | xmllint --format - > biosample.xsd
+```
+
+## BioProject
+
+```bash
+wget -O- https://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/submit/public-docs/bioproject/bioproject.xsd?view=co | xmllint --format - > bioproject.xsd 
+```

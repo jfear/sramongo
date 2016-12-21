@@ -9,7 +9,7 @@ with open('README.md') as readme_file:
 requirements = [i.strip() for i in open('requirements.txt').readlines()]
 
 setup(
-    name='sra2mongo',
+    name='sramongo',
     version='0.0.1',
     description="A package to download metadata from SRA/Biosample/Geo and dump into a mongo database.",
     author="Justin Fear",
