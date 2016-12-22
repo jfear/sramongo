@@ -82,7 +82,6 @@ PLATFORMS = [
     ]
 
 
-
 class URLLink(EmbeddedDocument):
     label = StringField()
     url = StringField()
@@ -133,7 +132,7 @@ class Organization(EmbeddedDocument):
 
 
 class Pool(EmbeddedDocument):
-    samples = ListField(DictField)
+    sample_id = StringField()
 
 
 class Submission(EmbeddedDocument):
@@ -142,45 +141,54 @@ class Submission(EmbeddedDocument):
 
     #SRA/EXPERIMENT/SUBMISSION/IDENTIFIERS/EXTERNAL_ID@namespace
     #SRA/EXPERIMENT/SUBMISSION/IDENTIFIERS/EXTERNAL_ID.text
-    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/SUBMISSION/IDENTIFIERS/SECONDARY_ID@namespace
     #SRA/EXPERIMENT/SUBMISSION/IDENTIFIERS/SECONDARY_ID.text
-    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/SUBMISSION/IDENTIFIERS/SUBMITTER_ID@namespace
-    #SRA/EXPERIMENT/SSUBMISSIONIDENTIFIERS/SUBMITTER_ID.text
-    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    #SRA/EXPERIMENT/SSUBMISSION/IDENTIFIERS/SUBMITTER_ID.text
+    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
 
 class Study(Document):
     #SRA/EXPERIMENT/STUDY/IDENTIFIERS/PRIMARY_ID.text
     study_id = StringField(required=True, unique=True)
 
+    #TODO
+    #SRA/EXPERIMENT/STUDY/IDENTIFIERS/EXTERNAL_ID@namespace = 'BioProject'.text
+    BioProject_id = StringField()
+
+    #TODO
+    #SRA/EXPERIMENT/STUDY/IDENTIFIERS/EXTERNAL_ID@namespace = 'GEO'.text
+    GeoSeries_id = StringField()
+
+    #TODO
     submission = EmbeddedDocumentField(Submission)
 
     #SRA/EXPERIMENT/STUDY/IDENTIFIERS/EXTERNAL_ID@namespace
     #SRA/EXPERIMENT/STUDY/IDENTIFIERS/EXTERNAL_ID.text
-    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/STUDY/IDENTIFIERS/SECONDARY_ID@namespace
     #SRA/EXPERIMENT/STUDY/IDENTIFIERS/SECONDARY_ID.text
-    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/STUDY/IDENTIFIERS/SUBMITTER_ID@namespace
     #SRA/EXPERIMENT/STUDY/IDENTIFIERS/SUBMITTER_ID.text
-    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/STUDY/DESCRIPTOR/STUDY_TITLE.text
-    study_title = StringField()
+    title = StringField()
 
     #SRA/EXPERIMENT/STUDY/DESCRIPTOR/STUDY_TYPE@existing_study_type or
     #SRA/EXPERIMENT/STUDY/DESCRIPTOR/STUDY_TYPE@new_study_type or
     #NOTE: VALIDATION @existing_study_type in EXISTING_STUDY_TYPES_*
-    study_type = StringField()
+    type = StringField()
 
     #SRA/EXPERIMENT/STUDY/DESCRIPTOR/STUDY_ABSTRACT
-    study_abstract = StringField()
+    abstract = StringField()
 
     #SRA/EXPERIMENT/STUDY@center_name or
     #NOTE: DEPRICATED SRA/EXPERIMENT/STUDY/DESCRIPTORM/CENTER_NAME.text
@@ -190,7 +198,7 @@ class Study(Document):
     center_project_name = StringField()
 
     #SRA/EXPERIMENT/STUDY/DESCRIPTOR/STUDY_DESCRIPTION.text
-    study_descriptor = StringField()
+    descriptor = StringField()
 
     # See Organization class for field defs
     organization = EmbeddedDocumentField(Organization)
@@ -206,30 +214,30 @@ class Study(Document):
 
     #{label: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/URL_LINK/LABEL.text,
     # url: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/URL_LINK/URL.text}
-    url_link = ListField(EmbeddedDocumentField(URLLink), default=list)
+    url_links = ListField(EmbeddedDocumentField(URLLink), default=list)
 
     #{label: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/XREF_LINK/LABEL.text,
     # db: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/XREF_LINK/DB.text,
     # id: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/XREF_LINK/ID.text}
-    xref_link = ListField(EmbeddedDocumentField(XrefLink), default=list)
+    xref_links = ListField(EmbeddedDocumentField(XrefLink), default=list)
 
     #{label: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/ENTREZ_LINK/LABEL.text,
     # db: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/ENTREZ_LINK/DB.text,
     # id: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/ENTREZ_LINK/ID.text,
     # query: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/ENTREZ_LINK/QUERY.text}
-    study_entrez_link = ListField(EmbeddedDocumentField(EntrezLink), default=list)
+    entrez_links = ListField(EmbeddedDocumentField(EntrezLink), default=list)
 
     #{label: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/DDBJ_LINK/LABEL.text,
     # db: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/DDBJ_LINK/DB.text,
     # id: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/DDBJ_LINK/ID.text,
     # url: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/DDBJ_LINK/URL.text}
-    ddbj_link = ListField(EmbeddedDocumentField(DDBJLink), default=list)
+    ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
 
     #{LABEL: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/ENA_LINK/LABEL.text,
     # DB: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/ENA_LINK/DB.text,
     # ID: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/ENA_LINK/ID.text,
     # URL: SRA/EXPERIMENT/STUDY/STUDY_LINKS/STUDY_LINK/ENA_LINK/URL.text}
-    ena_link = ListField(EmbeddedDocumentField(ENALink), default=list)
+    ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
 
 class Experiment(Document):
@@ -241,21 +249,26 @@ class Experiment(Document):
 
     #SRA/EXPERIMENT/IDENTIFIERS/EXTERNAL_ID.@namespace
     #SRA/EXPERIMENT/IDENTIFIERS/EXTERNAL_ID.text
-    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/IDENTIFIERS/SECONDARY_ID@namespace
     #SRA/EXPERIMENT/IDENTIFIERS/SECONDARY_ID.text
-    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/IDENTIFIERS/SUBMITTER_ID.@namespace
     #SRA/EXPERIMENT/IDENTIFIERS/SUBMITTER_ID.text
-    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/TITLE.text
     title = StringField()
 
     #SRA/EXPERIMENT/STUDY_REF/IDENTIFIERS/PRIMARY_ID.text
     study = ReferenceField(Study)
+
+    #SRA/Pool
+    #NOTE: Pull out sample_id (SRS), BioSample (SAMN), Geo (GSM).
+    #TODO: Add
+    samples = ListField(EmbeddedDocumentField(Pool))
 
     #SRA/EXPERIMENT/DESIGN/DESIGN_DESCRIPTION.text
     design_description = StringField()
@@ -303,51 +316,54 @@ class Experiment(Document):
 
     #{label: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/URL_LINK/LABEL.text,
     # url: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/URL_LINK/URL.text}
-    url_link = ListField(EmbeddedDocumentField(URLLink), default=list)
+    url_links = ListField(EmbeddedDocumentField(URLLink), default=list)
 
     #{label: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/XREF_LINK/LABEL.text,
     # db: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/XREF_LINK/DB.text,
     # id: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/XREF_LINK/ID.text}
-    xref_link = ListField(EmbeddedDocumentField(XrefLink), default=list)
+    xref_links = ListField(EmbeddedDocumentField(XrefLink), default=list)
 
     #{label: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/ENTREZ_LINK/LABEL.text,
     # db: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/ENTREZ_LINK/DB.text,
     # id: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/ENTREZ_LINK/ID.text,
     # query: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/ENTREZ_LINK/QUERY.text}
-    study_entrez_link = ListField(EmbeddedDocumentField(EntrezLink), default=list)
+    entrez_links = ListField(EmbeddedDocumentField(EntrezLink), default=list)
 
     #{label: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/DDBJ_LINK/LABEL.text,
     # db: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/DDBJ_LINK/DB.text,
     # id: SRA/EXPERIMENT/EXPERIMENT_LINKS/STUDY_LINK/DDBJ_LINK/ID.text,
     # url: SRA/EXPERIMENT/EXPERIMENT_LINKS/STUDY_LINK/DDBJ_LINK/URL.text}
-    ddbj_link = ListField(EmbeddedDocumentField(DDBJLink), default=list)
+    ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
 
     #{LABEL: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/ENA_LINK/LABEL.text,
     # DB: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/ENA_LINK/DB.text,
     # ID: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/ENA_LINK/ID.text,
     # URL: SRA/EXPERIMENT/EXPERIMENT_LINKS/EXPERIMENT_LINK/ENA_LINK/URL.text}
-    ena_link = ListField(EmbeddedDocumentField(ENALink), default=list)
+    ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
     #SRA/EXPERIMENT/EXPERIMENT_ATTRIBUTES/EXPERIMENT_ATTRIBUTE/TAG.text
     #SRA/EXPERIMENT/EXPERIMENT_ATTRIBUTES/EXPERIMENT_ATTRIBUTE/VALUE.text
     experiment_attribute = DictField()
-
-    #SRA/Pool
-    #NOTE: Only really care about primary_id (SRS), BioSample, Geo
-    samples = EmbeddedDocument(Pool)
 
 
 class Sample(Document):
     #SRA/EXPERIMENT/DESIGN/IDENTIFIERS/PRIMARY_ID.text
     sample_id = StringField(required=True, unique=True)
 
+    #TODO:
+    #SRA/EXPERIMENT/IDENTIFIERS/EXTERNAL_ID.@namespace = 'BioSample'.text
+    BioSample_id = StringField()
+
+    #SRA/EXPERIMENT/IDENTIFIERS/EXTERNAL_ID.@namespace = 'Geo'.text
+    GeoSample_id = StringField()
+
     #SRA/EXPERIMENT/IDENTIFIERS/EXTERNAL_ID.@namespace
     #SRA/EXPERIMENT/DESIGN/IDENTIFIERS/EXTERNAL_ID.text
-    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/EXPERIMENT/IDENTIFIERS/SECONDARY_ID@namespace
     #SRA/EXPERIMENT/DESIGN/IDENTIFIERS/SECONDARY_ID.text
-    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     """
     <SAMPLE alias="GSM1471477" accession="SRS679015">
@@ -405,19 +421,19 @@ class Run(Document):
 
     #SRA/RUN_SET/RUN/IDENTIFIERS/EXTERNAL_ID.@namespace
     #SRA/EXPERIMENT/IDENTIFIERS/EXTERNAL_ID.text
-    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/RUN_SET/RUN/IDENTIFIERS/SECONDARY_ID@namespace
     #SRA/RUN_SET/RUN/IDENTIFIERS/SECONDARY_ID.text
-    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/RUN_SET/RUN/IDENTIFIERS/SUBMITTER_ID.@namespace
     #SRA/RUN_SET/RUN/IDENTIFIERS/SUBMITTER_ID.text
-    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
 
     #SRA/RUN_SET/RUN/Pool
     #NOTE: Only really care about primary_id (SRS), BioSample, Geo
-    samples = EmbeddedDocument(Pool)
+    samples = EmbeddedDocumentField(Pool)
 
     """
     Column('run_date', Text),

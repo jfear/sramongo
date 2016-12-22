@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """ Module to handle SRA XML metadata. """
 
+import re
 from xml.etree import ElementTree
 from collections import defaultdict
 
@@ -11,11 +12,11 @@ from sramongo import db_schema as dbs
 def valid_path(func):
     def new_func(*args, **kwargs):
         # If the current path is present
-        if args[0]:
-            return func(*args, **kwargs)
-        else:
-            print('Not valid path.')
+        if args[1] is None:
+            print('Not valid path.', func, args)
             return {}
+        else:
+            return func(*args, **kwargs)
 
     return new_func
 
@@ -29,18 +30,18 @@ class AmbiguousElementException(Exception):
 
 
 class SraExperiment(object):
-    """ Class to parse SRA experiments and add them to mongoDB.
-
-    Parameters
-    ----------
-    node: xml.etree.ElementTree.ElementTree.Element
-        Experiment level node as an ElemenTree element.
-
-    db_name: str
-        Name of the database to use. NOTE: monoDB server needs to be running.
-
-    """
     def __init__(self, node, db_name='sraDB'):
+        """ Class to parse SRA experiments and add them to mongoDB.
+
+        Parameters
+        ----------
+        node: xml.etree.ElementTree.ElementTree.Element
+            Experiment level node as an ElemenTree element.
+
+        db_name: str
+            Name of the database to use. NOTE: monoDB server needs to be running.
+
+        """
         # connect to database
         #self.db = MongoClient(db_name)
 
@@ -49,10 +50,9 @@ class SraExperiment(object):
         self.submission = self.parse_submission(node.find('SUBMISSION'))
         self.study = self.parse_study(node.find('STUDY'))
         self.experiment = self.parse_experiment(node.find('EXPERIMENT'))
-        #self.sample = self.parse_experiment(node.find('SAMPLE'))
-        #self.run = self.parse_run(node.find('RUN_SET'))
-        #self.pool = self.parse_experiment(node.find('Pool'))
-
+        self.sample = self.parse_sample(node.find('SAMPLE'))
+        self.pool = self.parse_pool(node.find('Pool'))
+        self.run = self.parse_run(node.find('RUN_SET'))
 
     def parse_submission(self, node):
         d = dict()
@@ -76,14 +76,15 @@ class SraExperiment(object):
     def parse_study(self, node):
         d = dict()
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'study'))
-        d.update(self._parse_links(node.find('STUDY_LINKS'), 'study'))
+        d.update(self._parse_links(node.find('STUDY_LINKS')))
+        d.update(self._parse_study_type(node.find('DESCRIPTOR/STUDY_TYPE')))
+
         locs = {
-                'study_title': ('DESCRIPTOR/STUDY_TITLE', 'text'),
-                'study_abstract': ('DESCRIPTOR/STUDY_ABSTRACT', 'text'),
+                'title': ('DESCRIPTOR/STUDY_TITLE', 'text'),
+                'abstract': ('DESCRIPTOR/STUDY_ABSTRACT', 'text'),
                 'center_project_name': ('DESCRIPTOR/CENTER_PROJECT_NAME', 'text')
                 }
         d.update(self._parse_relationships(node, locs))
-        d.update(self._parse_study_type(node.find('DESCRIPTOR/STUDY_TYPE')))
 
         return d
 
@@ -91,8 +92,8 @@ class SraExperiment(object):
         d = dict()
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'experiment'))
-        d.update(self._parse_links(node.find('EXPERIMENT_LINKS'), 'experiment'))
-        d.update(self._parse_attributes(node.find('EXPERIMENT_ATTRIBUTES'), 'experiment'))
+        d.update(self._parse_links(node.find('EXPERIMENT_LINKS')))
+        d.update(self._parse_attributes(node.find('EXPERIMENT_ATTRIBUTES')))
 
         locs = {
                 'title': ('TITLE', 'text'),
@@ -116,14 +117,85 @@ class SraExperiment(object):
 
         return d
 
-    def parse_run(self, node):
-        d = dict()
-        return d
-
     def parse_sample(self, node):
         d = dict()
 
+        d.update(self._parse_ids(node.find('IDENTIFIERS'), 'sample'))
+        d.update(self._parse_links(node.find('SAMPLE_LINKS')))
+        d.update(self._parse_attributes(node.find('SAMPLE_ATTRIBUTES')))
+
+        locs = {
+                'title': ('TITLE', 'text'),
+                'taxon_id': ('SAMPLE_NAME/TAXON_ID', 'text'),
+                'scientific_name': ('SAMPLE_NAME/SCIENTIFIC_NAME', 'text'),
+                'common_name': ('SAMPLE_NAME/COMMON_NAME', 'text'),
+                'individual_name': ('SAMPLE_NAME/INDIVIDUAL_NAME', 'text'),
+                'description': ('SAMPLE/DESCRIPTION', 'text'),
+                }
+        d.update(self._parse_relationships(node, locs))
+
         return d
+
+    def parse_pool(self, node):
+        pool = []
+        for member in node:
+            d = dict()
+            d.update(self._parse_ids(member.find('IDENTIFIERS'), 'sample'))
+            pool.append(d)
+        return pool
+
+    def parse_run(self, node):
+        runs = []
+        for run in node.findall('RUN'):
+            d = dict()
+            d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
+            d['pool'] = self.parse_pool(run.find('Pool'))
+            d.update(self._parse_taxon(run.find('tax_analysis')))
+            d.update(self._parse_run_reads(run.find('Statistics')))
+
+            locs = {
+                    'experiment': ('EXPERIMENT_REF', 'accession'),
+                    'platform': ('PLATFORM', 'child', 'tag'),
+                    'instrument_model': ('PLATFORM/*/INSTRUMENT_MODEL', 'text'),
+                    'nspots': ('Statistics', 'nspots'),
+                    'nbases': ('Bases', 'count'),
+                    }
+
+            d.update(self._parse_relationships(run, locs))
+
+            runs.append(d)
+
+        return runs
+
+    def _raise_xref_status(self, xref):
+        """ Some xrefs are more imporant and I want to pull them out.
+
+        xrefs to specific databases I am interested in should be pulled out and
+        stored separately. Go ahead and normalized database names and values a
+        bit.
+
+        Parameters
+        ----------
+        xref: dict
+            A dictionary with keys 'db' and 'id'.
+
+        """
+        # databases of interest
+        db_map = {'geo': 'GEO',
+                  'gds': 'GEO_Dataset',
+                  'bioproject': 'BioProject',
+                  'biosample': 'BioSample',
+                  'pubmed': 'pubmed'}
+
+        # normalize db name
+        norm = xref['db'].strip(' ()[].:').lower()
+
+        if norm in db_map.keys():
+            # Normalize the ids a little
+            id_norm = re.sub('geo|gds|bioproject|biosample|pubmed|pmid', '', xref['id'].lower()).strip(' :().').upper()
+            return db_map[norm], id_norm
+        else:
+            return False
 
     @valid_path
     def _parse_study_type(self, node):
@@ -134,9 +206,9 @@ class SraExperiment(object):
         """
         d = dict()
         if node.get('existing_study_type'):
-            d['study_type'] = node.get('existing_study_type')
+            d['type'] = node.get('existing_study_type')
         elif node.get('new_study_type'):
-            d['study_type'] = node.get('new_study_type')
+            d['type'] = node.get('new_study_type')
 
         return d
 
@@ -202,16 +274,14 @@ class SraExperiment(object):
         for _id in node:
             if _id.tag == 'PRIMARY_ID':
                 d[namespace + '_id'] = _id.text
-
-            elif _id.tag == 'EXTERNAL_ID':
-                d['external_id'].append({'db': _id.get('namespace'), 'id': _id.text})
-
-            elif _id.tag == 'SECONDARY_ID':
-                d['secondary_id'].append({'db': _id.get('namespace'), 'id': _id.text})
-
-            elif _id.tag == 'SUBMITTER_ID':
-                d['submitter_id'].append({'db': _id.get('namespace'), 'id': _id.text})
-
+            else:
+                # Other types of ids (submitter, external, secondary).
+                xref = {'db': _id.get('namespace'), 'id': _id.text}
+                _raise = self._raise_xref_status(xref)
+                if _raise:
+                    d[_raise[0]] = _raise[1]
+                else:
+                    d[_id.tag.lower()].append(xref)
         return d
 
     @valid_path
@@ -234,51 +304,106 @@ class SraExperiment(object):
         return d
 
     @valid_path
-    def _parse_links(self, node, namespace):
-        """ Helper script to parse various types of links in the SRA.
+    def _update_link(self, node, _type, d):
+        """ Given a type of url search for it and return a dict. """
+
+        def search(_type):
+            """ Returns ElemenTree search string. """
+            return '*/' + _type.upper()
+
+        for l in node.findall(search(_type)):
+            link = self._parse_link_parts(l)
+            _raise = self._raise_xref_status(link)
+            if _raise:
+                d[_raise[0]] = _raise[1]
+            else:
+                d[_type].append(link)
+        return d
+
+    @valid_path
+    def _parse_links(self, node):
+        """ Parse various types of links in the SRA.
 
         Parameters
         ----------
         node: xml.etree.ElementTree.ElementTree.Element
             Node where the root is '*_LINKS'.
-        namespace: str
-            Name to use for the primary ID.
 
         """
         d = defaultdict(list)
-
-        for url in node.findall('*/URL_LINK'):
-            d[namespace + '_url_link'].append(self._parse_link_parts(url))
-        for xref in node.findall('*/XREF_LINK'):
-            d[namespace + '_xref_link'].append(self._parse_link_parts(xref))
-        for entrez in node.findall('*/ENTREZ_LINK'):
-            d[namespace + '_entrez_link'].append(self._parse_link_parts(entrez))
-        for ddbj in node.findall('*/DDBJ_LINK'):
-            d[namespace + '_ddbj_link'].append(self._parse_link_parts(ddbj))
-        for ena in node.findall('*/ENA_LINK'):
-            d[namespace + '_ena_link'].append(self._parse_link_parts(ena))
-
+        d.update(self._update_link(node, 'url_link', d))
+        d.update(self._update_link(node, 'xref_link', d))
+        d.update(self._update_link(node, 'entrez_link', d))
+        d.update(self._update_link(node, 'ddbj_link', d))
+        d.update(self._update_link(node, 'ena_link', d))
         return d
 
     @valid_path
-    def _parse_attributes(self, node, namespace):
-        """ Helper script to parse various types of links in the SRA.
+    def _parse_attributes(self, node):
+        """ Parse various attributes.
 
         Parameters
         ----------
         node: xml.etree.ElementTree.ElementTree.Element
             Node where the root is 'EXPERIMENT_ATTRIBUTES'.
-        namespace: str
-            Name to use for the primary ID.
 
         """
-        n = namespace + '_attribute'
-        d = {n: {}}
-
+        d = defaultdict(dict)
         for attribute in node.getchildren():
-            d[n][attribute.find('TAG').text] = attribute.find('VALUE').text
+            key_norm = attribute.find('TAG').text.lower()
+
+            value_norm = attribute.find('VALUE').text.lower()
+
+            if re.match('\w+\d+', value_norm):
+                value_norm = value_norm.upper()
+
+            d['attribute'][key_norm] = value_norm
 
         return d
+
+    @valid_path
+    def _parse_taxon(self, node):
+        """ Parse taxonomy informaiton. """
+        d = dict()
+        d['nspot_analyze'] = node.get('analyzed_spot_count')
+        d['total_spots'] = node.get('total_spot_count')
+        d['mapped_spots'] = node.get('identified_spot_count')
+
+        def crawl(node):
+            d = {}
+            for i in node:
+                d[i.get('name')] = {'parent': node.get('name'),
+                                    'total_count': i.get('total_count'),
+                                    'self_count': i.get('self_count'),
+                                    'tax_id': i.get('tax_id'),
+                                    'rank': i.get('rank')
+                                    }
+                if i.getchildren():
+                    d.update(crawl(i))
+            return d
+
+        d['tax_counts'] = crawl(node)
+
+        return d
+
+    @valid_path
+    def _parse_run_reads(self, node):
+        """ Parse reads from runs. """
+        d = dict()
+
+        if node.get('nreads') == "1":
+            read = node.find('Read')
+            d['nreads'] = read.get('count')
+            d['read_len'] = read.get('average')
+        else:
+            rid = {"0": '_r1', "1": '_r2'}
+            for read in node.findall('Read'):
+                index = rid[read.get('index')]
+                d['nreads' + index] = read.get('count')
+                d['read_len' + index] = read.get('average')
+
+        return d
+
 
 
 def parse_sra_xml(xml):
@@ -287,7 +412,6 @@ def parse_sra_xml(xml):
 
     for package in root:
         sraExp = SraExperiment(package)
-
 
 if __name__ == '__main__':
     pass

@@ -2,7 +2,7 @@
 """ Helper functions for using mongoDB. """
 
 import os
-from datetime import datetime
+from time import sleep
 from subprocess import Popen
 
 class MongoDBFolderError(Exception):
@@ -49,6 +49,13 @@ def start_mongo(dbDir=None, logDir=None, port=27017, command_line_args=''):
     if not os.path.exists(logDir):
         raise MongoDBFolderError('Log direcotry must exists.')
 
-    log = os.path.join(logDir, datetime.now().strftime('%Y%m%d') + '.log')
+    log = os.path.join(logDir, 'mongoDB.log')
 
-    return Popen(['mongod', '--dpath', dbDir, '--logpath', logDir, '--port', str(port), command_line_args], shell=True)
+    if command_line_args:
+        cmd = ['mongod', '--dbpath', dbDir, '--logpath', log, '--port', str(port), command_line_args]
+    else:
+        cmd = ['mongod', '--dbpath', dbDir, '--logpath', log, '--port', str(port)]
+
+    process =  Popen(cmd)
+    sleep(10)
+    return process

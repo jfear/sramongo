@@ -6,7 +6,7 @@ import pytest
 from sramongo.mongo import start_mongo
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def mongo_folders(tmpdir_factory):
     """ Create TMPDIR for database and logs. """
     data = tmpdir_factory.mktemp('db')
@@ -14,7 +14,7 @@ def mongo_folders(tmpdir_factory):
     return str(data), str(log)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def mongoDB(mongo_folders):
     """ Start the database server.
 
