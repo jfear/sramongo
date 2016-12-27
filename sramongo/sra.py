@@ -1,13 +1,13 @@
-#!/usr/bin/env python
-""" Module to handle SRA XML metadata. """
+"""Module to handle SRA XML metadata."""
 
 import re
 from xml.etree import ElementTree
 from collections import defaultdict
+from sramongo.sra_const import EXISTING_STUDY_TYPES_ACTIVE, \
+        EXISTING_STUDY_TYPES_DEPRICATED, INSTRUMENT_MODEL_ACTIVE, \
+        INSTRUMENT_MODEL_DEPRICATED, LIBRARY_LAYOUT, LIBRARY_SELECTION, \
+        LIBRARY_SOURCE, LIBRARY_STRATEGY, PLATFORMS
 
-from mongoengine import connect
-
-from sramongo import db_schema as dbs
 
 def valid_path(func):
     def new_func(*args, **kwargs):
@@ -25,13 +25,14 @@ class AmbiguousElementException(Exception):
     pass
 
 
-class AmbiguousElementException(Exception):
+class XMLSchemaException(Exception):
+    """Unexpected value given SRA xml schema definition."""
     pass
 
 
 class SraExperiment(object):
     def __init__(self, node, db_name='sraDB'):
-        """ Class to parse SRA experiments and add them to mongoDB.
+        """Class to parse SRA experiments and add them to mongoDB.
 
         Parameters
         ----------
@@ -39,11 +40,12 @@ class SraExperiment(object):
             Experiment level node as an ElemenTree element.
 
         db_name: str
-            Name of the database to use. NOTE: monoDB server needs to be running.
+            Name of the database to use. NOTE: monoDB server needs to be
+            running.
 
         """
         # connect to database
-        #self.db = MongoClient(db_name)
+        # self.db = MongoClient(db_name)
 
         # parse different sections for SRA xml
         self.organization = self.parse_organization(node.find('Organization'))
@@ -78,11 +80,16 @@ class SraExperiment(object):
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'study'))
         d.update(self._parse_links(node.find('STUDY_LINKS')))
         d.update(self._parse_study_type(node.find('DESCRIPTOR/STUDY_TYPE')))
+        d.update(self._parse_study_related_study(
+            node.find('DESCRIPTOR/RELATED_STUDIES')))
 
         locs = {
                 'title': ('DESCRIPTOR/STUDY_TITLE', 'text'),
                 'abstract': ('DESCRIPTOR/STUDY_ABSTRACT', 'text'),
-                'center_project_name': ('DESCRIPTOR/CENTER_PROJECT_NAME', 'text')
+                'center_name': ('.', 'center_name'),
+                'center_project_name': (
+                    'DESCRIPTOR/CENTER_PROJECT_NAME', 'text'),
+                'description': ('DESCRIPTOR/STUDY_DESCRIPTION', 'text'),
                 }
         d.update(self._parse_relationships(node, locs))
 
@@ -99,21 +106,58 @@ class SraExperiment(object):
                 'title': ('TITLE', 'text'),
                 'study': ('STUDY_REF/IDENTIFIERS/PRIMARY_ID', 'text'),
                 'design': ('DESIGN/DESIGN_DESCRIPTION', 'text'),
-                'library_name': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_NAME', 'text'),
-                'library_strategy': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_STRATEGY', 'text'),
-                'library_source': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_SOURCE', 'text'),
-                'library_selection': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_SELECTION', 'text'),
-                'library_layout': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT', 'child', 'tag'),
-                'library_layout_orientation': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'ORIENTATION'),
-                'library_layout_length': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_LENGTH'),
-                'library_layout_sdev': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_SDEV'),
-                'pooling_stategy': ('DESIGN/LIBRARY_DESCRIPTOR/POOLING_STRATEGY', 'text'),
-                'library_construction_protocol': ('DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_CONSTRUCTION_PROTOCOL', 'text'),
+                'library_name': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_NAME', 'text'),
+                'library_strategy': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_STRATEGY', 'text'),
+                'library_source': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_SOURCE', 'text'),
+                'library_selection': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_SELECTION', 'text'),
+                'library_layout': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT',
+                    'child', 'tag'),
+                'library_layout_orientation': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
+                    'ORIENTATION'),
+                'library_layout_length': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
+                    'NOMINAL_LENGTH'),
+                'library_layout_sdev': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
+                    'NOMINAL_SDEV'),
+                'pooling_stategy': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/POOLING_STRATEGY',
+                    'text'),
+                'library_construction_protocol': (
+                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_CONSTRUCTION_PROTOCOL',
+                    'text'),
                 'platform': ('PLATFORM', 'child', 'tag'),
                 'instrument_model': ('PLATFORM/*/INSTRUMENT_MODEL', 'text'),
                 }
 
         d.update(self._parse_relationships(node, locs))
+
+        # XSD Validation
+        if not d['library_strategy'] in LIBRARY_STRATEGY:
+            raise XMLSchemaException('library_strategy')
+        if not d['library_source'] in LIBRARY_SOURCE:
+            raise XMLSchemaException('library_source')
+        if not d['library_selection'] in LIBRARY_SELECTION:
+            raise XMLSchemaException('library_selection')
+        if not d['library_selection'] in LIBRARY_SELECTION:
+            raise XMLSchemaException('library_selection')
+        if not d['library_layout'] in LIBRARY_LAYOUT:
+            raise XMLSchemaException('library_layout')
+        if not d['platform'] in PLATFORMS:
+            raise XMLSchemaException('platform')
+
+        # Update instrument model if depricated
+        d['instrument_model'] = INSTRUMENT_MODEL_DEPRICATED.get(
+                d['instrument_model'], d['instrument_model'])
+
+        if not d['instrument_model'] in INSTRUMENT_MODEL_ACTIVE:
+            raise XMLSchemaException('instrument_model')
 
         return d
 
@@ -149,14 +193,12 @@ class SraExperiment(object):
         for run in node.findall('RUN'):
             d = dict()
             d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
-            d['pool'] = self.parse_pool(run.find('Pool'))
+            d['samples'] = self.parse_pool(run.find('Pool'))
             d.update(self._parse_taxon(run.find('tax_analysis')))
             d.update(self._parse_run_reads(run.find('Statistics')))
 
             locs = {
-                    'experiment': ('EXPERIMENT_REF', 'accession'),
-                    'platform': ('PLATFORM', 'child', 'tag'),
-                    'instrument_model': ('PLATFORM/*/INSTRUMENT_MODEL', 'text'),
+                    'experiment_id': ('EXPERIMENT_REF', 'accession'),
                     'nspots': ('Statistics', 'nspots'),
                     'nbases': ('Bases', 'count'),
                     }
@@ -168,7 +210,7 @@ class SraExperiment(object):
         return runs
 
     def _raise_xref_status(self, xref):
-        """ Some xrefs are more imporant and I want to pull them out.
+        """Some xrefs are more imporant and I want to pull them out.
 
         xrefs to specific databases I am interested in should be pulled out and
         stored separately. Go ahead and normalized database names and values a
@@ -192,14 +234,15 @@ class SraExperiment(object):
 
         if norm in db_map.keys():
             # Normalize the ids a little
-            id_norm = re.sub('geo|gds|bioproject|biosample|pubmed|pmid', '', xref['id'].lower()).strip(' :().').upper()
+            id_norm = re.sub('geo|gds|bioproject|biosample|pubmed|pmid',
+                             '', xref['id'].lower()).strip(' :().').upper()
             return db_map[norm], id_norm
         else:
             return False
 
     @valid_path
     def _parse_study_type(self, node):
-        """ Processes study types.
+        """Processes study types.
 
         node: xml.etree.ElementTree.ElementTree.element
             'STUDY/DESCRIPTOR/STUDY_TYPE'
@@ -207,14 +250,39 @@ class SraExperiment(object):
         d = dict()
         if node.get('existing_study_type'):
             d['type'] = node.get('existing_study_type')
+
+            # XSD Validation
+            # If depricated replace with active type
+            d['type'] = EXISTING_STUDY_TYPES_DEPRICATED.get(
+                    d['type'], d['type'])
+
+            # Make sure study type is in current active types
+            if not d['type'] in EXISTING_STUDY_TYPES_ACTIVE:
+                raise XMLSchemaException('Study type')
+
         elif node.get('new_study_type'):
             d['type'] = node.get('new_study_type')
 
         return d
 
     @valid_path
+    def _parse_study_related_study(self, node):
+        """Parses related study information."""
+        links = []
+        for study in node:
+            d = dict()
+            d['db'] = study.find('RELATED_LINK/DB').text
+            d['id'] = study.find('RELATED_LINK/ID').text
+            d['label'] = study.find('RELATED_LINK/LABEL').text
+            d['is_primary'] = study.find('IS_PRIMARY').text
+            links.append(d)
+
+        d = {'related_studies': links}
+        return d
+
+    @valid_path
     def _parse_relationships(self, node, locs):
-        """ Processes key locations.
+        """Processes key locations.
 
         node: xml.etree.ElementTree.ElementTree.element
             Current node.
@@ -226,14 +294,16 @@ class SraExperiment(object):
 
                 * 'text': assumes the wanted is the text element of the path.
                 * 'child': assumes that the child of the given path is wanted.
-                * str: Any other string will be treated as an attribute lookup of the path.
+                * str: Any other string will be treated as an attribute lookup
+                       of the path.
 
             If 'child' is given, then a third element needs to be given
             indicating the type of processing. Possible values are:
 
                 * 'text': assumes the wanted is the text element of the path.
                 * 'tag': assumes the wanted is the class tag of the path.
-                * str: Any other string will be treated as an attribute lookup of the path.
+                * str: Any other string will be treated as an attribute lookup
+                       of the path.
 
         """
         d = dict()
@@ -245,7 +315,8 @@ class SraExperiment(object):
                     child = node.find(l[0]).getchildren()
 
                     if len(child) > 1:
-                        raise AmbiguousElementException('There are too many elements')
+                        raise AmbiguousElementException(
+                                'There are too many elements')
                     elif l[2] == 'text':
                         d[n] = child[0].text
                     elif l[2] == 'tag':
@@ -259,7 +330,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_ids(self, node, namespace):
-        """ Helper function to parse IDENTIFIERS section.
+        """Helper function to parse IDENTIFIERS section.
 
         Parameters
         ----------
@@ -286,7 +357,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_link_parts(self, node):
-        """ Parse the different parts of a link.
+        """Parse the different parts of a link.
 
         In SRA a link can have a {label, db, id, query, url}. This function
         iterates over the different attributes and pulls out the bits of
@@ -305,10 +376,10 @@ class SraExperiment(object):
 
     @valid_path
     def _update_link(self, node, _type, d):
-        """ Given a type of url search for it and return a dict. """
+        """Given a type of url search for it and return a dict."""
 
         def search(_type):
-            """ Returns ElemenTree search string. """
+            """Returns ElemenTree search string."""
             return '*/' + _type.upper()
 
         for l in node.findall(search(_type)):
@@ -322,7 +393,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_links(self, node):
-        """ Parse various types of links in the SRA.
+        """Parse various types of links in the SRA.
 
         Parameters
         ----------
@@ -340,7 +411,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_attributes(self, node):
-        """ Parse various attributes.
+        """Parse various attributes.
 
         Parameters
         ----------
@@ -357,17 +428,13 @@ class SraExperiment(object):
             if re.match('\w+\d+', value_norm):
                 value_norm = value_norm.upper()
 
-            d['attribute'][key_norm] = value_norm
+            d['attributes'][key_norm] = value_norm
 
         return d
 
     @valid_path
     def _parse_taxon(self, node):
-        """ Parse taxonomy informaiton. """
-        d = dict()
-        d['nspot_analyze'] = node.get('analyzed_spot_count')
-        d['total_spots'] = node.get('total_spot_count')
-        d['mapped_spots'] = node.get('identified_spot_count')
+        """Parse taxonomy informaiton."""
 
         def crawl(node):
             d = {}
@@ -382,36 +449,49 @@ class SraExperiment(object):
                     d.update(crawl(i))
             return d
 
-        d['tax_counts'] = crawl(node)
+        d = {'tax_analysis': {
+                'nspot_analyze': node.get('analyzed_spot_count'),
+                'total_spots': node.get('total_spot_count'),
+                'mapped_spots': node.get('identified_spot_count'),
+                'tax_counts': crawl(node),
+                },
+             }
 
         return d
 
     @valid_path
     def _parse_run_reads(self, node):
-        """ Parse reads from runs. """
+        """Parse reads from runs."""
         d = dict()
-
-        if node.get('nreads') == "1":
+        d['nreads'] = node.get('nreads')
+        if d['nreads'] == "1":
             read = node.find('Read')
-            d['nreads'] = read.get('count')
+            d['read_count'] = read.get('count')
             d['read_len'] = read.get('average')
         else:
             rid = {"0": '_r1', "1": '_r2'}
             for read in node.findall('Read'):
                 index = rid[read.get('index')]
-                d['nreads' + index] = read.get('count')
+                d['read_count' + index] = read.get('count')
                 d['read_len' + index] = read.get('average')
 
-        return d
+            # Validate that reads that PE reads have similar lengths and counts
+            if d['read_len_r1'] != d['read_len_r2']:
+                raise ValueError('Read lengths are not equal')
 
+            if d['read_count_r1'] != d['read_count_r2']:
+                raise ValueError('Read counts are not equal')
+
+        return d
 
 
 def parse_sra_xml(xml):
     tree = ElementTree.parse(xml)
     root = tree.getroot()
-
+    sras = []
     for package in root:
-        sraExp = SraExperiment(package)
+        sras.append(SraExperiment(package))
+    return sras
 
 if __name__ == '__main__':
     pass

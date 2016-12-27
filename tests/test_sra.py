@@ -55,7 +55,7 @@ class TestSRR3001915:
         assert sraTree.experiment['platform'] == 'ILLUMINA'
         assert sraTree.experiment['instrument_model'] == 'Illumina HiSeq 2000'
         assert sraTree.experiment['GEO_Dataset'] == '301973128'
-        assert sraTree.experiment['attribute']['geo accession'] == 'GSM1973128'
+        assert sraTree.experiment['attributes']['geo accession'] == 'GSM1973128'
 
     def test_parse_sample(self, sraTree):
         assert sraTree.sample['sample_id'] == 'SRS679015'
@@ -65,11 +65,11 @@ class TestSRR3001915:
         assert sraTree.sample['taxon_id'] == '7227'
         assert sraTree.sample['scientific_name'] == 'Drosophila melanogaster'
         assert sraTree.sample['BioProject'] == '258012'
-        assert sraTree.sample['attribute']['source_name'] == 'whole body'
-        assert sraTree.sample['attribute']['strain'] == 'dgrp-563'
-        assert sraTree.sample['attribute']['developmental stage'] == 'adult'
-        assert sraTree.sample['attribute']['sex'] == 'male'
-        assert sraTree.sample['attribute']['tissue'] == 'whole body'
+        assert sraTree.sample['attributes']['source_name'] == 'whole body'
+        assert sraTree.sample['attributes']['strain'] == 'dgrp-563'
+        assert sraTree.sample['attributes']['developmental stage'] == 'adult'
+        assert sraTree.sample['attributes']['sex'] == 'male'
+        assert sraTree.sample['attributes']['tissue'] == 'whole body'
 
     def test_parse_pool(self, sraTree):
         assert sraTree.pool[0]['sample_id'] == 'SRS679015'
@@ -78,21 +78,20 @@ class TestSRR3001915:
 
     def test_run(self, sraTree):
         assert sraTree.run[0]['run_id'] == 'SRR3001915'
-        assert sraTree.run[0]['pool'][0]['sample_id'] == 'SRS679015'
-        assert sraTree.run[0]['pool'][0]['BioSample'] == 'SAMN02981965'
-        assert sraTree.run[0]['pool'][0]['GEO'] == 'GSM1471477'
-        assert sraTree.run[0]['experiment'] == 'SRX1483046'
-        assert sraTree.run[0]['platform'] == 'ILLUMINA'
-        assert sraTree.run[0]['instrument_model'] == 'Illumina HiSeq 2000'
+        assert sraTree.run[0]['samples'][0]['sample_id'] == 'SRS679015'
+        assert sraTree.run[0]['samples'][0]['BioSample'] == 'SAMN02981965'
+        assert sraTree.run[0]['samples'][0]['GEO'] == 'GSM1471477'
+        assert sraTree.run[0]['experiment_id'] == 'SRX1483046'
         assert sraTree.run[0]['nspots'] == '2001211'
-        assert sraTree.run[0]['nreads'] == '2001211'
-        assert sraTree.run[0]['read_len'] == '76'
         assert sraTree.run[0]['nbases'] == '152092036'
-        assert sraTree.run[0]['tax_counts']['Neoptera']['parent'] == 'Pterygota'
-        assert sraTree.run[0]['tax_counts']['Neoptera']['self_count'] == '95'
-        assert sraTree.run[0]['tax_counts']['Neoptera']['total_count'] == '360608'
-        assert sraTree.run[0]['tax_counts']['Neoptera']['tax_id'] == '33340'
-        assert sraTree.run[0]['tax_counts']['Neoptera']['rank'] == 'subclass'
+        assert sraTree.run[0]['nreads'] == '1'
+        assert sraTree.run[0]['read_count'] == '2001211'
+        assert sraTree.run[0]['read_len'] == '76'
+        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['parent'] == 'Pterygota'
+        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['self_count'] == '95'
+        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['total_count'] == '360608'
+        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['tax_id'] == '33340'
+        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['rank'] == 'subclass'
 
 
 class TestSRR5100239:
@@ -145,7 +144,7 @@ class TestSRR5100239:
         assert sraTree.experiment['platform'] == 'ILLUMINA'
         assert sraTree.experiment['instrument_model'] == 'Illumina HiSeq 2500'
         assert sraTree.experiment['GEO_Dataset'] == '302425536'
-        assert sraTree.experiment['attribute']['geo accession'] == 'GSM2425536'
+        assert sraTree.experiment['attributes']['geo accession'] == 'GSM2425536'
 
     def test_parse_sample(self, sraTree):
         assert sraTree.sample['sample_id'] == 'SRS1854358'
@@ -155,9 +154,9 @@ class TestSRR5100239:
         assert sraTree.sample['taxon_id'] == '7227'
         assert sraTree.sample['scientific_name'] == 'Drosophila melanogaster'
         assert sraTree.sample['BioProject'] == '357158'
-        assert sraTree.sample['attribute']['source_name'] == 'dissected testes'
-        assert sraTree.sample['attribute']['tissue'] == 'testes'
-        assert sraTree.sample['attribute']['genotype'] == 'W1118'
+        assert sraTree.sample['attributes']['source_name'] == 'dissected testes'
+        assert sraTree.sample['attributes']['tissue'] == 'testes'
+        assert sraTree.sample['attributes']['genotype'] == 'W1118'
 
     def test_parse_pool(self, sraTree):
         assert sraTree.pool[0]['sample_id'] == 'SRS1854358'
@@ -166,15 +165,14 @@ class TestSRR5100239:
 
     def test_run(self, sraTree):
         assert sraTree.run[0]['run_id'] == 'SRR5100239'
-        assert sraTree.run[0]['pool'][0]['sample_id'] == 'SRS1854358'
-        assert sraTree.run[0]['pool'][0]['BioSample'] == 'SAMN06134387'
-        assert sraTree.run[0]['pool'][0]['GEO'] == 'GSM2425536'
-        assert sraTree.run[0]['experiment'] == 'SRX2416970'
-        assert sraTree.run[0]['platform'] == 'ILLUMINA'
-        assert sraTree.run[0]['instrument_model'] == 'Illumina HiSeq 2500'
+        assert sraTree.run[0]['samples'][0]['sample_id'] == 'SRS1854358'
+        assert sraTree.run[0]['samples'][0]['BioSample'] == 'SAMN06134387'
+        assert sraTree.run[0]['samples'][0]['GEO'] == 'GSM2425536'
+        assert sraTree.run[0]['experiment_id'] == 'SRX2416970'
         assert sraTree.run[0]['nspots'] == '25818690'
-        assert sraTree.run[0]['nreads_r1'] == '25818690'
-        assert sraTree.run[0]['read_len_r1'] == '50'
-        assert sraTree.run[0]['nreads_r2'] == '25818690'
-        assert sraTree.run[0]['read_len_r2'] == '50'
         assert sraTree.run[0]['nbases'] == '2581869000'
+        assert sraTree.run[0]['nreads'] == '2'
+        assert sraTree.run[0]['read_count_r1'] == '25818690'
+        assert sraTree.run[0]['read_len_r1'] == '50'
+        assert sraTree.run[0]['read_count_r2'] == '25818690'
+        assert sraTree.run[0]['read_len_r2'] == '50'
