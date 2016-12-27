@@ -5,7 +5,7 @@ EXISTING_STUDY_TYPES_ACTIVE = [
     "Epigenetics",
     "Exome Sequencing",
     "Metagenomics",
-    "Other"
+    "Other",
     "Pooled Clone Sequencing",
     "Population Genomics",
     "Synthetic Genomics",
@@ -17,7 +17,7 @@ EXISTING_STUDY_TYPES_DEPRICATED = {
     "Resequencing": "Whole Genome Sequencing",
     "Forensic or Paleo-genomics": "Other",
     "Gene Regulation Study": "Transcriptome Analysis",
-    "RNASeq": "Transcriptome Sequencing"
+    "RNASeq": "Transcriptome Sequencing",
     }
 
 LIBRARY_STRATEGY = [

@@ -64,9 +64,9 @@ class Submission(EmbeddedDocument):
     pubmed = StringField()
 
     # Other IDS
-    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
 
 class Organization(EmbeddedDocument):
@@ -90,9 +90,9 @@ class Study(Document):
     pubmed = StringField()
 
     # Other IDs
-    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
     # Attributes
     title = StringField()
@@ -138,9 +138,9 @@ class Experiment(Document):
     pubmed = StringField()
 
     # Other IDs
-    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
     # Attributes
     title = StringField()
@@ -185,9 +185,9 @@ class Sample(Document):
     pubmed = StringField()
 
     # Other IDs
-    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
     # Attributes
     title = StringField()
@@ -210,9 +210,9 @@ class Run(Document):
     run_id = StringField(required=True, unique=True)
 
     # Other IDs
-    external_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    secondary_ids = ListField(EmbeddedDocumentField(Xref), default=list)
-    submitter_ids = ListField(EmbeddedDocumentField(Xref), default=list)
+    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
     # Attributes
     experiment_id = ReferenceField(Experiment)

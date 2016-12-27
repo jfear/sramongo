@@ -26,20 +26,22 @@ class SraExperiment(object):
 
         """
         # parse different sections for SRA xml
-        self.organization = self.parse_organization(node.find('Organization'))
-        self.submission = self.parse_submission(node.find('SUBMISSION'))
-        self.study = self.parse_study(node.find('STUDY'))
-        self.experiment = self.parse_experiment(node.find('EXPERIMENT'))
-        self.sample = self.parse_sample(node.find('SAMPLE'))
-        self.pool = self.parse_pool(node.find('Pool'))
-        self.run = self.parse_run(node.find('RUN_SET'))
+        self.organization = self._parse_organization(node.find('Organization'))
+        self.submission = self._parse_submission(node.find('SUBMISSION'))
+        self.study = self._parse_study(node.find('STUDY'))
+        self.experiment = self._parse_experiment(node.find('EXPERIMENT'))
+        self.sample = self._parse_sample(node.find('SAMPLE'))
+        self.pool = self._parse_pool(node.find('Pool'))
+        self.run = self._parse_run(node.find('RUN_SET'))
 
-    def parse_submission(self, node):
+    @valid_path
+    def _parse_submission(self, node):
         d = dict()
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'submission'))
         return d
 
-    def parse_organization(self, node):
+    @valid_path
+    def _parse_organization(self, node):
         d = dict()
         locs = {
                 'type': ('.', 'type'),
@@ -53,7 +55,8 @@ class SraExperiment(object):
 
         return d
 
-    def parse_study(self, node):
+    @valid_path
+    def _parse_study(self, node):
         d = dict()
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'study'))
         d.update(self._parse_links(node.find('STUDY_LINKS')))
@@ -73,7 +76,8 @@ class SraExperiment(object):
 
         return d
 
-    def parse_experiment(self, node):
+    @valid_path
+    def _parse_experiment(self, node):
         d = dict()
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'experiment'))
@@ -139,7 +143,8 @@ class SraExperiment(object):
 
         return d
 
-    def parse_sample(self, node):
+    @valid_path
+    def _parse_sample(self, node):
         d = dict()
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'sample'))
@@ -158,7 +163,8 @@ class SraExperiment(object):
 
         return d
 
-    def parse_pool(self, node):
+    @valid_path
+    def _parse_pool(self, node):
         pool = []
         for member in node:
             d = dict()
@@ -166,12 +172,13 @@ class SraExperiment(object):
             pool.append(d)
         return pool
 
-    def parse_run(self, node):
+    @valid_path
+    def _parse_run(self, node):
         runs = []
         for run in node.findall('RUN'):
             d = dict()
             d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
-            d['samples'] = self.parse_pool(run.find('Pool'))
+            d['samples'] = self._parse_pool(run.find('Pool'))
             d.update(self._parse_taxon(run.find('tax_analysis')))
             d.update(self._parse_run_reads(run.find('Statistics')))
 
@@ -236,7 +243,7 @@ class SraExperiment(object):
 
             # Make sure study type is in current active types
             if not d['type'] in EXISTING_STUDY_TYPES_ACTIVE:
-                raise XMLSchemaException('Study type')
+                raise XMLSchemaException('Study type: {}'.format(d['type']))
 
         elif node.get('new_study_type'):
             d['type'] = node.get('new_study_type')
