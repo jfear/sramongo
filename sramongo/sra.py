@@ -20,7 +20,7 @@ class XMLSchemaException(Exception):
 
 
 class SraExperiment(object):
-    def __init__(self, node, db_name='sraDB'):
+    def __init__(self, node):
         """Class to parse SRA experiments and add them to mongoDB.
 
         Parameters
@@ -28,14 +28,7 @@ class SraExperiment(object):
         node: xml.etree.ElementTree.ElementTree.Element
             Experiment level node as an ElemenTree element.
 
-        db_name: str
-            Name of the database to use. NOTE: monoDB server needs to be
-            running.
-
         """
-        # connect to database
-        # self.db = MongoClient(db_name)
-
         # parse different sections for SRA xml
         self.organization = self.parse_organization(node.find('Organization'))
         self.submission = self.parse_submission(node.find('SUBMISSION'))
