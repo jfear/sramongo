@@ -3,15 +3,11 @@
 import re
 from xml.etree import ElementTree
 from collections import defaultdict
-from sramongo.xml_helpers import valid_path
+from sramongo.xml_helpers import valid_path, parse_tree_from_dict
 from sramongo.sra_const import EXISTING_STUDY_TYPES_ACTIVE, \
         EXISTING_STUDY_TYPES_DEPRICATED, INSTRUMENT_MODEL_ACTIVE, \
         INSTRUMENT_MODEL_DEPRICATED, LIBRARY_LAYOUT, LIBRARY_SELECTION, \
         LIBRARY_SOURCE, LIBRARY_STRATEGY, PLATFORMS
-
-
-class AmbiguousElementException(Exception):
-    pass
 
 
 class XMLSchemaException(Exception):
@@ -53,7 +49,7 @@ class SraExperiment(object):
                 'first_name': ('Contact/Name/First', 'text'),
                 'last_name': ('Contact/Name/Last', 'text'),
                 }
-        d.update(self._parse_relationships(node, locs))
+        d.update(parse_tree_from_dict(node, locs))
 
         return d
 
@@ -73,7 +69,7 @@ class SraExperiment(object):
                     'DESCRIPTOR/CENTER_PROJECT_NAME', 'text'),
                 'description': ('DESCRIPTOR/STUDY_DESCRIPTION', 'text'),
                 }
-        d.update(self._parse_relationships(node, locs))
+        d.update(parse_tree_from_dict(node, locs))
 
         return d
 
@@ -118,7 +114,7 @@ class SraExperiment(object):
                 'instrument_model': ('PLATFORM/*/INSTRUMENT_MODEL', 'text'),
                 }
 
-        d.update(self._parse_relationships(node, locs))
+        d.update(parse_tree_from_dict(node, locs))
 
         # XSD Validation
         if not d['library_strategy'] in LIBRARY_STRATEGY:
@@ -158,7 +154,7 @@ class SraExperiment(object):
                 'individual_name': ('SAMPLE_NAME/INDIVIDUAL_NAME', 'text'),
                 'description': ('SAMPLE/DESCRIPTION', 'text'),
                 }
-        d.update(self._parse_relationships(node, locs))
+        d.update(parse_tree_from_dict(node, locs))
 
         return d
 
@@ -185,7 +181,7 @@ class SraExperiment(object):
                     'nbases': ('Bases', 'count'),
                     }
 
-            d.update(self._parse_relationships(run, locs))
+            d.update(parse_tree_from_dict(run, locs))
 
             runs.append(d)
 
@@ -260,54 +256,6 @@ class SraExperiment(object):
             links.append(d)
 
         d = {'related_studies': links}
-        return d
-
-    @valid_path
-    def _parse_relationships(self, node, locs):
-        """Processes key locations.
-
-        node: xml.etree.ElementTree.ElementTree.element
-            Current node.
-        locs: dict
-            A dictionary mapping key to a tuple. The tuple can either be 2 or 3
-            elements long. The first element maps to the location in the
-            current node. The second element given a processing hint. Possible
-            values are:
-
-                * 'text': assumes the wanted is the text element of the path.
-                * 'child': assumes that the child of the given path is wanted.
-                * str: Any other string will be treated as an attribute lookup
-                       of the path.
-
-            If 'child' is given, then a third element needs to be given
-            indicating the type of processing. Possible values are:
-
-                * 'text': assumes the wanted is the text element of the path.
-                * 'tag': assumes the wanted is the class tag of the path.
-                * str: Any other string will be treated as an attribute lookup
-                       of the path.
-
-        """
-        d = dict()
-        for n, l in locs.items():
-            try:
-                if l[1] == 'text':
-                    d[n] = node.find(l[0]).text
-                elif l[1] == 'child':
-                    child = node.find(l[0]).getchildren()
-
-                    if len(child) > 1:
-                        raise AmbiguousElementException(
-                                'There are too many elements')
-                    elif l[2] == 'text':
-                        d[n] = child[0].text
-                    elif l[2] == 'tag':
-                        d[n] = child[0].tag
-                else:
-                    d[n] = node.find(l[0]).get(l[1])
-            except:
-                pass
-
         return d
 
     @valid_path
@@ -465,6 +413,35 @@ class SraExperiment(object):
                 raise ValueError('Read counts are not equal')
 
         return d
+
+
+class SraRunInfo(object):
+    def __init__(self, node):
+        """Parses RunInfo to grab some additional information.
+
+        Unfortunatly the 'full' xml does not have all of the aviable
+        information.  There are some additional fields that are aviable in the
+        runinfo|docsum. In particular the CreateDate.
+
+        The runinfo can be obtained with the following:
+
+        efetch -db sra -format runinfo -mode xml
+
+        Parameters
+        ----------
+        node: xml.etree.ElementTree.ElementTree.Element
+            A Row element from a runinfo xml as an ElemenTree element.
+
+        """
+        locs = {
+                'run_id': ('Run', 'text'),
+                'release_date': ('ReleaseDate', 'text'),
+                'load_date': ('LoadDate', 'text'),
+                'consent': ('Consent', 'text'),
+                'run_hash': ('RunHash', 'text'),
+                'read_hash': ('ReadHash', 'text'),
+                }
+        self.__dict__.update(parse_tree_from_dict(node, locs))
 
 
 def parse_sra_xml(xml):

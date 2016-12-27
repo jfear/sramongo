@@ -3,7 +3,8 @@ from xml.etree import ElementTree
 
 import pytest
 
-from sramongo.sra import SraExperiment
+from sramongo.sra import SraExperiment, SraRunInfo
+
 
 class TestSRR3001915:
     @pytest.fixture(scope='class')
@@ -176,3 +177,25 @@ class TestSRR5100239:
         assert sraTree.run[0]['read_len_r1'] == '50'
         assert sraTree.run[0]['read_count_r2'] == '25818690'
         assert sraTree.run[0]['read_len_r2'] == '50'
+
+
+class TestSRR3001915:
+    @pytest.fixture(scope='class')
+    def sra_etree(self):
+        """ Element tree of single sra experiment. """
+        fname = 'data/sra_SRR3001915_runinfo.xml'
+        tree = ElementTree.parse(fname)
+        root = tree.getroot()
+        return root.find('Row')
+
+    @pytest.fixture(scope='class')
+    def sraTree(self, sra_etree):
+        return SraRunInfo(sra_etree)
+
+    def test_parse(self, sraTree):
+        assert sraTree.run_id == 'SRR3001915'
+        assert sraTree.release_date == '2015-12-21'
+        assert sraTree.load_date == '2015-12-15'
+        assert sraTree.consent == 'public'
+        assert sraTree.run_hash == '565B5B7D846F21B0FF86D770445560DA'
+        assert sraTree.read_hash == 'F39A9755010159B1E08869CF5D920C40'
