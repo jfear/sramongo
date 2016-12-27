@@ -3,22 +3,11 @@
 import re
 from xml.etree import ElementTree
 from collections import defaultdict
+from sramongo.xml_helpers import valid_path
 from sramongo.sra_const import EXISTING_STUDY_TYPES_ACTIVE, \
         EXISTING_STUDY_TYPES_DEPRICATED, INSTRUMENT_MODEL_ACTIVE, \
         INSTRUMENT_MODEL_DEPRICATED, LIBRARY_LAYOUT, LIBRARY_SELECTION, \
         LIBRARY_SOURCE, LIBRARY_STRATEGY, PLATFORMS
-
-
-def valid_path(func):
-    def new_func(*args, **kwargs):
-        # If the current path is present
-        if args[1] is None:
-            print('Not valid path.', func, args)
-            return {}
-        else:
-            return func(*args, **kwargs)
-
-    return new_func
 
 
 class AmbiguousElementException(Exception):
