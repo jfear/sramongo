@@ -87,7 +87,7 @@ class SraExperiment(object):
 
         locs = {
             'title': ('TITLE', 'text'),
-            'study': ('STUDY_REF/IDENTIFIERS/PRIMARY_ID', 'text'),
+            'study_id': ('STUDY_REF/IDENTIFIERS/PRIMARY_ID', 'text'),
             'design': ('DESIGN/DESIGN_DESCRIPTION', 'text'),
             'library_name': (
                 'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_NAME', 'text'),

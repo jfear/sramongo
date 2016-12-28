@@ -5,7 +5,7 @@ from mongoengine import StringField, ListField, DictField
 from mongoengine import EmbeddedDocumentField, ReferenceField
 
 
-class SraString(object):
+class DocumentString(object):
     def __init__(self, document):
         """Represents mongo Document as strings.
 
@@ -44,10 +44,11 @@ class SraString(object):
                 self.add_element(k, v, spacer=spacer)
             elif isinstance(v, list):
                 self.add_list(k, v, spacer=spacer)
-            elif isinstance(v, EmbeddedDocument):
+            elif isinstance(v, EmbeddedDocument) | isinstance(v, Document):
                 self.add_embeded_document(k, v, spacer=spacer)
             else:
-                raise TypeError
+                print(k, v, type(v))
+                pass
 
     def add_element(self, key, value, spacer=0):
         """Add key value pair to string for pretty printing."""
@@ -95,7 +96,7 @@ class URLLink(EmbeddedDocument):
     url = StringField()
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class Xref(EmbeddedDocument):
@@ -103,7 +104,7 @@ class Xref(EmbeddedDocument):
     id = StringField()
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class XrefLink(EmbeddedDocument):
@@ -113,28 +114,28 @@ class XrefLink(EmbeddedDocument):
     meta = {'allow_inheritance': True}
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class EntrezLink(XrefLink):
     query = StringField()
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class DDBJLink(XrefLink):
     url = StringField()
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class ENALink(XrefLink):
     url = StringField()
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 # Study
@@ -148,7 +149,7 @@ class Submission(EmbeddedDocument):
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class Organization(EmbeddedDocument):
@@ -160,7 +161,7 @@ class Organization(EmbeddedDocument):
     last_name = StringField()
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class RelatedStudy(XrefLink):
@@ -168,6 +169,7 @@ class RelatedStudy(XrefLink):
 
 
 class Study(Document):
+    # SRA/DRA/ERA
     study_id = StringField(primary_key=True)
 
     # Look through the external/secondary/submitter for these database xrefs
@@ -203,30 +205,22 @@ class Study(Document):
     # NOTE: Additional Fields added post creation
     submission = EmbeddedDocumentField(Submission)
     organization = EmbeddedDocumentField(Organization)
+    experiments = ListField(StringField(), default=list)
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 # Samples
-class Pool(EmbeddedDocument):
-    sample_id = StringField()
-    GEO = StringField()
-    BioSample = StringField()
-
-    def __str__(self):
-        return SraString(self).string
-
-
 class Sample(Document):
-    sample_id = StringField(required=True, unique=True)
+    # SRS/DRS/ERS
+    sample_id = StringField(primary_key=True)
 
     # Look through the external/secondary/submitter for these database xrefs
     # and pull them out for easy access.
     GEO = StringField()
-    GEO_Dataset = StringField()
-    BioProject = StringField()
     BioSample = StringField()
+    BioProject = StringField()
     pubmed = StringField()
 
     # Other IDs
@@ -251,19 +245,27 @@ class Sample(Document):
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 # Experiment
+class Pool(EmbeddedDocument):
+    sample_id = ReferenceField(Sample)
+    GEO = StringField()
+    BioSample = StringField()
+
+    def __str__(self):
+        return DocumentString(self).string
+
+
 class Experiment(Document):
-    experiment_id = StringField(required=True, unique=True)
+    # SRX/DRX/ERX
+    experiment_id = StringField(primary_key=True)
 
     # Look through the external/secondary/submitter for these database xrefs
     # and pull them out for easy access.
     GEO = StringField()
     GEO_Dataset = StringField()
-    BioProject = StringField()
-    BioSample = StringField()
     pubmed = StringField()
 
     # Other IDs
@@ -273,6 +275,7 @@ class Experiment(Document):
 
     # Attributes
     title = StringField()
+    study_id = StringField()
     design = StringField()
     library_name = StringField()
     library_strategy = StringField()
@@ -283,7 +286,7 @@ class Experiment(Document):
     library_layout_nominal_length = StringField()
     library_layout_nominal_sdev = StringField()
     pooling_strategey = StringField()
-    library_contruction_protocol = StringField('library_construction_protocol')
+    library_construction_protocol = StringField()
     platform = StringField()
     instrument_model = StringField()
     attributes = DictField()
@@ -301,8 +304,11 @@ class Experiment(Document):
     # NOTE: Additional Fields added post creation
     samples = ListField(EmbeddedDocumentField(Pool))
 
+    # NOTE: Additional Fields added post creation
+    runs = ListField(StringField(), default=list)
+
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 # Run
@@ -314,7 +320,7 @@ class TaxRecord(EmbeddedDocument):
     rank = StringField()
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class TaxAnalysis(EmbeddedDocument):
@@ -324,11 +330,12 @@ class TaxAnalysis(EmbeddedDocument):
     tax_counts = EmbeddedDocumentField(TaxRecord)
 
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string
 
 
 class Run(Document):
-    run_id = StringField(required=True, unique=True)
+    # SRR/DRR/ERR
+    run_id = StringField(primary_key=True)
 
     # Other IDs
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
@@ -336,7 +343,7 @@ class Run(Document):
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
     # Attributes
-    experiment_id = ReferenceField(Experiment)
+    experiment_id = StringField()
     samples = ListField(EmbeddedDocumentField(Pool), default=list)
     nspots = StringField()
     nbases = StringField()
@@ -354,5 +361,8 @@ class Run(Document):
     read_count_r2 = StringField()
     read_len_r2 = StringField()
 
+    # NOTE: Additional Fields added post creation
+    experiment = ReferenceField(Experiment)
+
     def __str__(self):
-        return SraString(self).string
+        return DocumentString(self).string

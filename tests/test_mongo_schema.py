@@ -1,8 +1,10 @@
 """Tests for mongo_schema.py"""
 from textwrap import dedent
 from sramongo.mongo_schema import URLLink, Xref, XrefLink, \
-        EntrezLink, DDBJLink, ENALink, Submission, Organization, \
-        Study
+    EntrezLink, DDBJLink, ENALink, Submission, Organization, \
+    Study, Sample, Experiment
+
+from mongoengine import connect
 
 
 def test_URLLink_str_complete():
@@ -62,8 +64,7 @@ def test_Submission_str_complete():
     submission.external_id.append(Xref(**{'db': 'test', 'id': '1030'}))
     submission.external_id.append(Xref(**{'db': 'test2', 'id': '1032'}))
     submission.external_id.append(Xref(**{'db': 'test3', 'id': '1033'}))
-    submission.submitter_id.append(
-            Xref(**{'db': 'test', 'id': 'test submitter'}))
+    submission.submitter_id.append(Xref(**{'db': 'test', 'id': 'test submitter'}))
 
     assert str(submission).strip() == dedent("""\
         submission_id: SRA12345
@@ -146,8 +147,7 @@ def test_Study_str_partial():
     study.external_id.append(Xref(**{'db': 'test3', 'id': '1033'}))
     study.submitter_id.append(Xref(**{'db': 'test', 'id': 'test submitter'}))
 
-    study.url_links.append(
-            URLLink(**{'label': 'test', 'url': 'http://test.com'}))
+    study.url_links.append(URLLink(**{'label': 'test', 'url': 'http://test.com'}))
 
     study.organization = Organization(
         type='center', abbreviation='GEO', name='NCBI',
@@ -156,3 +156,31 @@ def test_Study_str_partial():
     assert str(study) == STUDY
 
 
+def test_study_w_sra(sraExperiment):
+    submission = Submission(**sraExperiment.submission)
+    organization = Organization(**sraExperiment.organization)
+    study = Study(submission=submission, organization=organization, **sraExperiment.study)
+    assert study.study_id == 'SRP045429'
+    assert study.submission.submitter_id[0]['db'] == 'GEO'
+
+
+def test_sample_w_sra(sraExperiment):
+    sample = Sample(**sraExperiment.sample)
+    print(sample)
+
+
+def test_experiment_w_sra(mongoDB, sraExperiment):
+    client = connect('test_sra')
+
+    try:
+        submission = Submission(**sraExperiment.submission)
+        organization = Organization(**sraExperiment.organization)
+        study = Study(submission=submission, organization=organization, **sraExperiment.study)
+        experiment = Experiment(**sraExperiment.experiment)
+        experiment.study = study
+        experiment.save()
+        study.experiments.append(experiment.id)
+        study.save()
+        print(experiment)
+    finally:
+        client.drop_database('test_sra')

@@ -179,7 +179,7 @@ class TestSRR5100239:
         assert sraTree.run[0]['read_len_r2'] == '50'
 
 
-class TestSRR3001915:
+class TestSRR3001915RunInfo:
     @pytest.fixture(scope='class')
     def sra_etree(self):
         """ Element tree of single sra experiment. """

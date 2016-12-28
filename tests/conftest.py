@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 """ Fixtures for running pytest. """
+from xml.etree import ElementTree
 
 import pytest
 
 from sramongo.mongo import start_mongo
+from sramongo.sra import SraExperiment
 
 
 @pytest.fixture(scope='session')
@@ -25,3 +27,10 @@ def mongoDB(mongo_folders):
     print('Shutting down mongoDB.')
     mongoDB.kill()
 
+
+@pytest.fixture(scope='session')
+def sraExperiment():
+    fname = 'data/sra_SRR3001915.xml'
+    tree = ElementTree.parse(fname)
+    root = tree.getroot()
+    return SraExperiment(root.find('EXPERIMENT_PACKAGE'))
