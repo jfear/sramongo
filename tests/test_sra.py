@@ -29,7 +29,7 @@ class TestSRR3001915:
 
     def test_parse_submission(self, sraTree):
         assert sraTree.submission['submission_id'] == 'SRA178685'
-        assert sraTree.submission['GEO'] == 'GSE60314'
+        assert sraTree.submission['submitter_id'][0]['id'] == ['GEO: GSE60314']
 
     def test_parse_study(self, sraTree):
         assert sraTree.study['study_id'] == 'SRP045429'
@@ -45,7 +45,7 @@ class TestSRR3001915:
 
     def test_parse_experiment(self, sraTree):
         assert sraTree.experiment['experiment_id'] == 'SRX1483046'
-        assert sraTree.experiment['GEO'] == 'GSM1973128'
+        assert sraTree.experiment['submitter_id'][0]['id'] == 'GSM1973128'
         assert sraTree.experiment['title'].strip() == 'GSM1973128: 563M322; Drosophila melanogaster; RNA-Seq'
         assert sraTree.experiment['library_strategy'] == 'RNA-Seq'
         assert sraTree.experiment['library_source'] == 'TRANSCRIPTOMIC'
@@ -118,7 +118,7 @@ class TestSRR5100239:
 
     def test_parse_submission(self, sraTree):
         assert sraTree.submission['submission_id'] == 'SRA502713'
-        assert sraTree.submission['GEO'] == 'GSE92305'
+        assert sraTree.submission['submitter_id'][0]['id'] == 'GEO: GSE92305'
 
     def test_parse_study(self, sraTree):
         assert sraTree.study['study_id'] == 'SRP094985'
@@ -133,7 +133,7 @@ class TestSRR5100239:
 
     def test_parse_experiment(self, sraTree):
         assert sraTree.experiment['experiment_id'] == 'SRX2416970'
-        assert sraTree.experiment['GEO'] == 'GSM2425536'
+        assert sraTree.experiment['submitter_id'][0]['id'] == 'GSM2425536'
         assert sraTree.experiment['title'].strip().split(' ')[1] == 'Drosophila'
         assert sraTree.experiment['title'].strip().split(' ')[-1] == 'RNA-Seq'
         assert sraTree.experiment['library_strategy'] == 'RNA-Seq'

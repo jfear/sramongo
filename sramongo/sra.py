@@ -38,6 +38,7 @@ class SraExperiment(object):
     def _parse_submission(self, node):
         d = dict()
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'submission'))
+        d.update(parse_tree_from_dict(node, {'broker': ('.', 'broker_name')}))
         return d
 
     @valid_path
@@ -282,8 +283,11 @@ class SraExperiment(object):
         for _id in node:
             if _id.tag == 'PRIMARY_ID':
                 d[namespace + '_id'] = _id.text
+            elif _id.tag == 'SUBMITTER_ID':
+                xref = {'db': _id.get('namespace'), 'id': _id.text}
+                d[_id.tag.lower()].append(xref)
             else:
-                # Other types of ids (submitter, external, secondary).
+                # Other types of ids (external, secondary).
                 xref = {'db': _id.get('namespace'), 'id': _id.text}
                 _raise = self._raise_xref_status(xref)
                 if _raise:
