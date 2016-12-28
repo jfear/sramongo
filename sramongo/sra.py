@@ -5,9 +5,9 @@ from xml.etree import ElementTree
 from collections import defaultdict
 from sramongo.xml_helpers import valid_path, parse_tree_from_dict
 from sramongo.sra_const import EXISTING_STUDY_TYPES_ACTIVE, \
-        EXISTING_STUDY_TYPES_DEPRICATED, INSTRUMENT_MODEL_ACTIVE, \
-        INSTRUMENT_MODEL_DEPRICATED, LIBRARY_LAYOUT, LIBRARY_SELECTION, \
-        LIBRARY_SOURCE, LIBRARY_STRATEGY, PLATFORMS
+    EXISTING_STUDY_TYPES_DEPRICATED, INSTRUMENT_MODEL_ACTIVE, \
+    INSTRUMENT_MODEL_DEPRICATED, LIBRARY_LAYOUT, LIBRARY_SELECTION, \
+    LIBRARY_SOURCE, LIBRARY_STRATEGY, PLATFORMS
 
 
 class XMLSchemaException(Exception):
@@ -45,13 +45,13 @@ class SraExperiment(object):
     def _parse_organization(self, node):
         d = dict()
         locs = {
-                'type': ('.', 'type'),
-                'abbreviation': ('Name', 'abbr'),
-                'name': ('Name', 'text'),
-                'email': ('Contact', 'email'),
-                'first_name': ('Contact/Name/First', 'text'),
-                'last_name': ('Contact/Name/Last', 'text'),
-                }
+            'type': ('.', 'type'),
+            'abbreviation': ('Name', 'abbr'),
+            'name': ('Name', 'text'),
+            'email': ('Contact', 'email'),
+            'first_name': ('Contact/Name/First', 'text'),
+            'last_name': ('Contact/Name/Last', 'text'),
+        }
         d.update(parse_tree_from_dict(node, locs))
 
         return d
@@ -66,13 +66,13 @@ class SraExperiment(object):
             node.find('DESCRIPTOR/RELATED_STUDIES')))
 
         locs = {
-                'title': ('DESCRIPTOR/STUDY_TITLE', 'text'),
-                'abstract': ('DESCRIPTOR/STUDY_ABSTRACT', 'text'),
-                'center_name': ('.', 'center_name'),
-                'center_project_name': (
-                    'DESCRIPTOR/CENTER_PROJECT_NAME', 'text'),
-                'description': ('DESCRIPTOR/STUDY_DESCRIPTION', 'text'),
-                }
+            'title': ('DESCRIPTOR/STUDY_TITLE', 'text'),
+            'abstract': ('DESCRIPTOR/STUDY_ABSTRACT', 'text'),
+            'center_name': ('.', 'center_name'),
+            'center_project_name': (
+                'DESCRIPTOR/CENTER_PROJECT_NAME', 'text'),
+            'description': ('DESCRIPTOR/STUDY_DESCRIPTION', 'text'),
+        }
         d.update(parse_tree_from_dict(node, locs))
 
         return d
@@ -86,38 +86,38 @@ class SraExperiment(object):
         d.update(self._parse_attributes(node.find('EXPERIMENT_ATTRIBUTES')))
 
         locs = {
-                'title': ('TITLE', 'text'),
-                'study': ('STUDY_REF/IDENTIFIERS/PRIMARY_ID', 'text'),
-                'design': ('DESIGN/DESIGN_DESCRIPTION', 'text'),
-                'library_name': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_NAME', 'text'),
-                'library_strategy': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_STRATEGY', 'text'),
-                'library_source': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_SOURCE', 'text'),
-                'library_selection': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_SELECTION', 'text'),
-                'library_layout': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT',
-                    'child', 'tag'),
-                'library_layout_orientation': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
-                    'ORIENTATION'),
-                'library_layout_length': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
-                    'NOMINAL_LENGTH'),
-                'library_layout_sdev': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
-                    'NOMINAL_SDEV'),
-                'pooling_stategy': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/POOLING_STRATEGY',
-                    'text'),
-                'library_construction_protocol': (
-                    'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_CONSTRUCTION_PROTOCOL',
-                    'text'),
-                'platform': ('PLATFORM', 'child', 'tag'),
-                'instrument_model': ('PLATFORM/*/INSTRUMENT_MODEL', 'text'),
-                }
+            'title': ('TITLE', 'text'),
+            'study': ('STUDY_REF/IDENTIFIERS/PRIMARY_ID', 'text'),
+            'design': ('DESIGN/DESIGN_DESCRIPTION', 'text'),
+            'library_name': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_NAME', 'text'),
+            'library_strategy': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_STRATEGY', 'text'),
+            'library_source': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_SOURCE', 'text'),
+            'library_selection': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_SELECTION', 'text'),
+            'library_layout': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT',
+                'child', 'tag'),
+            'library_layout_orientation': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
+                'ORIENTATION'),
+            'library_layout_length': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
+                'NOMINAL_LENGTH'),
+            'library_layout_sdev': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED',
+                'NOMINAL_SDEV'),
+            'pooling_stategy': (
+                'DESIGN/LIBRARY_DESCRIPTOR/POOLING_STRATEGY',
+                'text'),
+            'library_construction_protocol': (
+                'DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_CONSTRUCTION_PROTOCOL',
+                'text'),
+            'platform': ('PLATFORM', 'child', 'tag'),
+            'instrument_model': ('PLATFORM/*/INSTRUMENT_MODEL', 'text'),
+        }
 
         d.update(parse_tree_from_dict(node, locs))
 
@@ -136,8 +136,7 @@ class SraExperiment(object):
             raise XMLSchemaException('platform')
 
         # Update instrument model if depricated
-        d['instrument_model'] = INSTRUMENT_MODEL_DEPRICATED.get(
-                d['instrument_model'], d['instrument_model'])
+        d['instrument_model'] = INSTRUMENT_MODEL_DEPRICATED.get(d['instrument_model'], d['instrument_model'])
 
         if not d['instrument_model'] in INSTRUMENT_MODEL_ACTIVE:
             raise XMLSchemaException('instrument_model')
@@ -153,13 +152,13 @@ class SraExperiment(object):
         d.update(self._parse_attributes(node.find('SAMPLE_ATTRIBUTES')))
 
         locs = {
-                'title': ('TITLE', 'text'),
-                'taxon_id': ('SAMPLE_NAME/TAXON_ID', 'text'),
-                'scientific_name': ('SAMPLE_NAME/SCIENTIFIC_NAME', 'text'),
-                'common_name': ('SAMPLE_NAME/COMMON_NAME', 'text'),
-                'individual_name': ('SAMPLE_NAME/INDIVIDUAL_NAME', 'text'),
-                'description': ('SAMPLE/DESCRIPTION', 'text'),
-                }
+            'title': ('TITLE', 'text'),
+            'taxon_id': ('SAMPLE_NAME/TAXON_ID', 'text'),
+            'scientific_name': ('SAMPLE_NAME/SCIENTIFIC_NAME', 'text'),
+            'common_name': ('SAMPLE_NAME/COMMON_NAME', 'text'),
+            'individual_name': ('SAMPLE_NAME/INDIVIDUAL_NAME', 'text'),
+            'description': ('SAMPLE/DESCRIPTION', 'text'),
+        }
         d.update(parse_tree_from_dict(node, locs))
 
         return d
@@ -184,10 +183,10 @@ class SraExperiment(object):
             d.update(self._parse_run_reads(run.find('Statistics')))
 
             locs = {
-                    'experiment_id': ('EXPERIMENT_REF', 'accession'),
-                    'nspots': ('Statistics', 'nspots'),
-                    'nbases': ('Bases', 'count'),
-                    }
+                'experiment_id': ('EXPERIMENT_REF', 'accession'),
+                'nspots': ('Statistics', 'nspots'),
+                'nbases': ('Bases', 'count'),
+            }
 
             d.update(parse_tree_from_dict(run, locs))
 
@@ -239,8 +238,7 @@ class SraExperiment(object):
 
             # XSD Validation
             # If depricated replace with active type
-            d['type'] = EXISTING_STUDY_TYPES_DEPRICATED.get(
-                    d['type'], d['type'])
+            d['type'] = EXISTING_STUDY_TYPES_DEPRICATED.get(d['type'], d['type'])
 
             # Make sure study type is in current active types
             if not d['type'] in EXISTING_STUDY_TYPES_ACTIVE:
@@ -390,12 +388,11 @@ class SraExperiment(object):
                     d.update(crawl(i))
             return d
 
-        d = {'tax_analysis': {
-                'nspot_analyze': node.get('analyzed_spot_count'),
-                'total_spots': node.get('total_spot_count'),
-                'mapped_spots': node.get('identified_spot_count'),
-                'tax_counts': crawl(node),
-                },
+        d = {'tax_analysis': {'nspot_analyze': node.get('analyzed_spot_count'),
+                              'total_spots': node.get('total_spot_count'),
+                              'mapped_spots': node.get('identified_spot_count'),
+                              'tax_counts': crawl(node),
+                              },
              }
 
         return d
@@ -445,13 +442,13 @@ class SraRunInfo(object):
 
         """
         locs = {
-                'run_id': ('Run', 'text'),
-                'release_date': ('ReleaseDate', 'text'),
-                'load_date': ('LoadDate', 'text'),
-                'consent': ('Consent', 'text'),
-                'run_hash': ('RunHash', 'text'),
-                'read_hash': ('ReadHash', 'text'),
-                }
+            'run_id': ('Run', 'text'),
+            'release_date': ('ReleaseDate', 'text'),
+            'load_date': ('LoadDate', 'text'),
+            'consent': ('Consent', 'text'),
+            'run_hash': ('RunHash', 'text'),
+            'read_hash': ('ReadHash', 'text'),
+        }
         self.__dict__.update(parse_tree_from_dict(node, locs))
 
 
