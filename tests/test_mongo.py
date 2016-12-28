@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """ Fixtures for running pytest """
 
-import pytest
 from time import sleep
 from pymongo import MongoClient
 from sramongo.mongo import start_mongo
@@ -11,17 +10,18 @@ def test_start_mongo(mongo_folders):
     """ Test starting the database server. """
     mongoDB = start_mongo(dbDir=mongo_folders[0], logDir=mongo_folders[1])
     assert isinstance(mongoDB.pid, int)
-    assert mongoDB.poll() == None
+    assert mongoDB.poll() is None
     mongoDB.kill()
     sleep(3)
-    assert mongoDB.poll() != None
+    assert mongoDB.poll() is not None
 
 
 def test_start_mongo_command_line_args(mongo_folders):
     """ Test starting the database server. """
-    mongoDB = start_mongo(dbDir=mongo_folders[0], logDir=mongo_folders[1], command_line_args='--verbose')
+    mongoDB = start_mongo(dbDir=mongo_folders[0], logDir=mongo_folders[1],
+                          command_line_args='--verbose')
     assert isinstance(mongoDB.pid, int)
-    assert mongoDB.poll() == None
+    assert mongoDB.poll() is None
     mongoDB.kill()
 
 
