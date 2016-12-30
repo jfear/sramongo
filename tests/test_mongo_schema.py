@@ -2,7 +2,7 @@
 from textwrap import dedent
 from sramongo.mongo_schema import URLLink, Xref, XrefLink, \
     EntrezLink, DDBJLink, ENALink, Submission, Organization, \
-    Study, Sample, Experiment
+    Study, Sample, Experiment, Run
 
 from mongoengine import connect
 
@@ -183,6 +183,36 @@ def test_experiment_w_sra(mongoDB, sraExperiment):
         experiment.save()
         study.experiments.append(experiment.id)
         study.save()
-        print(experiment)
+
+        assert Study.objects(study_id=study.id)[0].experiments[0] == experiment.id
+        assert Experiment.objects(experiment_id=experiment.id)[0].study.study_id == study.id
+
+    finally:
+        client.drop_database('test_sra')
+
+
+def test_run_w_sra(mongoDB, sraExperiment):
+    client = connect('test_sra')
+
+    try:
+        submission = Submission(**sraExperiment.submission)
+        organization = Organization(**sraExperiment.organization)
+        study = Study(submission=submission, organization=organization, **sraExperiment.study)
+        study.save()
+        experiment = Experiment(**sraExperiment.experiment)
+        experiment.study = study
+        experiment.save()
+
+        runs = []
+        for r in sraExperiment.run:
+            run = Run(experiment=experiment, **r)
+            run.save()
+            runs.append(run.id)
+        experiment.runs = runs
+        experiment.save()
+
+        assert Experiment.objects(experiment_id=experiment.id)[0].runs == [run.id]
+        assert run.tax_analysis.tax_counts['Neoptera']['self_count'] == "95"
+
     finally:
         client.drop_database('test_sra')
