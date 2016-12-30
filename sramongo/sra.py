@@ -378,12 +378,13 @@ class SraExperiment(object):
         def crawl(node):
             d = {}
             for i in node:
-                d[i.get('name')] = {'parent': node.get('name'),
-                                    'total_count': i.get('total_count'),
-                                    'self_count': i.get('self_count'),
-                                    'tax_id': i.get('tax_id'),
-                                    'rank': i.get('rank')
-                                    }
+                name = i.get('name').replace('.', '_').replace('$', '')
+                d[name] = {'parent': node.get('name'),
+                           'total_count': i.get('total_count'),
+                           'self_count': i.get('self_count'),
+                           'tax_id': i.get('tax_id'),
+                           'rank': i.get('rank')
+                           }
                 if i.getchildren():
                     d.update(crawl(i))
             return d

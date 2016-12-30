@@ -1,7 +1,7 @@
 """Set up MonoDB schema using monogodngine."""
 from textwrap import fill
 from mongoengine import Document, EmbeddedDocument
-from mongoengine import StringField, ListField, DictField
+from mongoengine import StringField, ListField, DictField, MapField
 from mongoengine import EmbeddedDocumentField, ReferenceField
 
 
@@ -327,7 +327,7 @@ class TaxAnalysis(EmbeddedDocument):
     nspot_analyze = StringField()
     total_spots = StringField()
     mapped_spots = StringField()
-    tax_counts = EmbeddedDocumentField(TaxRecord)
+    tax_counts = MapField(EmbeddedDocumentField(TaxRecord))
 
     def __str__(self):
         return DocumentString(self).string
