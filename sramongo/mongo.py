@@ -59,3 +59,27 @@ def start_mongo(dbDir=None, logDir=None, port=27017, command_line_args=''):
     process =  Popen(cmd)
     sleep(10)
     return process
+
+
+class MongoDB:
+    def __init__(dbDir=None, logDir=None, port=27017, command_line_args=''):
+        """Runs start_mongo as a Context manager."""
+        self.dbDir = dbDir
+        self.logDir = logDir
+        self.port = port
+        self.command_line_args=command_line_args
+
+        # If dirs don't exists then make them
+        if not os.path.exists(self.dbDir):
+            os.mkdir(self.dbDir)
+        if not os.path.exists(self.logDir):
+            os.mkdir(self.logDir)
+
+    def __enter__(self):
+        self.pid = start_mongo(dbDir=self.dbDir, logDir=self.logDir,
+                               port=self.port,
+                               command_line_args=self.command_line_args)
+        return self.pid
+
+    def __exit__(self):
+        self.pid.kill()
