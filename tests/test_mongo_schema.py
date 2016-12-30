@@ -128,7 +128,9 @@ organization:
     name: NCBI
     email: geo@nih.gov
     first_name: GEO
-    last_name: Curators"""
+    last_name: Curators
+experiments: None
+"""
 
 
 def test_Study_str_partial():

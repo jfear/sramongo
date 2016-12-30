@@ -29,7 +29,7 @@ class TestSRR3001915:
 
     def test_parse_submission(self, sraTree):
         assert sraTree.submission['submission_id'] == 'SRA178685'
-        assert sraTree.submission['submitter_id'][0]['id'] == ['GEO: GSE60314']
+        assert sraTree.submission['submitter_id'][0]['id'] == 'GEO: GSE60314'
 
     def test_parse_study(self, sraTree):
         assert sraTree.study['study_id'] == 'SRP045429'
