@@ -6,6 +6,8 @@ from argparse import RawDescriptionHelpFormatter as Raw
 from urllib.error import HTTPError
 from xml.etree import ElementTree
 from logging import INFO, DEBUG
+import pandas as pd
+from io import StringIO
 
 from Bio import Entrez
 from mongoengine import connect
@@ -13,7 +15,8 @@ from mongoengine import connect
 from sramongo.logger import logger
 from sramongo.mongo import MongoDB
 from sramongo.sra import SraExperiment
-from sramongo.mongo_schema import Experiment, Sample, Organization, Run, Study
+from sramongo.mongo_schema import Submission, Organization,  Study, \
+    Sample, Pool, Experiment, Run
 
 
 def arguments():
@@ -43,77 +46,75 @@ def arguments():
                               '--query', '"Drosophila melanogaster"[Orgn]', '--debug'])
 
 
-def download_sra(records):
-    records = sra_records
+def fetch_sra(records, runinfo_retmode='text', **kwargs):
+    count = int(records['Count'])
+    batch_size = 500
 
-    batch_size = 3
-    out_handle = open("orchid_rpl16.fasta", "w")
+    options = {'db': 'sra', 'webenv': records['WebEnv'],
+               'query_key': records['QueryKey'], 'retmax': batch_size}
+    options.update(kwargs)
+
     for start in range(0, count, batch_size):
         end = min(count, start+batch_size)
-        print("Going to download record %i to %i" % (start+1, end))
+        logger.info("Downloading record %i to %i" % (start+1, end))
         attempt = 0
         while attempt < 3:
             attempt += 1
             try:
-                fetch_handle = Entrez.efetch(db="nucleotide",
-                                             rettype="fasta", retmode="text",
-                                             retstart=start, retmax=batch_size,
-                                             webenv=webenv, query_key=query_key)
+                xml_handle = Entrez.efetch(retstart=start, **options)
+
+                runinfo_handle = Entrez.efetch(rettype="runinfo", retmode=runinfo_retmode,
+                                               retstart=start, **options)
             except HTTPError as err:
                 if 500 <= err.code <= 599:
-                    print("Received error from server %s" % err)
-                    print("Attempt %i of 3" % attempt)
+                    logger.warn("Received error from server %s" % err)
+                    logger.warn("Attempt %i of 3" % attempt)
                     time.sleep(15)
                 else:
                     raise
-        data = fetch_handle.read()
-        fetch_handle.close()
-        out_handle.write(data)
-    out_handle.close()
+        xml_data = xml_handle.read()
+        runinfo_data = runinfo_handle.read()
 
-def query_sra(query):
-    handle = Entrez.esearch(db='sra', term=query, usehistory="y")
+        xml_handle.close()
+        runinfo_handle.close()
+
+        yield xml_data, runinfo_data
+
+
+def query_sra(query, **kwargs):
+    options = {'term': query, 'db': 'sra', 'usehistory': 'y'}
+    options.update(kwargs)
+    handle = Entrez.esearch(**options)
     records = Entrez.read(handle)
     handle.close()
     return records
 
-def fetch_sra(records):
-    handle = Entrez.efetch(db='sra', retmax=10,
-                           webenv=records['WebEnv'],
-                           query_key=records['QueryKey'])
 
-    records = handle.read()
-    handle.close()
-    return records
+def add_pkg_to_database(pkg, runinfo):
 
-def add_pkg_to_database(pkg):
-    sraExperiment = SraExperiment(pkg))
+    sraExperiment = SraExperiment(pkg)
 
     # Add Experiment Package to database
     # Build study document
-    submission = Submission(**sraExperiment.submission)
-    organization = Organization(**sraExperiment.organization)
-    study = Study(submission=submission, organization=organization, **sraExperiment.study)
-    study.save()
-
+    submission = Submission.build_from_SraExperiment(sraExperiment)
+    organization = Organization.build_from_SraExperiment(sraExperiment)
+    study = Study.build_from_SraExperiment(sraExperiment, submission=submission,
+                                           organization=organization)
     # Build sample document
-    sample = Sample(**sraExperiment.sample)
-    sample.save()
+    sample = Sample.build_from_SraExperiment(sraExperiment)
 
     # Build experiment document
-    experiment = Experiment(study=study, **sraExperiment.experiment)
-    experiment.samples = sraExperiment.pool
-    experiment.save()
+    pool = Pool.build_from_SraExperiment(sraExperiment)
+    experiment = Experiment.build_from_SraExperiment(sraExperiment,
+                                                     study=study, samples=pool)
 
     # Add experiment id to study
-    study.experiments.append(experiment.id)
+    study = study.modify(push__experiments=experiment.experiment_id)
 
     # Build run documents
-    for r in sraExperiment.run:
-        run = Run(experiment=experiment, **r)
-        run.save()
-        experiment.runs.append(run)
-    experiment.save()
+    runs = Run.build_from_SraExperiment(sraExperiment, runinfo)
+    experiment = experiment.modify(push_all__runs=[run.run_id for run in runs])
+
 
 def main():
     # Import commandline arguments.
@@ -125,19 +126,24 @@ def main():
     else:
         logger.setLevel(INFO)
 
+    # Set email for entrez so they can contact if abbuse. Required by
+    # biopython.
     Entrez.email = args.email
 
     logger.info('Starting MongoDB')
     with MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port):
         client = connect('sra')
         try:
+            logger.info('Querying SRA: {}'.format(args.query))
             sra_query = query_sra(args.query)
-            sra_records = fetch_sra(sra_query)
 
-            tree = ElementTree.fromstring(sra_records)
-            sras = []
-            # Iterate over experiment packages
-            for exp_pkg in tree:
+            logger.info('Downloading documents')
+            for xml, runinfo in fetch_sra(sra_query):
+                tree = ElementTree.fromstring(xml)
+                ri = pd.read_csv(StringIO(runinfo), index_col='Run')
+                sras = []
+                for exp_pkg in tree:
+                    add_pkg_to_database(exp_pkg, ri)
         except:
             pass
         finally:
