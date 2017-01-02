@@ -33,17 +33,23 @@ def arguments():
     parser.add_argument("--query", dest="query", action='store', required=True,
                         help="Query to submit to Entrez.")
 
-    parser.add_argument("--db", dest="db", action='store', required=True,
+    parser.add_argument("--dbDir", dest="dbDir", action='store', required=True,
                         help="Folder containing mongo database.")
 
-    parser.add_argument("--dbLog", dest="dbLog", action='store', required=False, default=None,
+    parser.add_argument("--logDir", dest="logDir", action='store', required=False, default=None,
                         help="Folder containing mongo database.")
+
+    parser.add_argument("--port", dest="port", action='store', type=int, required=False, default=27017,
+                        help="Mongo database port.")
+
+    parser.add_argument("--db", dest="db", action='store', required=False, default='sra',
+                        help="Name of the database.")
 
     parser.add_argument("--debug", dest="debug", action='store_true', required=False,
                         help="Turn on debug output.")
 
-    return parser.parse_args(['--db', '/data/db', '--dbLog', '/data/log', '--email', 'justin.fear@nih.gov',
-                              '--query', '"Drosophila melanogaster"[Orgn]', '--debug'])
+    return parser.parse_args(['--dbDir', '/data/db', '--logDir', '/data/log', '--email', 'justin.fear@nih.gov',
+                              '--query', '"Drosophila melanogaster"[Orgn]'])
 
 
 def fetch_sra(records, runinfo_retmode='text', **kwargs):
@@ -132,7 +138,7 @@ def main():
 
     logger.info('Starting MongoDB')
     with MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port):
-        client = connect('sra')
+        client = connect(args.db)
         try:
             logger.info('Querying SRA: {}'.format(args.query))
             sra_query = query_sra(args.query)
@@ -141,10 +147,9 @@ def main():
             for xml, runinfo in fetch_sra(sra_query):
                 tree = ElementTree.fromstring(xml)
                 ri = pd.read_csv(StringIO(runinfo), index_col='Run')
-                sras = []
                 for exp_pkg in tree:
                     add_pkg_to_database(exp_pkg, ri)
         except:
-            pass
+            raise
         finally:
            client.close()
