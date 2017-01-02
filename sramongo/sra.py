@@ -143,6 +143,7 @@ class SraExperiment(object):
         d['instrument_model'] = INSTRUMENT_MODEL_DEPRICATED.get(d['instrument_model'], d['instrument_model'])
 
         if not d['instrument_model'] in INSTRUMENT_MODEL_ACTIVE:
+            logger.error('"{}" not found in instrument_model'.format(d['instrument_model']))
             raise XMLSchemaException('instrument_model')
 
         return d
@@ -348,11 +349,11 @@ class SraExperiment(object):
 
         """
         d = defaultdict(list)
-        d.update(self._update_link(node, 'url_link', d))
-        d.update(self._update_link(node, 'xref_link', d))
-        d.update(self._update_link(node, 'entrez_link', d))
-        d.update(self._update_link(node, 'ddbj_link', d))
-        d.update(self._update_link(node, 'ena_link', d))
+        d.update(self._update_link(node, 'url_links', d))
+        d.update(self._update_link(node, 'xref_links', d))
+        d.update(self._update_link(node, 'entrez_links', d))
+        d.update(self._update_link(node, 'ddbj_links', d))
+        d.update(self._update_link(node, 'ena_links', d))
         return d
 
     @valid_path
@@ -422,14 +423,18 @@ class SraExperiment(object):
                 d['read_len' + index] = read.get('average')
 
             # Validate that reads that PE reads have similar lengths and counts
-            if d['read_len_r1'] != d['read_len_r2']:
-                err = ('Read lengths are not equal {}: '
-                       'read 1: {} and read 2: {}'.format(run_id, d['read_len_r1'], d['read_len_r2']))
-                logger.error(err)
+            try:
+                if d['read_len_r1'] != d['read_len_r2']:
+                    warn = ('Read lengths are not equal {}: '
+                           'read 1: {} and read 2: {}'.format(run_id, d['read_len_r1'], d['read_len_r2']))
+                    logger.warn(warn)
 
-            if d['read_count_r1'] != d['read_count_r2']:
-                err = ('Read counts are not equal: '
-                       'read 1: {} and read 2: {}'.format(d['read_count_r1'], d['read_count_r2']))
+                if d['read_count_r1'] != d['read_count_r2']:
+                    warn = ('Read counts are not equal: '
+                           'read 1: {} and read 2: {}'.format(d['read_count_r1'], d['read_count_r2']))
+                    logger.warn(warn)
+            except:
+                pass
         return d
 
 
