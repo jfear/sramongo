@@ -17,7 +17,7 @@ def valid_path(func):
     def new_func(*args, **kwargs):
         # If the current path is present
         if args[1] is None:
-            logger.warn(('Not valid path.', func, args))
+            logger.debug(('Not valid path.', func, args))
             return {}
         else:
             return func(*args, **kwargs)
