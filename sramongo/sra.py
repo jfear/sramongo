@@ -3,6 +3,7 @@
 import re
 from xml.etree import ElementTree
 from collections import defaultdict
+from sramongo.logger import logger
 from sramongo.xml_helpers import valid_path, parse_tree_from_dict
 from sramongo.sra_const import EXISTING_STUDY_TYPES_ACTIVE, \
     EXISTING_STUDY_TYPES_DEPRICATED, INSTRUMENT_MODEL_ACTIVE, \
@@ -123,16 +124,19 @@ class SraExperiment(object):
 
         # XSD Validation
         if not d['library_strategy'] in LIBRARY_STRATEGY:
+            logger.error('"{}" not found in library_strategy.'.format(d['library_strategy']))
             raise XMLSchemaException('library_strategy')
         if not d['library_source'] in LIBRARY_SOURCE:
+            logger.error('"{}" not found in library_source.'.format(d['library_source']))
             raise XMLSchemaException('library_source')
         if not d['library_selection'] in LIBRARY_SELECTION:
-            raise XMLSchemaException('library_selection')
-        if not d['library_selection'] in LIBRARY_SELECTION:
+            logger.error('"{}" not found in library_selection.'.format(d['library_selection']))
             raise XMLSchemaException('library_selection')
         if not d['library_layout'] in LIBRARY_LAYOUT:
+            logger.error('"{}" not found in library_layout.'.format(d['library_layout']))
             raise XMLSchemaException('library_layout')
         if not d['platform'] in PLATFORMS:
+            logger.error('"{}" not found in platform.'.format(d['platform']))
             raise XMLSchemaException('platform')
 
         # Update instrument model if depricated
