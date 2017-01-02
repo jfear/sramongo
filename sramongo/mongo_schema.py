@@ -1,8 +1,9 @@
 """Set up MonoDB schema using monogodngine."""
 from textwrap import fill
 from mongoengine import Document, EmbeddedDocument
-from mongoengine import StringField, ListField, DictField, MapField
+from mongoengine import StringField, IntField, ListField, DictField, MapField
 from mongoengine import EmbeddedDocumentField, ReferenceField
+from sramongo.sra import SraExperiment
 
 
 class DocumentString(object):
@@ -151,6 +152,13 @@ class Submission(EmbeddedDocument):
     def __str__(self):
         return DocumentString(self).string
 
+    @classmethod
+    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        sraSubmission = sraExperiment.submission
+        sraSubmission.update(kwargs)
+        submission = cls(**sraSubmission)
+        return submission
+
 
 class Organization(EmbeddedDocument):
     type = StringField()
@@ -162,6 +170,13 @@ class Organization(EmbeddedDocument):
 
     def __str__(self):
         return DocumentString(self).string
+
+    @classmethod
+    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        sraOrganization = sraExperiment.organization
+        sraOrganization.update(kwargs)
+        organization = cls(**sraOrganization)
+        return organization
 
 
 class RelatedStudy(XrefLink):
@@ -210,6 +225,14 @@ class Study(Document):
     def __str__(self):
         return DocumentString(self).string
 
+    @classmethod
+    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        sraStudy = sraExperiment.study
+        sraStudy.update(kwargs)
+        study = cls(**sraStudy)
+        study.save()
+        return study
+
 
 # Samples
 class Sample(Document):
@@ -247,15 +270,40 @@ class Sample(Document):
     def __str__(self):
         return DocumentString(self).string
 
+    @classmethod
+    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        sraSample = sraExperiment.sample
+        sraSample.update(kwargs)
+        sample = cls(**sraSample)
+        sample.save()
+        return sample
+
 
 # Experiment
 class Pool(EmbeddedDocument):
-    sample_id = ReferenceField(Sample)
+    sample_id = StringField()
     GEO = StringField()
     BioSample = StringField()
 
     def __str__(self):
         return DocumentString(self).string
+
+    @classmethod
+    def build_from_SraExperiment(cls, sraExperiment):
+        if isinstance(sraExperiment, list):
+            pools = sraExperiment
+        elif isinstance(sraExperiment, SraExperiment):
+            pools = sraExperiment.pool
+
+        poolList = []
+        for p in pools:
+            pool = cls()
+            pool.sample_id = p.get('sample_id', None)
+            pool.GEO = p.get('GEO', None)
+            pool.BioSample = p.get('BioSample', None)
+            poolList.append(pool)
+
+        return poolList
 
 
 class Experiment(Document):
@@ -310,6 +358,14 @@ class Experiment(Document):
     def __str__(self):
         return DocumentString(self).string
 
+    @classmethod
+    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        sraExp = sraExperiment.experiment
+        sraExp.update(kwargs)
+        experiment = cls(**sraExp)
+        experiment.save()
+        return experiment
+
 
 # Run
 class TaxRecord(EmbeddedDocument):
@@ -363,6 +419,27 @@ class Run(Document):
 
     # NOTE: Additional Fields added post creation
     experiment = ReferenceField(Experiment)
+    release_date = StringField()
+    load_date = StringField()
+    size_MB = IntField()
+    download_path = StringField()
 
     def __str__(self):
         return DocumentString(self).string
+
+    @classmethod
+    def build_from_SraExperiment(cls, sraExperiment, runinfo, **kwargs):
+        runs = []
+        for sraRun in sraExperiment.run:
+            pool = sraRun['samples']
+            del sraRun['samples']
+            run = cls(**sraRun)
+            run.samples.extend(Pool.build_from_SraExperiment(pool))
+            run.release_date = runinfo.loc[run.run_id, 'ReleaseDate']
+            run.load_date = runinfo.loc[run.run_id, 'LoadDate']
+            run.size_MB = runinfo.loc[run.run_id, 'size_MB']
+            run.download_path = runinfo.loc[run.run_id, 'download_path']
+            run.experiment = Experiment.objects(experiment_id=run.experiment_id).first()
+            run.save()
+            runs.append(run)
+        return runs
