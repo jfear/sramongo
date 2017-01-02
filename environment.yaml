@@ -10,3 +10,4 @@ dependencies:
 - jfear::mongodb=3.4.0
 - pymongo=3.3.0
 - pytest=3.0.5
+- pandas=0.19.2
