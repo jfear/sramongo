@@ -2,7 +2,7 @@
 from textwrap import dedent
 from sramongo.mongo_schema import URLLink, Xref, XrefLink, \
     EntrezLink, DDBJLink, ENALink, Submission, Organization, \
-    Study, Sample, Experiment, Run
+    Study, Sample, Experiment, Run, Pool
 
 from mongoengine import connect
 
@@ -216,3 +216,9 @@ def test_run_w_sra(mongoDB, sraExperiment):
 
     finally:
         client.drop_database('test_sra')
+
+
+def test_Pool_build(mongoDB, sraExperiment):
+    client = connect('test_sra')
+    p = Pool.build_from_SraExperiment(sraExperiment.pool)
+    assert p[0]['sample_id'] == 'SRS679015'
