@@ -184,7 +184,7 @@ class SraExperiment(object):
             d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
             d['samples'] = self._parse_pool(run.find('Pool'))
             d.update(self._parse_taxon(run.find('tax_analysis')))
-            d.update(self._parse_run_reads(run.find('Statistics')))
+            d.update(self._parse_run_reads(run.find('Statistics'), d['run_id']))
 
             locs = {
                 'experiment_id': ('EXPERIMENT_REF', 'accession'),
@@ -219,7 +219,10 @@ class SraExperiment(object):
                   'pubmed': 'pubmed'}
 
         # normalize db name
-        norm = xref['db'].strip(' ()[].:').lower()
+        try:
+            norm = xref['db'].strip(' ()[].:').lower()
+        except:
+            norm = ''
 
         if norm in db_map.keys():
             # Normalize the ids a little
@@ -403,7 +406,7 @@ class SraExperiment(object):
         return d
 
     @valid_path
-    def _parse_run_reads(self, node):
+    def _parse_run_reads(self, node, run_id):
         """Parse reads from runs."""
         d = dict()
         d['nreads'] = node.get('nreads')
@@ -420,11 +423,13 @@ class SraExperiment(object):
 
             # Validate that reads that PE reads have similar lengths and counts
             if d['read_len_r1'] != d['read_len_r2']:
-                raise ValueError('Read lengths are not equal')
+                err = ('Read lengths are not equal {}: '
+                       'read 1: {} and read 2: {}'.format(run_id, d['read_len_r1'], d['read_len_r2']))
+                logger.error(err)
 
             if d['read_count_r1'] != d['read_count_r2']:
-                raise ValueError('Read counts are not equal')
-
+                err = ('Read counts are not equal: '
+                       'read 1: {} and read 2: {}'.format(d['read_count_r1'], d['read_count_r2']))
         return d
 
 
