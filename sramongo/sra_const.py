@@ -37,6 +37,7 @@ LIBRARY_STRATEGY = [
     "MNase-Seq",
     "MRE-Seq",
     "OTHER",
+    "other",
     "POOLCLONE",
     "RNA-Seq",
     "Tn-Seq",
