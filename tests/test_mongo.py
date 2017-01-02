@@ -3,7 +3,7 @@
 
 from time import sleep
 from pymongo import MongoClient
-from sramongo.mongo import start_mongo
+from sramongo.mongo import start_mongo, MongoDB
 
 
 def test_start_mongo(mongo_folders):
@@ -23,6 +23,14 @@ def test_start_mongo_command_line_args(mongo_folders):
     assert isinstance(mongoDB.pid, int)
     assert mongoDB.poll() is None
     mongoDB.kill()
+
+
+def test_start_context_manager(mongo_folders):
+    with MongoDB(dbDir=mongo_folders[0], logDir=mongo_folders[1]) as mongoDB:
+        assert isinstance(mongoDB.pid, int)
+        assert mongoDB.poll() is None
+    sleep(3)
+    assert mongoDB.poll() is not None
 
 
 def test_mongo_connect(mongoDB):

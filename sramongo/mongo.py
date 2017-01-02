@@ -61,8 +61,8 @@ def start_mongo(dbDir=None, logDir=None, port=27017, command_line_args=''):
     return process
 
 
-class MongoDB:
-    def __init__(dbDir=None, logDir=None, port=27017, command_line_args=''):
+class MongoDB():
+    def __init__(self, dbDir=None, logDir=None, port=27017, command_line_args=''):
         """Runs start_mongo as a Context manager."""
         self.dbDir = dbDir
         self.logDir = logDir
@@ -81,5 +81,5 @@ class MongoDB:
                                command_line_args=self.command_line_args)
         return self.pid
 
-    def __exit__(self):
+    def __exit__(self, *args):
         self.pid.kill()
