@@ -290,10 +290,10 @@ class Pool(EmbeddedDocument):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment):
-        if isinstance(sraExperiment, list):
-            pools = sraExperiment
-        elif isinstance(sraExperiment, SraExperiment):
+        if isinstance(sraExperiment, SraExperiment):
             pools = sraExperiment.pool
+        else:
+            pools = sraExperiment
 
         poolList = []
         for p in pools:
@@ -331,8 +331,8 @@ class Experiment(Document):
     library_selection = StringField()
     library_layout = StringField()
     library_layout_orientation = StringField()
-    library_layout_nominal_length = StringField()
-    library_layout_nominal_sdev = StringField()
+    library_layout_length = StringField()
+    library_layout_sdev = StringField()
     pooling_strategey = StringField()
     library_construction_protocol = StringField()
     platform = StringField()
