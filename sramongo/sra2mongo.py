@@ -18,6 +18,9 @@ from sramongo.sra import SraExperiment
 from sramongo.mongo_schema import Submission, Organization,  Study, \
     Sample, Pool, Experiment, Run
 
+STUDIES_ADDED = []
+EXPERIMENTS_ADDED = []
+RUNS_ADDED = []
 
 def arguments():
     """Pulls in command line arguments."""
@@ -121,6 +124,10 @@ def add_pkg_to_database(pkg, runinfo):
     runs = Run.build_from_SraExperiment(sraExperiment, runinfo)
     experiment = experiment.modify(push_all__runs=[run.run_id for run in runs])
 
+    STUDIES_ADDED.append(study.study_id)
+    EXPERIMENTS_ADDED.append(experiment.study_id)
+    RUNS_ADDED.extend([run.run_id for run in runs])
+
 
 def main():
     # Import commandline arguments.
@@ -153,3 +160,13 @@ def main():
             raise
         finally:
            client.close()
+
+           logger.info('Studies Added')
+           logger.info(STUDIES_ADDED)
+
+           logger.info('Experiments Added')
+           logger.info(EXPERIMENTS_ADDED)
+
+           logger.info('Runs Added')
+           logger.info(RUNS_ADDED)
+
