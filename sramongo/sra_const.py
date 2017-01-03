@@ -41,6 +41,7 @@ LIBRARY_STRATEGY = [
     "OTHER",
     "other",
     "POOLCLONE",
+    "RIP-Seq",
     "RNA-Seq",
     "Synthetic-Long-Read",
     "Tn-Seq",
