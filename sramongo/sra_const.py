@@ -42,6 +42,7 @@ LIBRARY_STRATEGY = [
     "other",
     "POOLCLONE",
     "RNA-Seq",
+    "Synthetic-Long-Read",
     "Tn-Seq",
     "WCS",
     "WGA",
