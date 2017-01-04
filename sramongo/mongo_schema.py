@@ -3,7 +3,9 @@ from textwrap import fill
 from mongoengine import Document, EmbeddedDocument
 from mongoengine import StringField, IntField, ListField, DictField, MapField
 from mongoengine import EmbeddedDocumentField, ReferenceField
+from mongoengine.errors import ValidationError
 from sramongo.sra import SraExperiment
+from sramongo.logger import logger
 
 
 class DocumentString(object):
@@ -154,10 +156,15 @@ class Submission(EmbeddedDocument):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        sraSubmission = sraExperiment.submission
-        sraSubmission.update(kwargs)
-        submission = cls(**sraSubmission)
-        return submission
+        try:
+            sraSubmission = sraExperiment.submission
+            sraSubmission.update(kwargs)
+            submission = cls(**sraSubmission)
+            return submission
+        except ValidationError as err:
+            logger.error('ValidationError: submission malformed.')
+            logger.debug(sraSubmission)
+            return None
 
 
 class Organization(EmbeddedDocument):
@@ -173,10 +180,15 @@ class Organization(EmbeddedDocument):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        sraOrganization = sraExperiment.organization
-        sraOrganization.update(kwargs)
-        organization = cls(**sraOrganization)
-        return organization
+        try:
+            sraOrganization = sraExperiment.organization
+            sraOrganization.update(kwargs)
+            organization = cls(**sraOrganization)
+            return organization
+        except ValidationError as err:
+            logger.error('ValidationError: organization malformed.')
+            logger.debug(sraOrganization)
+            return None
 
 
 class RelatedStudy(XrefLink):
@@ -227,11 +239,16 @@ class Study(Document):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        sraStudy = sraExperiment.study
-        sraStudy.update(kwargs)
-        study = cls(**sraStudy)
-        study.save()
-        return study
+        try:
+            sraStudy = sraExperiment.study
+            sraStudy.update(kwargs)
+            study = cls(**sraStudy)
+            study.save()
+            return study
+        except ValidationError as err:
+            logger.error('ValidationError: study malformed.')
+            logger.debug(sraStudy)
+            return None
 
 
 # Samples
@@ -272,11 +289,16 @@ class Sample(Document):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        sraSample = sraExperiment.sample
-        sraSample.update(kwargs)
-        sample = cls(**sraSample)
-        sample.save()
-        return sample
+        try:
+            sraSample = sraExperiment.sample
+            sraSample.update(kwargs)
+            sample = cls(**sraSample)
+            sample.save()
+            return sample
+        except ValidationError as err:
+            logger.error('ValidationError: sample malformed.')
+            logger.debug(sraSample)
+            return None
 
 
 # Experiment
@@ -290,7 +312,9 @@ class Pool(EmbeddedDocument):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment):
-        if isinstance(sraExperiment, SraExperiment):
+        if sraExperiment is None:
+            return []
+        elif isinstance(sraExperiment, SraExperiment):
             pools = sraExperiment.pool
         else:
             pools = sraExperiment
@@ -360,11 +384,16 @@ class Experiment(Document):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        sraExp = sraExperiment.experiment
-        sraExp.update(kwargs)
-        experiment = cls(**sraExp)
-        experiment.save()
-        return experiment
+        try:
+            sraExp = sraExperiment.experiment
+            sraExp.update(kwargs)
+            experiment = cls(**sraExp)
+            experiment.save()
+            return experiment
+        except ValidationError as err:
+            logger.error('ValidationError: experiment malformed.')
+            logger.debug(sraExp)
+            return None
 
 
 # Run
@@ -431,15 +460,46 @@ class Run(Document):
     def build_from_SraExperiment(cls, sraExperiment, runinfo, **kwargs):
         runs = []
         for sraRun in sraExperiment.run:
-            pool = sraRun['samples']
-            del sraRun['samples']
-            run = cls(**sraRun)
-            run.samples.extend(Pool.build_from_SraExperiment(pool))
-            run.release_date = runinfo.loc[run.run_id, 'ReleaseDate']
-            run.load_date = runinfo.loc[run.run_id, 'LoadDate']
-            run.size_MB = runinfo.loc[run.run_id, 'size_MB']
-            run.download_path = runinfo.loc[run.run_id, 'download_path']
-            run.experiment = Experiment.objects(experiment_id=run.experiment_id).first()
-            run.save()
-            runs.append(run)
+            try:
+                if 'samples' in sraRun:
+                    pool = sraRun['samples']
+                    del sraRun['samples']
+                else:
+                    pool = None
+
+                run = cls(**sraRun)
+                run.samples.extend(Pool.build_from_SraExperiment(pool))
+
+                try:
+                    run.release_date = runinfo.loc[run.run_id, 'ReleaseDate']
+                except KeyError:
+                    pass
+
+                try:
+                    run.load_date = runinfo.loc[run.run_id, 'LoadDate']
+                except KeyError:
+                    pass
+
+                try:
+                    run.size_MB = runinfo.loc[run.run_id, 'size_MB']
+                except KeyError:
+                    pass
+
+                try:
+                    run.download_path = runinfo.loc[run.run_id, 'download_path']
+                except KeyError:
+                    pass
+
+                try:
+                    run.experiment = Experiment.objects(experiment_id=run.experiment_id).first()
+                except:
+                    pass
+
+                run.save()
+                runs.append(run)
+            except ValidationError as err:
+                logger.error('ValidationError: run malformed.')
+                logger.debug(sraRun)
+                logger.debug(runinfo.loc[run.run_id, :])
+
         return runs
