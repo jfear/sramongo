@@ -11,8 +11,7 @@ def valid_path(function=None, rettype=dict):
     def actual_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            if ((len(args) == 1) and (args[0] is None)) or \
-                    ((len(args) == 2) and (args[1] is None)):
+            if None in args:
                 return rettype()
             else:
                 return f(*args, **kwargs)
