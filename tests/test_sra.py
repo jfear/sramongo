@@ -73,15 +73,11 @@ class TestSRR3001915:
         assert sraTree.sample['attributes']['tissue'] == 'whole body'
 
     def test_parse_pool(self, sraTree):
-        assert sraTree.pool[0]['sample_id'] == 'SRS679015'
-        assert sraTree.pool[0]['BioSample'] == 'SAMN02981965'
-        assert sraTree.pool[0]['GEO'] == 'GSM1471477'
+        assert sraTree.samples[0] == 'SRS679015'
 
     def test_run(self, sraTree):
         assert sraTree.run[0]['run_id'] == 'SRR3001915'
-        assert sraTree.run[0]['samples'][0]['sample_id'] == 'SRS679015'
-        assert sraTree.run[0]['samples'][0]['BioSample'] == 'SAMN02981965'
-        assert sraTree.run[0]['samples'][0]['GEO'] == 'GSM1471477'
+        assert sraTree.run[0]['samples'][0] == 'SRS679015'
         assert sraTree.run[0]['experiment_id'] == 'SRX1483046'
         assert sraTree.run[0]['nspots'] == 2001211
         assert sraTree.run[0]['nbases'] == 152092036
@@ -160,15 +156,11 @@ class TestSRR5100239:
         assert sraTree.sample['attributes']['genotype'] == 'W1118'
 
     def test_parse_pool(self, sraTree):
-        assert sraTree.pool[0]['sample_id'] == 'SRS1854358'
-        assert sraTree.pool[0]['BioSample'] == 'SAMN06134387'
-        assert sraTree.pool[0]['GEO'] == 'GSM2425536'
+        assert sraTree.samples[0] == 'SRS1854358'
 
     def test_run(self, sraTree):
         assert sraTree.run[0]['run_id'] == 'SRR5100239'
-        assert sraTree.run[0]['samples'][0]['sample_id'] == 'SRS1854358'
-        assert sraTree.run[0]['samples'][0]['BioSample'] == 'SAMN06134387'
-        assert sraTree.run[0]['samples'][0]['GEO'] == 'GSM2425536'
+        assert sraTree.run[0]['samples'][0] == 'SRS1854358'
         assert sraTree.run[0]['experiment_id'] == 'SRX2416970'
         assert sraTree.run[0]['nspots'] == 25818690
         assert sraTree.run[0]['nbases'] == 2581869000

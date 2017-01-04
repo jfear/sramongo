@@ -205,7 +205,7 @@ class Submission(EmbeddedDocument):
             submission = cls(**sraSubmission)
             return submission
         except ValidationError as err:
-            logger.error('ValidationError: submission malformed.')
+            logger.error(err)
             logger.debug(sraSubmission)
             return None
 
@@ -249,7 +249,7 @@ class Organization(EmbeddedDocument):
             organization = cls(**sraOrganization)
             return organization
         except ValidationError as err:
-            logger.error('ValidationError: organization malformed.')
+            logger.error(err)
             logger.debug(sraOrganization)
             return None
 
@@ -328,7 +328,7 @@ class Study(Document):
             study.save()
             return study
         except ValidationError as err:
-            logger.error('ValidationError: study malformed.')
+            logger.error(err)
             logger.debug(sraStudy)
             return None
 
@@ -397,59 +397,12 @@ class Sample(Document):
             sample.save()
             return sample
         except ValidationError as err:
-            logger.error('ValidationError: sample malformed.')
+            logger.error(err)
             logger.debug(sraSample)
             return None
 
 
 # Experiment
-class Pool(EmbeddedDocument):
-    """Pool embedded document.
-
-    A pool is a collection of sample names. Each sample in a pool is
-    represented by this embedded document. It needs to have a sample_id.
-    """
-    sample_id = StringField(primary_key=True)
-    GEO = StringField()
-    BioSample = StringField()
-
-    def __str__(self):
-        return DocumentString(self).string
-
-    @classmethod
-    def build_from_SraExperiment(cls, sraExperiment):
-        """Builds Pool from an sramongo.SraExperiment.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no sample_id or additional fields that have
-        not been defined) then return Empty list.
-
-        Parameters
-        ----------
-        sraExperiment: sramongo.SraExperiment
-            An sra object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the sraExperiment prior
-            to building.
-        """
-        if sraExperiment is None:
-            return []
-        elif isinstance(sraExperiment, SraExperiment):
-            pools = sraExperiment.pool
-        else:
-            pools = sraExperiment
-
-        poolList = []
-        for p in pools:
-            pool = cls()
-            pool.sample_id = p.get('sample_id', None)
-            pool.GEO = p.get('GEO', None)
-            pool.BioSample = p.get('BioSample', None)
-            poolList.append(pool)
-
-        return poolList
-
-
 class Experiment(Document):
     """Experiment Document.
 
@@ -499,7 +452,7 @@ class Experiment(Document):
     study = ReferenceField(Study)
 
     # NOTE: Additional Fields added post creation
-    samples = ListField(EmbeddedDocumentField(Pool))
+    samples = ListField(StringField(), default=list)
 
     # NOTE: Additional Fields added post creation
     runs = ListField(StringField(), default=list)
@@ -530,7 +483,7 @@ class Experiment(Document):
             experiment.save()
             return experiment
         except ValidationError as err:
-            logger.error('ValidationError: experiment malformed.')
+            logger.error(err)
             logger.debug(sraExp)
             return None
 
@@ -573,7 +526,7 @@ class Run(Document):
 
     # Attributes
     experiment_id = StringField()
-    samples = ListField(EmbeddedDocumentField(Pool), default=list)
+    samples = ListField(StringField(), default=list)
     nspots = IntField()
     nbases = IntField()
     tax_analysis = EmbeddedDocumentField(TaxAnalysis)
@@ -621,32 +574,29 @@ class Run(Document):
         runs = []
         for sraRun in sraExperiment.run:
             try:
-                if 'samples' in sraRun:
-                    pool = sraRun['samples']
-                    del sraRun['samples']
-                else:
-                    pool = None
-
                 run = cls(**sraRun)
-                run.samples.extend(Pool.build_from_SraExperiment(pool))
 
                 try:
-                    run.release_date = runinfo.loc[run.run_id, 'ReleaseDate']
+                    if runinfo.notnull().loc[run.run_id, 'ReleaseDate']:
+                        run.release_date = runinfo.loc[run.run_id, 'ReleaseDate']
                 except KeyError:
                     pass
 
                 try:
-                    run.load_date = runinfo.loc[run.run_id, 'LoadDate']
+                    if runinfo.notnull().loc[run.run_id, 'LoadDate']:
+                        run.load_date = runinfo.loc[run.run_id, 'LoadDate']
                 except KeyError:
                     pass
 
                 try:
-                    run.size_MB = int(runinfo.loc[run.run_id, 'size_MB'])
+                    if runinfo.notnull().loc[run.run_id, 'size_MB']:
+                        run.size_MB = int(runinfo.loc[run.run_id, 'size_MB'])
                 except KeyError:
                     pass
 
                 try:
-                    run.download_path = runinfo.loc[run.run_id, 'download_path']
+                    if runinfo.notnull().loc[run.run_id, 'download_path']:
+                        run.download_path = runinfo.loc[run.run_id, 'download_path']
                 except KeyError:
                     pass
 
@@ -659,7 +609,7 @@ class Run(Document):
                 runs.append(run)
 
             except ValidationError as err:
-                logger.error('ValidationError: run malformed.')
+                logger.error(err)
                 logger.debug(sraRun)
                 logger.debug(runinfo.loc[run.run_id, :])
 

@@ -31,10 +31,127 @@ class SraExperiment(object):
         self.study = self._parse_study(node.find('STUDY'))
         self.experiment = self._parse_experiment(node.find('EXPERIMENT'))
         self.sample = self._parse_sample(node.find('SAMPLE'))
-        self.pool = self._parse_pool(node.find('Pool'))
+        self.samples = self._parse_pool(node.find('Pool'))
         self.run = self._parse_run(node.find('RUN_SET'))
 
+    def _raise_xref_status(self, xref):
+        """Some xrefs are more imporant and I want to pull them out.
 
+        xrefs to specific databases I am interested in should be pulled out and
+        stored separately. Go ahead and normalized database names and values a
+        bit.
+
+        Parameters
+        ----------
+        xref: dict
+            A dictionary with keys 'db' and 'id'.
+        """
+        # databases of interest
+        db_map = {'geo': 'GEO',
+                  'gds': 'GEO_Dataset',
+                  'bioproject': 'BioProject',
+                  'biosample': 'BioSample',
+                  'pubmed': 'pubmed'}
+
+        # normalize db name
+        try:
+            norm = xref['db'].strip(' ()[].:').lower()
+        except:
+            norm = ''
+
+        if norm in db_map.keys():
+            # Normalize the ids a little
+            id_norm = re.sub('geo|gds|bioproject|biosample|pubmed|pmid',
+                             '', xref['id'].lower()).strip(' :().').upper()
+            return db_map[norm], id_norm
+        else:
+            return False
+
+    @valid_path
+    def _parse_link_parts(self, node):
+        """Parse the different parts of a link.
+
+        In SRA a link can have a {label, db, id, query, url}. This function
+        iterates over the different attributes and pulls out the bits of
+        information.
+
+        Parameters
+        ----------
+        node: xml.etree.ElementTree.ElementTree.Element
+            Node where the root is '{URL,XREF,ENTRE,DDBJ,ENA}_LINK'.
+        """
+        d = dict()
+        for child in node:
+            d[child.tag.lower()] = child.text
+        return d
+
+    @valid_path
+    def _update_link(self, node, _type, d):
+        """Given a type of link, search for it and return a dict."""
+
+        def search(_type):
+            """Returns ElemenTree search string."""
+            return '*/' + _type.strip('s').upper()
+
+        for l in node.findall(search(_type)):
+            link = self._parse_link_parts(l)
+            _raise = self._raise_xref_status(link)
+            if _raise:
+                d[_raise[0]] = _raise[1]
+            else:
+                d[_type].append(link)
+        return d
+
+    @valid_path
+    def _parse_links(self, node):
+        """Parse various types of links in the SRA.
+
+        Parameters
+        ----------
+        node: xml.etree.ElementTree.ElementTree.Element
+            Node where the root is '*_LINKS'.
+        """
+        d = defaultdict(list)
+        d.update(self._update_link(node, 'url_links', d))
+        d.update(self._update_link(node, 'xref_links', d))
+        d.update(self._update_link(node, 'entrez_links', d))
+        d.update(self._update_link(node, 'ddbj_links', d))
+        d.update(self._update_link(node, 'ena_links', d))
+        return d
+
+    @valid_path
+    def _parse_ids(self, node, namespace):
+        """Helper function to parse IDENTIFIERS sections.
+
+        Automatically tries to pull out important external and secondary
+        identifiers. Otherwises stores other identifiers in a list.
+
+        Parameters
+        ----------
+        node: xml.etree.ElementTree.ElementTree.Element
+            Node where the root is 'IDENTIFIERS'.
+        namespace: str
+            Name to use for the primary ID.
+        """
+        d = defaultdict(list)
+
+        for _id in node:
+            if _id.tag == 'PRIMARY_ID':
+                d[namespace + '_id'] = _id.text
+            elif _id.tag == 'SUBMITTER_ID':
+                xref = {'db': _id.get('namespace'), 'id': _id.text}
+                d[_id.tag.lower()].append(xref)
+            else:
+                # Other types of ids (external, secondary).
+                xref = {'db': _id.get('namespace'), 'id': _id.text}
+                _raise = self._raise_xref_status(xref)
+                if _raise:
+                    d[_raise[0]] = _raise[1]
+                else:
+                    d[_id.tag.lower()].append(xref)
+        return d
+
+    # Submission
     @valid_path
     def _parse_submission(self, node):
         """Parses submission section."""
@@ -43,6 +160,7 @@ class SraExperiment(object):
         d.update(parse_tree_from_dict(node, {'broker': ('.', 'broker_name')}))
         return d
 
+    # Organization
     @valid_path
     def _parse_organization(self, node):
         """Parses organization section."""
@@ -59,6 +177,49 @@ class SraExperiment(object):
 
         return d
 
+    @valid_path
+    def _parse_study_type(self, node):
+        """Processes study types section.
+
+        Do XML related validation here based on the study type information and
+        sra_const.
+
+        node: xml.etree.ElementTree.ElementTree.element
+            'STUDY/DESCRIPTOR/STUDY_TYPE'
+        """
+        d = dict()
+        if node.get('existing_study_type'):
+            d['type'] = node.get('existing_study_type')
+
+            # XSD Validation
+            # If depricated replace with active type
+            d['type'] = EXISTING_STUDY_TYPES_DEPRICATED.get(d['type'], d['type'])
+
+            # Make sure study type is in current active types
+            if not d['type'] in EXISTING_STUDY_TYPES_ACTIVE:
+                raise XMLSchemaException('Study type: {}'.format(d['type']))
+
+        elif node.get('new_study_type'):
+            d['type'] = node.get('new_study_type')
+
+        return d
+
+    @valid_path
+    def _parse_study_related_study(self, node):
+        """Parses related study section."""
+        links = []
+        for study in node:
+            d = dict()
+            d['db'] = study.find('RELATED_LINK/DB').text
+            d['id'] = study.find('RELATED_LINK/ID').text
+            d['label'] = study.find('RELATED_LINK/LABEL').text
+            d['is_primary'] = study.find('IS_PRIMARY').text
+            links.append(d)
+
+        d = {'related_studies': links}
+        return d
+
+    # Study
     @valid_path
     def _parse_study(self, node):
         """Parses study section."""
@@ -81,6 +242,64 @@ class SraExperiment(object):
 
         return d
 
+    @valid_path
+    def _parse_attributes(self, node):
+        """Parse various attributes as tag:value pairs.
+
+        Parameters
+        ----------
+        node: xml.etree.ElementTree.ElementTree.Element
+            Node where the root is 'EXPERIMENT_ATTRIBUTES'.
+        """
+        d = defaultdict(dict)
+        for attribute in node.getchildren():
+            try:
+                key_norm = attribute.find('TAG').text.lower()
+                value_norm = attribute.find('VALUE').text.lower()
+
+                if re.match('\w+\d+', value_norm):
+                    value_norm = value_norm.upper()
+
+                d['attributes'][key_norm] = value_norm
+            except:
+                logger.debug('Malformed attribute: "%s: %s"',
+                             attribute.find('TAG').text, attribute.find('VALUE').text)
+
+        return d
+
+    # Sample
+    @valid_path
+    def _parse_sample(self, node):
+        """Parses sample section."""
+        d = dict()
+
+        d.update(self._parse_ids(node.find('IDENTIFIERS'), 'sample'))
+        d.update(self._parse_links(node.find('SAMPLE_LINKS')))
+        d.update(self._parse_attributes(node.find('SAMPLE_ATTRIBUTES')))
+
+        locs = {
+            'title': ('TITLE', 'text'),
+            'taxon_id': ('SAMPLE_NAME/TAXON_ID', 'text'),
+            'scientific_name': ('SAMPLE_NAME/SCIENTIFIC_NAME', 'text'),
+            'common_name': ('SAMPLE_NAME/COMMON_NAME', 'text'),
+            'individual_name': ('SAMPLE_NAME/INDIVIDUAL_NAME', 'text'),
+            'description': ('SAMPLE/DESCRIPTION', 'text'),
+        }
+        d.update(parse_tree_from_dict(node, locs))
+
+        return d
+
+    @valid_path(rettype=list)
+    def _parse_pool(self, node):
+        """Parses pool section."""
+        pool = []
+        for member in node:
+            d = dict()
+            d.update(self._parse_ids(member.find('IDENTIFIERS'), 'sample'))
+            pool.append(d['sample_id'])
+        return pool
+
+    # Experiment
     @valid_path
     def _parse_experiment(self, node):
         """Parses experiment section."""
@@ -159,246 +378,6 @@ class SraExperiment(object):
         return d
 
     @valid_path
-    def _parse_sample(self, node):
-        """Parses sample section."""
-        d = dict()
-
-        d.update(self._parse_ids(node.find('IDENTIFIERS'), 'sample'))
-        d.update(self._parse_links(node.find('SAMPLE_LINKS')))
-        d.update(self._parse_attributes(node.find('SAMPLE_ATTRIBUTES')))
-
-        locs = {
-            'title': ('TITLE', 'text'),
-            'taxon_id': ('SAMPLE_NAME/TAXON_ID', 'text'),
-            'scientific_name': ('SAMPLE_NAME/SCIENTIFIC_NAME', 'text'),
-            'common_name': ('SAMPLE_NAME/COMMON_NAME', 'text'),
-            'individual_name': ('SAMPLE_NAME/INDIVIDUAL_NAME', 'text'),
-            'description': ('SAMPLE/DESCRIPTION', 'text'),
-        }
-        d.update(parse_tree_from_dict(node, locs))
-
-        return d
-
-    @valid_path
-    def _parse_pool(self, node):
-        """Parses pool section."""
-        pool = []
-        for member in node:
-            d = dict()
-            d.update(self._parse_ids(member.find('IDENTIFIERS'), 'sample'))
-            pool.append(d)
-        return pool
-
-    @valid_path
-    def _parse_run(self, node):
-        """Parses run section."""
-        runs = []
-        for run in node.findall('RUN'):
-            d = dict()
-            d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
-            d['samples'] = self._parse_pool(run.find('Pool'))
-            d.update(self._parse_taxon(run.find('tax_analysis')))
-            d.update(self._parse_run_reads(run.find('Statistics'), d['run_id']))
-
-            locs = {
-                'experiment_id': ('EXPERIMENT_REF', 'accession'),
-                'nspots': ('Statistics', 'nspots'),
-                'nbases': ('Bases', 'count'),
-            }
-
-            d.update(parse_tree_from_dict(run, locs))
-            d['nspots'] = int(d['nspots'])
-            d['nbases'] = int(d['nbases'])
-
-            runs.append(d)
-
-        return runs
-
-    def _raise_xref_status(self, xref):
-        """Some xrefs are more imporant and I want to pull them out.
-
-        xrefs to specific databases I am interested in should be pulled out and
-        stored separately. Go ahead and normalized database names and values a
-        bit.
-
-        Parameters
-        ----------
-        xref: dict
-            A dictionary with keys 'db' and 'id'.
-        """
-        # databases of interest
-        db_map = {'geo': 'GEO',
-                  'gds': 'GEO_Dataset',
-                  'bioproject': 'BioProject',
-                  'biosample': 'BioSample',
-                  'pubmed': 'pubmed'}
-
-        # normalize db name
-        try:
-            norm = xref['db'].strip(' ()[].:').lower()
-        except:
-            norm = ''
-
-        if norm in db_map.keys():
-            # Normalize the ids a little
-            id_norm = re.sub('geo|gds|bioproject|biosample|pubmed|pmid',
-                             '', xref['id'].lower()).strip(' :().').upper()
-            return db_map[norm], id_norm
-        else:
-            return False
-
-    @valid_path
-    def _parse_study_type(self, node):
-        """Processes study types section.
-
-        Do XML related validation here based on the study type information and
-        sra_const.
-
-        node: xml.etree.ElementTree.ElementTree.element
-            'STUDY/DESCRIPTOR/STUDY_TYPE'
-        """
-        d = dict()
-        if node.get('existing_study_type'):
-            d['type'] = node.get('existing_study_type')
-
-            # XSD Validation
-            # If depricated replace with active type
-            d['type'] = EXISTING_STUDY_TYPES_DEPRICATED.get(d['type'], d['type'])
-
-            # Make sure study type is in current active types
-            if not d['type'] in EXISTING_STUDY_TYPES_ACTIVE:
-                raise XMLSchemaException('Study type: {}'.format(d['type']))
-
-        elif node.get('new_study_type'):
-            d['type'] = node.get('new_study_type')
-
-        return d
-
-    @valid_path
-    def _parse_study_related_study(self, node):
-        """Parses related study section."""
-        links = []
-        for study in node:
-            d = dict()
-            d['db'] = study.find('RELATED_LINK/DB').text
-            d['id'] = study.find('RELATED_LINK/ID').text
-            d['label'] = study.find('RELATED_LINK/LABEL').text
-            d['is_primary'] = study.find('IS_PRIMARY').text
-            links.append(d)
-
-        d = {'related_studies': links}
-        return d
-
-    @valid_path
-    def _parse_ids(self, node, namespace):
-        """Helper function to parse IDENTIFIERS sections.
-
-        Automatically tries to pull out important external and secondary
-        identifiers. Otherwises stores other identifiers in a list.
-
-        Parameters
-        ----------
-        node: xml.etree.ElementTree.ElementTree.Element
-            Node where the root is 'IDENTIFIERS'.
-        namespace: str
-            Name to use for the primary ID.
-        """
-        d = defaultdict(list)
-
-        for _id in node:
-            if _id.tag == 'PRIMARY_ID':
-                d[namespace + '_id'] = _id.text
-            elif _id.tag == 'SUBMITTER_ID':
-                xref = {'db': _id.get('namespace'), 'id': _id.text}
-                d[_id.tag.lower()].append(xref)
-            else:
-                # Other types of ids (external, secondary).
-                xref = {'db': _id.get('namespace'), 'id': _id.text}
-                _raise = self._raise_xref_status(xref)
-                if _raise:
-                    d[_raise[0]] = _raise[1]
-                else:
-                    d[_id.tag.lower()].append(xref)
-        return d
-
-    @valid_path
-    def _parse_link_parts(self, node):
-        """Parse the different parts of a link.
-
-        In SRA a link can have a {label, db, id, query, url}. This function
-        iterates over the different attributes and pulls out the bits of
-        information.
-
-        Parameters
-        ----------
-        node: xml.etree.ElementTree.ElementTree.Element
-            Node where the root is '{URL,XREF,ENTRE,DDBJ,ENA}_LINK'.
-        """
-        d = dict()
-        for child in node:
-            d[child.tag.lower()] = child.text
-        return d
-
-    @valid_path
-    def _update_link(self, node, _type, d):
-        """Given a type of link, search for it and return a dict."""
-
-        def search(_type):
-            """Returns ElemenTree search string."""
-            return '*/' + _type.strip('s').upper()
-
-        for l in node.findall(search(_type)):
-            link = self._parse_link_parts(l)
-            _raise = self._raise_xref_status(link)
-            if _raise:
-                d[_raise[0]] = _raise[1]
-            else:
-                d[_type].append(link)
-        return d
-
-    @valid_path
-    def _parse_links(self, node):
-        """Parse various types of links in the SRA.
-
-        Parameters
-        ----------
-        node: xml.etree.ElementTree.ElementTree.Element
-            Node where the root is '*_LINKS'.
-        """
-        d = defaultdict(list)
-        d.update(self._update_link(node, 'url_links', d))
-        d.update(self._update_link(node, 'xref_links', d))
-        d.update(self._update_link(node, 'entrez_links', d))
-        d.update(self._update_link(node, 'ddbj_links', d))
-        d.update(self._update_link(node, 'ena_links', d))
-        return d
-
-    @valid_path
-    def _parse_attributes(self, node):
-        """Parse various attributes as tag:value pairs.
-
-        Parameters
-        ----------
-        node: xml.etree.ElementTree.ElementTree.Element
-            Node where the root is 'EXPERIMENT_ATTRIBUTES'.
-        """
-        d = defaultdict(dict)
-        for attribute in node.getchildren():
-            try:
-                key_norm = attribute.find('TAG').text.lower()
-                value_norm = attribute.find('VALUE').text.lower()
-
-                if re.match('\w+\d+', value_norm):
-                    value_norm = value_norm.upper()
-
-                d['attributes'][key_norm] = value_norm
-            except:
-                logger.error('Malformed attribute: "%s: %s"',
-                             attribute.find('TAG').text, attribute.find('VALUE').text)
-
-        return d
-
-    @valid_path
     def _parse_taxon(self, node):
         """Parse taxonomy informaiton."""
 
@@ -416,21 +395,53 @@ class SraExperiment(object):
                     d.update(crawl(i))
             return d
 
-        d = {'tax_analysis': {'nspot_analyze': int(node.get('analyzed_spot_count')),
-                              'total_spots': int(node.get('total_spot_count')),
-                              'mapped_spots': int(node.get('identified_spot_count')),
+        d = {'tax_analysis': {'nspot_analyze': node.get('analyzed_spot_count'),
+                              'total_spots': node.get('total_spot_count'),
+                              'mapped_spots': node.get('identified_spot_count'),
                               'tax_counts': crawl(node),
                               },
              }
+
+        try:
+            if d['tax_analysis']['nspot_analyze'] is not None:
+                d['tax_analysis']['nspot_analyze'] = int(d['tax_analysis']['nspot_analyze'])
+        except:
+            logger.debug('Non integer count: nspot_analyze')
+            logger.debug(d['tax_analysis']['nspot_analyze'])
+            d['tax_analysis']['nspot_analyze'] = None
+
+        try:
+            if d['tax_analysis']['total_spots'] is not None:
+                d['tax_analysis']['total_spots'] = int(d['tax_analysis']['total_spots'])
+        except:
+            logger.debug('Non integer count: total_spots')
+            logger.debug(d['tax_analysis']['total_spots'])
+            d['tax_analysis']['total_spots'] = None
+
+        try:
+            if d['tax_analysis']['mapped_spots'] is not None:
+                d['tax_analysis']['mapped_spots'] = int(d['tax_analysis']['mapped_spots'])
+        except:
+            logger.debug('Non integer count: mapped_spots')
+            logger.debug(d['tax_analysis']['mapped_spots'])
+            d['tax_analysis']['mapped_spots'] = None
 
         return d
 
     @valid_path
     def _parse_run_reads(self, node, run_id):
         """Parse reads from runs."""
-
         d = dict()
-        d['nreads'] = int(node.get('nreads'))
+
+        nreads = node.get('nreads')
+        try:
+            if nreads is not None:
+                d['nreads'] = int(nreads)
+        except:
+            logger.debug('Non numeric nreads: "%s"' % nreads)
+            logger.debug('Setting nreads to: -1')
+            d['nreads'] = -1
+
         if d['nreads'] == 1:
             read = node.find('Read')
             d['read_count'] = float(read.get('count'))
@@ -447,16 +458,55 @@ class SraExperiment(object):
                 if d['read_len_r1'] != d['read_len_r2']:
                     warn = ('Read lengths are not equal {}: '
                            'read 1: {} and read 2: {}'.format(run_id, d['read_len_r1'], d['read_len_r2']))
-                    logger.warn(warn)
+#                     logger.warn(warn)
 
                 if d['read_count_r1'] != d['read_count_r2']:
                     warn = ('Read counts are not equal {}: '
                            'read 1: {} and read 2: {}'.format(run_id, d['read_count_r1'], d['read_count_r2']))
-                    logger.warn(warn)
+#                     logger.warn(warn)
             except:
                 pass
         return d
 
+    # Run
+    @valid_path(rettype=list)
+    def _parse_run(self, node):
+        """Parses run section."""
+        runs = []
+        for run in node.findall('RUN'):
+            d = dict()
+            d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
+            d['samples'] = self._parse_pool(run.find('Pool'))
+            d.update(self._parse_taxon(run.find('tax_analysis')))
+            d.update(self._parse_run_reads(run.find('Statistics'), d['run_id']))
 
-if __name__ == '__main__':
-    pass
+            locs = {
+                'experiment_id': ('EXPERIMENT_REF', 'accession'),
+                'nspots': ('Statistics', 'nspots'),
+                'nbases': ('Bases', 'count'),
+            }
+
+            d.update(parse_tree_from_dict(run, locs))
+
+            # Make counts numeric
+            if 'nspots' in d:
+                try:
+                    if d['nspots'] is not None:
+                        d['nspots'] = int(d['nspots'])
+                except:
+                    logger.debug('Non numeric nspots: %s' % d['nspots'])
+                    logger.debug('Setting nspots to None')
+                    d['nspots'] = None
+
+            if 'nbases' in d:
+                try:
+                    if d['nbases'] is not None:
+                        d['nbases'] = int(d['nbases'])
+                except:
+                    logger.debug('Non numeric nbases: %s' % d['nbases'])
+                    logger.debug('Setting nbases to None')
+                    d['nbases'] = None
+
+            runs.append(d)
+
+        return runs
