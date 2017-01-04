@@ -7,6 +7,7 @@ dependencies:
 - bioconda::entrez-direct=5.80
 - biopython=1.68
 - ipython=5.1.0
+- jfear::blinker=1.4
 - jfear::mongodb=3.4.0
 - pymongo=3.3.0
 - pytest=3.0.5
