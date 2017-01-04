@@ -6,6 +6,7 @@ from time import sleep
 from subprocess import Popen
 
 class MongoDBFolderError(Exception):
+    """Exception for missing mongoDB folder."""
     pass
 
 
@@ -27,7 +28,6 @@ def start_mongo(dbDir=None, logDir=None, port=27017, command_line_args=''):
     command_line_args: str
         Additional mongod command line arguments. Passed directly to the mongod
         command.
-
     """
     if dbDir is None:
         try:
@@ -63,7 +63,22 @@ def start_mongo(dbDir=None, logDir=None, port=27017, command_line_args=''):
 
 class MongoDB():
     def __init__(self, dbDir=None, logDir=None, port=27017, command_line_args=''):
-        """Runs start_mongo as a Context manager."""
+        """MongoDB server Context manager.
+
+        Parameters
+        ----------
+        dbDir: str
+            The path to the mongoDB database direcotry. If not given will try to
+            use `MONGODB_DATA_DIR` environmental variable.
+        logDir: str
+            The path to the mongoDB log directory. If not given will try to use
+            `MONGODB_LOG_DIR` environmental variable.
+        port: int
+            The port to run the server on.
+        command_line_args: str
+            Additional mongod command line arguments. Passed directly to the mongod
+            command.
+        """
         self.dbDir = dbDir
         self.logDir = logDir
         self.port = port
