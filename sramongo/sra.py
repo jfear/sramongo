@@ -1,4 +1,4 @@
-"""Module to handle SRA XML metadata."""
+"""Module to handle parsing SRA XML metadata."""
 
 import re
 from xml.etree import ElementTree
@@ -24,7 +24,6 @@ class SraExperiment(object):
         ----------
         node: xml.etree.ElementTree.ElementTree.Element
             Experiment level node as an ElemenTree element.
-
         """
         # parse different sections for SRA xml
         self.organization = self._parse_organization(node.find('Organization'))
@@ -38,6 +37,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_submission(self, node):
+        """Parses submission section."""
         d = dict()
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'submission'))
         d.update(parse_tree_from_dict(node, {'broker': ('.', 'broker_name')}))
@@ -45,6 +45,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_organization(self, node):
+        """Parses organization section."""
         d = dict()
         locs = {
             'type': ('.', 'type'),
@@ -60,6 +61,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_study(self, node):
+        """Parses study section."""
         d = dict()
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'study'))
         d.update(self._parse_links(node.find('STUDY_LINKS')))
@@ -81,6 +83,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_experiment(self, node):
+        """Parses experiment section."""
         d = dict()
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'experiment'))
@@ -157,6 +160,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_sample(self, node):
+        """Parses sample section."""
         d = dict()
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'sample'))
@@ -177,6 +181,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_pool(self, node):
+        """Parses pool section."""
         pool = []
         for member in node:
             d = dict()
@@ -186,6 +191,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_run(self, node):
+        """Parses run section."""
         runs = []
         for run in node.findall('RUN'):
             d = dict()
@@ -217,7 +223,6 @@ class SraExperiment(object):
         ----------
         xref: dict
             A dictionary with keys 'db' and 'id'.
-
         """
         # databases of interest
         db_map = {'geo': 'GEO',
@@ -242,7 +247,10 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_study_type(self, node):
-        """Processes study types.
+        """Processes study types section.
+
+        Do XML related validation here based on the study type information and
+        sra_const.
 
         node: xml.etree.ElementTree.ElementTree.element
             'STUDY/DESCRIPTOR/STUDY_TYPE'
@@ -266,7 +274,7 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_study_related_study(self, node):
-        """Parses related study information."""
+        """Parses related study section."""
         links = []
         for study in node:
             d = dict()
@@ -281,7 +289,10 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_ids(self, node, namespace):
-        """Helper function to parse IDENTIFIERS section.
+        """Helper function to parse IDENTIFIERS sections.
+
+        Automatically tries to pull out important external and secondary
+        identifiers. Otherwises stores other identifiers in a list.
 
         Parameters
         ----------
@@ -289,7 +300,6 @@ class SraExperiment(object):
             Node where the root is 'IDENTIFIERS'.
         namespace: str
             Name to use for the primary ID.
-
         """
         d = defaultdict(list)
 
@@ -321,7 +331,6 @@ class SraExperiment(object):
         ----------
         node: xml.etree.ElementTree.ElementTree.Element
             Node where the root is '{URL,XREF,ENTRE,DDBJ,ENA}_LINK'.
-
         """
         d = dict()
         for child in node:
@@ -330,7 +339,7 @@ class SraExperiment(object):
 
     @valid_path
     def _update_link(self, node, _type, d):
-        """Given a type of url search for it and return a dict."""
+        """Given a type of link, search for it and return a dict."""
 
         def search(_type):
             """Returns ElemenTree search string."""
@@ -353,7 +362,6 @@ class SraExperiment(object):
         ----------
         node: xml.etree.ElementTree.ElementTree.Element
             Node where the root is '*_LINKS'.
-
         """
         d = defaultdict(list)
         d.update(self._update_link(node, 'url_links', d))
@@ -365,13 +373,12 @@ class SraExperiment(object):
 
     @valid_path
     def _parse_attributes(self, node):
-        """Parse various attributes.
+        """Parse various attributes as tag:value pairs.
 
         Parameters
         ----------
         node: xml.etree.ElementTree.ElementTree.Element
             Node where the root is 'EXPERIMENT_ATTRIBUTES'.
-
         """
         d = defaultdict(dict)
         for attribute in node.getchildren():
@@ -419,6 +426,7 @@ class SraExperiment(object):
     @valid_path
     def _parse_run_reads(self, node, run_id):
         """Parse reads from runs."""
+
         d = dict()
         d['nreads'] = node.get('nreads')
         if d['nreads'] == "1":
@@ -476,14 +484,6 @@ class SraRunInfo(object):
         }
         self.__dict__.update(parse_tree_from_dict(node, locs))
 
-
-def parse_sra_xml(xml):
-    tree = ElementTree.parse(xml)
-    root = tree.getroot()
-    sras = []
-    for package in root:
-        sras.append(SraExperiment(package))
-    return sras
 
 if __name__ == '__main__':
     pass
