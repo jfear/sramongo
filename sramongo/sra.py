@@ -456,34 +456,5 @@ class SraExperiment(object):
         return d
 
 
-class SraRunInfo(object):
-    def __init__(self, node):
-        """Parses RunInfo to grab some additional information.
-
-        Unfortunatly the 'full' xml does not have all of the aviable
-        information.  There are some additional fields that are aviable in the
-        runinfo|docsum. In particular the CreateDate.
-
-        The runinfo can be obtained with the following:
-
-        efetch -db sra -format runinfo -mode xml
-
-        Parameters
-        ----------
-        node: xml.etree.ElementTree.ElementTree.Element
-            A Row element from a runinfo xml as an ElemenTree element.
-
-        """
-        locs = {
-            'run_id': ('Run', 'text'),
-            'release_date': ('ReleaseDate', 'text'),
-            'load_date': ('LoadDate', 'text'),
-            'consent': ('Consent', 'text'),
-            'run_hash': ('RunHash', 'text'),
-            'read_hash': ('ReadHash', 'text'),
-        }
-        self.__dict__.update(parse_tree_from_dict(node, locs))
-
-
 if __name__ == '__main__':
     pass
