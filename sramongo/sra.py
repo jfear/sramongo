@@ -35,6 +35,7 @@ class SraExperiment(object):
         self.pool = self._parse_pool(node.find('Pool'))
         self.run = self._parse_run(node.find('RUN_SET'))
 
+
     @valid_path
     def _parse_submission(self, node):
         d = dict()
@@ -123,28 +124,34 @@ class SraExperiment(object):
         d.update(parse_tree_from_dict(node, locs))
 
         # XSD Validation
-        if not d['library_strategy'] in LIBRARY_STRATEGY:
-            logger.error('"{}" not found in library_strategy.'.format(d['library_strategy']))
-            raise XMLSchemaException('library_strategy')
-        if not d['library_source'] in LIBRARY_SOURCE:
-            logger.error('"{}" not found in library_source.'.format(d['library_source']))
-            raise XMLSchemaException('library_source')
-        if not d['library_selection'] in LIBRARY_SELECTION:
-            logger.error('"{}" not found in library_selection.'.format(d['library_selection']))
-            raise XMLSchemaException('library_selection')
-        if not d['library_layout'] in LIBRARY_LAYOUT:
-            logger.error('"{}" not found in library_layout.'.format(d['library_layout']))
-            raise XMLSchemaException('library_layout')
-        if not d['platform'] in PLATFORMS:
-            logger.error('"{}" not found in platform.'.format(d['platform']))
-            raise XMLSchemaException('platform')
+        def _clean_const(dat, name):
+            consts = {'library_strategy': LIBRARY_STRATEGY,
+                      'library_source': LIBRARY_SOURCE,
+                      'library_selection': LIBRARY_SELECTION,
+                      'library_layout': LIBRARY_LAYOUT,
+                      'platform': PLATFORMS,
+                      'instrument_model': INSTRUMENT_MODEL_ACTIVE,
+                    }
+
+            if dat[name].lower() in map(str.lower, consts[name]):
+                for c in consts[name]:
+                    if dat[name].lower() == c.lower():
+                        return {name: c}
+            else:
+                logger.error('"{}" not found in {}.'.format(dat[name], name))
+#                 raise XMLSchemaException(name)
+                return {}
+
+
+        d.update(_clean_const(d, 'library_strategy'))
+        d.update(_clean_const(d, 'library_source'))
+        d.update(_clean_const(d, 'library_selection'))
+        d.update(_clean_const(d, 'library_layout'))
+        d.update(_clean_const(d, 'platform'))
 
         # Update instrument model if depricated
         d['instrument_model'] = INSTRUMENT_MODEL_DEPRICATED.get(d['instrument_model'], d['instrument_model'])
-
-        if not d['instrument_model'] in INSTRUMENT_MODEL_ACTIVE:
-            logger.error('"{}" not found in instrument_model'.format(d['instrument_model']))
-            raise XMLSchemaException('instrument_model')
+        d.update(_clean_const(d, 'instrument_model'))
 
         return d
 
@@ -368,14 +375,17 @@ class SraExperiment(object):
         """
         d = defaultdict(dict)
         for attribute in node.getchildren():
-            key_norm = attribute.find('TAG').text.lower()
+            try:
+                key_norm = attribute.find('TAG').text.lower()
+                value_norm = attribute.find('VALUE').text.lower()
 
-            value_norm = attribute.find('VALUE').text.lower()
+                if re.match('\w+\d+', value_norm):
+                    value_norm = value_norm.upper()
 
-            if re.match('\w+\d+', value_norm):
-                value_norm = value_norm.upper()
-
-            d['attributes'][key_norm] = value_norm
+                d['attributes'][key_norm] = value_norm
+            except:
+                logger.error('Malformed attribute: "%s: %s"',
+                             attribute.find('TAG').text, attribute.find('VALUE').text)
 
         return d
 
@@ -430,8 +440,8 @@ class SraExperiment(object):
                     logger.warn(warn)
 
                 if d['read_count_r1'] != d['read_count_r2']:
-                    warn = ('Read counts are not equal: '
-                           'read 1: {} and read 2: {}'.format(d['read_count_r1'], d['read_count_r2']))
+                    warn = ('Read counts are not equal {}: '
+                           'read 1: {} and read 2: {}'.format(run_id, d['read_count_r1'], d['read_count_r2']))
                     logger.warn(warn)
             except:
                 pass
