@@ -39,7 +39,6 @@ LIBRARY_STRATEGY = [
     "MRE-Seq",
     "ncRNA-Seq",
     "OTHER",
-    "other",
     "POOLCLONE",
     "RIP-Seq",
     "RNA-Seq",
@@ -107,6 +106,7 @@ PLATFORMS = [
     "ILLUMINA",
     "ION_TORRENT",
     "LS454",
+    "OXFORD_NANOPORE",
     "PACBIO_SMRT",
     ]
 
@@ -140,15 +140,20 @@ INSTRUMENT_MODEL_ACTIVE = [
     "Illumina Genome Analyzer IIx",
     "Illumina HiScanSQ",
     "Illumina HiSeq 1000",
+    "Illumina HiSeq 1500",
     "Illumina HiSeq 2000",
     "Illumina HiSeq 2500",
     "Illumina HiSeq 3000",
+    "Illumina HiSeq 3500",
     "Illumina HiSeq 4000",
+    "Illumina HiSeq X Five",
+    "Illumina HiSeq X Ten",
     "Illumina MiSeq",
     "Ion Torrent PGM",
     "Ion Torrent Proton",
     "NextSeq 500",
     "NextSeq 550",
+    "MinION",
     "PacBio RS",
     "unspecified",
     ]
@@ -156,4 +161,6 @@ INSTRUMENT_MODEL_ACTIVE = [
 INSTRUMENT_MODEL_DEPRICATED = {
     "AB SOLiD 5500": "AB 5500 Genetic Analyzer",
     "AB SOLiD 5500xl": "AB 5500xl Genetic Analyzer",
+    "HiSeq X Five": "Illumina HiSeq X Five",
+    "HiSeq X Ten": "Illumina HiSeq X Ten",
     }
