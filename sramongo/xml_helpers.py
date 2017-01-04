@@ -12,7 +12,6 @@ def valid_path(func):
     A decorator function that makes sure a XML path (i.e.
     xml.etree.ElementTree.ElemenTree.Element) exists. If the path does not
     exists then return an empty dictionary.
-
     """
     def new_func(*args, **kwargs):
         # If the current path is present
@@ -29,6 +28,8 @@ def valid_path(func):
 def parse_tree_from_dict(node, locs):
     """Processes key locations.
 
+    Parameters
+    ----------
     node: xml.etree.ElementTree.ElementTree.element
         Current node.
     locs: dict
@@ -49,7 +50,6 @@ def parse_tree_from_dict(node, locs):
             * 'tag': assumes the wanted is the class tag of the path.
             * str: Any other string will be treated as an attribute lookup
                    of the path.
-
     """
     d = dict()
     for n, l in locs.items():
