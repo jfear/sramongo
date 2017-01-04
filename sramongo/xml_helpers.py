@@ -1,4 +1,5 @@
 """Some small helpers for dealing with xml."""
+from functools import wraps
 from sramongo.logger import logger
 
 
@@ -6,22 +7,19 @@ class AmbiguousElementException(Exception):
     pass
 
 
-def valid_path(func):
-    """Validates that a XML path exists.
-
-    A decorator function that makes sure a XML path (i.e.
-    xml.etree.ElementTree.ElemenTree.Element) exists. If the path does not
-    exists then return an empty dictionary.
-    """
-    def new_func(*args, **kwargs):
-        # If the current path is present
-        if args[1] is None:
-            #logger.debug(('Not valid path.', func, args))
-            return {}
-        else:
-            return func(*args, **kwargs)
-
-    return new_func
+def valid_path(function=None, rettype=dict):
+    def actual_decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if ((len(args) == 1) and (args[0] is None)) or \
+                    ((len(args) == 2) and (args[1] is None)):
+                return rettype()
+            else:
+                return f(*args, **kwargs)
+        return wrapper
+    if function is not None:
+        return actual_decorator(function)
+    return actual_decorator
 
 
 @valid_path
