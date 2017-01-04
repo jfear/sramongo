@@ -10,29 +10,31 @@ from sramongo.logger import logger
 
 class DocumentString(object):
     def __init__(self, document):
-        """Represents mongo Document as strings.
+        """Represents mongo Document as string.
 
         This is a helper class to make a string representation of a mongo
-        document.
+        document. In other words allows prettry printing of documents.
 
         Parameters
         ----------
         document: mongoengine.Document
             A subclass of the mongoengine.Document. Assumes that all data is
             stored in an attribute self._data.
-
         """
         self.string = ''
         self.add_dict(document._data)
 
     def add_dict(self, dictionary, spacer=0):
-        """Iterates over a dictionary and parses strings.
+        """Dictionary string representation.
+
+        Iterates over a dictionary and builds key: value string
+        representations. Carries indention level through other methods so that
+        hierarchy is visually maintained.
 
         Parameters
         ----------
         dictionary: dict
             A dictionary with values to be turned into a string.
-
         spacer: int
             The amount of indention to use. As we go down further into a
             hierarchy indent values further.
@@ -54,7 +56,17 @@ class DocumentString(object):
                 pass
 
     def add_element(self, key, value, spacer=0):
-        """Add key value pair to string for pretty printing."""
+        """Adds key: value pair when value is a string.
+
+        Parameters
+        ----------
+        key: str
+            Key of the item.
+        value: str
+            Value of the item.
+        spacer: int
+            Length of the indention.
+        """
         spacer = ' ' * spacer
         if value is not None:
             # wrap really long lines like abstracts
@@ -64,14 +76,16 @@ class DocumentString(object):
         self.string += spacer + '{}: {}\n'.format(key, value)
 
     def add_list(self, key, value, spacer=0):
-        """Formats ids into astring for printing.
+        """Adds key: value pair when value is a list.
 
         Parameters
         ----------
-        ids: list
-            List of ids with a proper string representation (i.e. Xref)
-        name: str
-            Name of the id will be appended as a title (i.e. external_id)
+        key: str
+            Key of the item.
+        value: list
+            Value of the item.
+        spacer: int
+            Length of the indention.
         """
         spacer = ' ' * spacer
         if len(value) > 0:
@@ -84,7 +98,17 @@ class DocumentString(object):
             self.string += spacer + '{}: None\n'.format(key)
 
     def add_embeded_document(self, key, value, spacer=0):
-        """Adds embed document."""
+        """Adds key: value pair when value is an embedded document.
+
+        Parameters
+        ----------
+        key: str
+            Key of the item.
+        value: mongoengine.Document|mongoengine.EmbeddedDocument
+            Value of the item.
+        spacer: int
+            Length of the indention.
+        """
         spacer = ' ' * spacer
         self.string += spacer + '{}:\n'.format(key)
         s = spacer + ' ' * 4
@@ -143,6 +167,11 @@ class ENALink(XrefLink):
 
 # Study
 class Submission(EmbeddedDocument):
+    """Submission embedded document.
+
+    A submission must have a submission id (SRA/ERA/DRA). Additional metadata
+    may be present about the submitter and external links to other databases.
+    """
     submission_id = StringField(primary_key=True)
     broker = StringField()
 
@@ -156,6 +185,20 @@ class Submission(EmbeddedDocument):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        """Builds submission from an sramongo.SraExperiment.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no submission_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        sraExperiment: sramongo.SraExperiment
+            An sra object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the sraExperiment prior
+            to building.
+        """
         try:
             sraSubmission = sraExperiment.submission
             sraSubmission.update(kwargs)
@@ -168,18 +211,38 @@ class Submission(EmbeddedDocument):
 
 
 class Organization(EmbeddedDocument):
+    """Organization embedded document.
+
+    An organization has not defined id, so there are no required fields. This
+    may result in multiple copies in the database.
+    """
     type = StringField()
     abbreviation = StringField()
     name = StringField()
     email = StringField()
     first_name = StringField()
     last_name = StringField()
+    # TODO: Look into creating a primary key using first_name and last_name
 
     def __str__(self):
         return DocumentString(self).string
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        """Builds organization from an sramongo.SraExperiment.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        sraExperiment: sramongo.SraExperiment
+            An sra object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the sraExperiment prior
+            to building.
+        """
         try:
             sraOrganization = sraExperiment.organization
             sraOrganization.update(kwargs)
@@ -196,6 +259,11 @@ class RelatedStudy(XrefLink):
 
 
 class Study(Document):
+    """Study Document
+
+    A study must have a study id (SRP/ERP/DRP). Additional metadata
+    may be present. Studies embed submission and organization information.
+    """
     # SRA/DRA/ERA
     study_id = StringField(primary_key=True)
 
@@ -239,6 +307,20 @@ class Study(Document):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        """Builds study from an sramongo.SraExperiment.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no study_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        sraExperiment: sramongo.SraExperiment
+            An sra object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the sraExperiment prior
+            to building.
+        """
         try:
             sraStudy = sraExperiment.study
             sraStudy.update(kwargs)
@@ -253,6 +335,11 @@ class Study(Document):
 
 # Samples
 class Sample(Document):
+    """Sample Document.
+
+    A sample must have a sample id (SRS/ERS/DRS). Additional metadata
+    may be present along with external links to other databases.
+    """
     # SRS/DRS/ERS
     sample_id = StringField(primary_key=True)
 
@@ -289,6 +376,20 @@ class Sample(Document):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        """Builds sample from an sramongo.SraExperiment.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no sample_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        sraExperiment: sramongo.SraExperiment
+            An sra object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the sraExperiment prior
+            to building.
+        """
         try:
             sraSample = sraExperiment.sample
             sraSample.update(kwargs)
@@ -303,7 +404,12 @@ class Sample(Document):
 
 # Experiment
 class Pool(EmbeddedDocument):
-    sample_id = StringField()
+    """Pool embedded document.
+
+    A pool is a collection of sample names. Each sample in a pool is
+    represented by this embedded document. It needs to have a sample_id.
+    """
+    sample_id = StringField(primary_key=True)
     GEO = StringField()
     BioSample = StringField()
 
@@ -312,6 +418,20 @@ class Pool(EmbeddedDocument):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment):
+        """Builds Pool from an sramongo.SraExperiment.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no sample_id or additional fields that have
+        not been defined) then return Empty list.
+
+        Parameters
+        ----------
+        sraExperiment: sramongo.SraExperiment
+            An sra object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the sraExperiment prior
+            to building.
+        """
         if sraExperiment is None:
             return []
         elif isinstance(sraExperiment, SraExperiment):
@@ -331,6 +451,11 @@ class Pool(EmbeddedDocument):
 
 
 class Experiment(Document):
+    """Experiment Document.
+
+    A experiment must have a experiment id (SRX/ERX/DRX). Additional metadata
+    may be present along with external links to other databases.
+    """
     # SRX/DRX/ERX
     experiment_id = StringField(primary_key=True)
 
@@ -384,6 +509,20 @@ class Experiment(Document):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        """Builds experiment from an sramongo.SraExperiment.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no experiment_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        sraExperiment: sramongo.SraExperiment
+            An sra object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the sraExperiment prior
+            to building.
+        """
         try:
             sraExp = sraExperiment.experiment
             sraExp.update(kwargs)
@@ -419,6 +558,11 @@ class TaxAnalysis(EmbeddedDocument):
 
 
 class Run(Document):
+    """Run Document.
+
+    A run must have a run id (SRR/ERR/DRR). Additional metadata
+    may be present about the submitter and external links to other databases.
+    """
     # SRR/DRR/ERR
     run_id = StringField(primary_key=True)
 
@@ -458,6 +602,22 @@ class Run(Document):
 
     @classmethod
     def build_from_SraExperiment(cls, sraExperiment, runinfo, **kwargs):
+        """Builds run from an sramongo.SraExperiment and a runinfo table.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no run_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        sraExperiment: sramongo.SraExperiment
+            An sra object parsed from XML.
+        runinfo: pandas.DataFrame
+            A runinfo table imported as a data frame.
+        kwargs:
+            Other name arguments will be used to update the sraExperiment prior
+            to building.
+        """
         runs = []
         for sraRun in sraExperiment.run:
             try:
