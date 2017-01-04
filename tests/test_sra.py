@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 
 import pytest
 
-from sramongo.sra import SraExperiment, SraRunInfo
+from sramongo.sra import SraExperiment
 
 
 class TestSRR3001915:
@@ -83,14 +83,14 @@ class TestSRR3001915:
         assert sraTree.run[0]['samples'][0]['BioSample'] == 'SAMN02981965'
         assert sraTree.run[0]['samples'][0]['GEO'] == 'GSM1471477'
         assert sraTree.run[0]['experiment_id'] == 'SRX1483046'
-        assert sraTree.run[0]['nspots'] == '2001211'
-        assert sraTree.run[0]['nbases'] == '152092036'
-        assert sraTree.run[0]['nreads'] == '1'
-        assert sraTree.run[0]['read_count'] == '2001211'
-        assert sraTree.run[0]['read_len'] == '76'
+        assert sraTree.run[0]['nspots'] == 2001211
+        assert sraTree.run[0]['nbases'] == 152092036
+        assert sraTree.run[0]['nreads'] == 1
+        assert sraTree.run[0]['read_count'] == 2001211.0
+        assert sraTree.run[0]['read_len'] == 76.0
         assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['parent'] == 'Pterygota'
-        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['self_count'] == '95'
-        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['total_count'] == '360608'
+        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['self_count'] == 95
+        assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['total_count'] == 360608
         assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['tax_id'] == '33340'
         assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['rank'] == 'subclass'
 
@@ -170,32 +170,10 @@ class TestSRR5100239:
         assert sraTree.run[0]['samples'][0]['BioSample'] == 'SAMN06134387'
         assert sraTree.run[0]['samples'][0]['GEO'] == 'GSM2425536'
         assert sraTree.run[0]['experiment_id'] == 'SRX2416970'
-        assert sraTree.run[0]['nspots'] == '25818690'
-        assert sraTree.run[0]['nbases'] == '2581869000'
-        assert sraTree.run[0]['nreads'] == '2'
-        assert sraTree.run[0]['read_count_r1'] == '25818690'
-        assert sraTree.run[0]['read_len_r1'] == '50'
-        assert sraTree.run[0]['read_count_r2'] == '25818690'
-        assert sraTree.run[0]['read_len_r2'] == '50'
-
-
-class TestSRR3001915RunInfo:
-    @pytest.fixture(scope='class')
-    def sra_etree(self):
-        """ Element tree of single sra experiment. """
-        fname = 'data/sra_SRR3001915_runinfo.xml'
-        tree = ElementTree.parse(fname)
-        root = tree.getroot()
-        return root.find('Row')
-
-    @pytest.fixture(scope='class')
-    def sraTree(self, sra_etree):
-        return SraRunInfo(sra_etree)
-
-    def test_parse(self, sraTree):
-        assert sraTree.run_id == 'SRR3001915'
-        assert sraTree.release_date == '2015-12-21'
-        assert sraTree.load_date == '2015-12-15'
-        assert sraTree.consent == 'public'
-        assert sraTree.run_hash == '565B5B7D846F21B0FF86D770445560DA'
-        assert sraTree.read_hash == 'F39A9755010159B1E08869CF5D920C40'
+        assert sraTree.run[0]['nspots'] == 25818690
+        assert sraTree.run[0]['nbases'] == 2581869000
+        assert sraTree.run[0]['nreads'] == 2
+        assert sraTree.run[0]['read_count_r1'] == 25818690.0
+        assert sraTree.run[0]['read_len_r1'] == 50.0
+        assert sraTree.run[0]['read_count_r2'] == 25818690.0
+        assert sraTree.run[0]['read_len_r2'] == 50.0

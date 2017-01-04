@@ -1,7 +1,7 @@
 """Set up MonoDB schema using monogodngine."""
 from textwrap import fill
 from mongoengine import Document, EmbeddedDocument
-from mongoengine import StringField, IntField, ListField, DictField, MapField
+from mongoengine import StringField, IntField, FloatField, ListField, DictField, MapField
 from mongoengine import EmbeddedDocumentField, ReferenceField
 from mongoengine.errors import ValidationError
 from sramongo.sra import SraExperiment
@@ -538,8 +538,8 @@ class Experiment(Document):
 # Run
 class TaxRecord(EmbeddedDocument):
     parent = StringField()
-    total_count = StringField()
-    self_count = StringField()
+    total_count = IntField()
+    self_count = IntField()
     tax_id = StringField()
     rank = StringField()
 
@@ -548,9 +548,9 @@ class TaxRecord(EmbeddedDocument):
 
 
 class TaxAnalysis(EmbeddedDocument):
-    nspot_analyze = StringField()
-    total_spots = StringField()
-    mapped_spots = StringField()
+    nspot_analyze = IntField()
+    total_spots = IntField()
+    mapped_spots = IntField()
     tax_counts = MapField(EmbeddedDocumentField(TaxRecord))
 
     def __str__(self):
@@ -574,21 +574,21 @@ class Run(Document):
     # Attributes
     experiment_id = StringField()
     samples = ListField(EmbeddedDocumentField(Pool), default=list)
-    nspots = StringField()
-    nbases = StringField()
+    nspots = IntField()
+    nbases = IntField()
     tax_analysis = EmbeddedDocumentField(TaxAnalysis)
-    nreads = StringField()
+    nreads = IntField()
 
     # if single ended
-    read_count = StringField()
-    read_len = StringField()
+    read_count = FloatField()
+    read_len = FloatField()
 
     # if paired ended
-    read_count_r1 = StringField()
-    read_len_r1 = StringField()
+    read_count_r1 = FloatField()
+    read_len_r1 = FloatField()
 
-    read_count_r2 = StringField()
-    read_len_r2 = StringField()
+    read_count_r2 = FloatField()
+    read_len_r2 = FloatField()
 
     # NOTE: Additional Fields added post creation
     experiment = ReferenceField(Experiment)
@@ -641,7 +641,7 @@ class Run(Document):
                     pass
 
                 try:
-                    run.size_MB = runinfo.loc[run.run_id, 'size_MB']
+                    run.size_MB = int(runinfo.loc[run.run_id, 'size_MB'])
                 except KeyError:
                     pass
 
@@ -657,6 +657,7 @@ class Run(Document):
 
                 run.save()
                 runs.append(run)
+
             except ValidationError as err:
                 logger.error('ValidationError: run malformed.')
                 logger.debug(sraRun)

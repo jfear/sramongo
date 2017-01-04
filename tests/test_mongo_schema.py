@@ -212,7 +212,7 @@ def test_run_w_sra(mongoDB, sraExperiment):
         experiment.save()
 
         assert Experiment.objects(experiment_id=experiment.id)[0].runs == [run.id]
-        assert run.tax_analysis.tax_counts['Neoptera']['self_count'] == "95"
+        assert run.tax_analysis.tax_counts['Neoptera']['self_count'] == 95
 
     finally:
         client.drop_database('test_sra')

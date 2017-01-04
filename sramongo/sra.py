@@ -207,6 +207,8 @@ class SraExperiment(object):
             }
 
             d.update(parse_tree_from_dict(run, locs))
+            d['nspots'] = int(d['nspots'])
+            d['nbases'] = int(d['nbases'])
 
             runs.append(d)
 
@@ -343,7 +345,7 @@ class SraExperiment(object):
 
         def search(_type):
             """Returns ElemenTree search string."""
-            return '*/' + _type.upper()
+            return '*/' + _type.strip('s').upper()
 
         for l in node.findall(search(_type)):
             link = self._parse_link_parts(l)
@@ -405,8 +407,8 @@ class SraExperiment(object):
             for i in node:
                 name = i.get('name').replace('.', '_').replace('$', '')
                 d[name] = {'parent': node.get('name'),
-                           'total_count': i.get('total_count'),
-                           'self_count': i.get('self_count'),
+                           'total_count': int(i.get('total_count')),
+                           'self_count': int(i.get('self_count')),
                            'tax_id': i.get('tax_id'),
                            'rank': i.get('rank')
                            }
@@ -414,9 +416,9 @@ class SraExperiment(object):
                     d.update(crawl(i))
             return d
 
-        d = {'tax_analysis': {'nspot_analyze': node.get('analyzed_spot_count'),
-                              'total_spots': node.get('total_spot_count'),
-                              'mapped_spots': node.get('identified_spot_count'),
+        d = {'tax_analysis': {'nspot_analyze': int(node.get('analyzed_spot_count')),
+                              'total_spots': int(node.get('total_spot_count')),
+                              'mapped_spots': int(node.get('identified_spot_count')),
                               'tax_counts': crawl(node),
                               },
              }
@@ -428,17 +430,17 @@ class SraExperiment(object):
         """Parse reads from runs."""
 
         d = dict()
-        d['nreads'] = node.get('nreads')
-        if d['nreads'] == "1":
+        d['nreads'] = int(node.get('nreads'))
+        if d['nreads'] == 1:
             read = node.find('Read')
-            d['read_count'] = read.get('count')
-            d['read_len'] = read.get('average')
+            d['read_count'] = float(read.get('count'))
+            d['read_len'] = float(read.get('average'))
         else:
             rid = {"0": '_r1', "1": '_r2'}
             for read in node.findall('Read'):
                 index = rid[read.get('index')]
-                d['read_count' + index] = read.get('count')
-                d['read_len' + index] = read.get('average')
+                d['read_count' + index] = float(read.get('count'))
+                d['read_len' + index] = float(read.get('average'))
 
             # Validate that reads that PE reads have similar lengths and counts
             try:
