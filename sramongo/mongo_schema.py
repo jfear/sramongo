@@ -470,12 +470,9 @@ class Experiment(Document):
 
     # NOTE: Additional Fields added post creation
     study = ReferenceField(Study)
-
-    # NOTE: Additional Fields added post creation
     samples = ListField(StringField(), default=list)
-
-    # NOTE: Additional Fields added post creation
     runs = ListField(StringField(), default=list)
+    flags = ListField(StringField(), default=list)
 
     def __str__(self):
         return DocumentString(self).string
@@ -574,6 +571,7 @@ class Run(Document):
     load_date = StringField()
     size_MB = IntField()
     download_path = StringField()
+    flags = ListField(StringField(), default=list)
 
     def __str__(self):
         return DocumentString(self).string
