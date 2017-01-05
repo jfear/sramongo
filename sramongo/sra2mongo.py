@@ -63,7 +63,7 @@ class Cache(object):
             return None
 
     def __iter__(self):
-        for f in self.cached:
+        for f in sorted(self.cached):
             xml = os.path.join(self.cachedir, '{}.{}'.format(f, 'xml'))
             csv = os.path.join(self.cachedir, '{}.{}'.format(f, 'csv'))
             yield xml, csv
