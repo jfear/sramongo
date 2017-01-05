@@ -3,7 +3,7 @@ from textwrap import fill
 from mongoengine import Document, EmbeddedDocument
 from mongoengine import StringField, IntField, FloatField, ListField, DictField, MapField
 from mongoengine import EmbeddedDocumentField, ReferenceField
-from mongoengine.errors import ValidationError
+from mongoengine.errors import ValidationError, FieldDoesNotExist
 from sramongo.sra import SraExperiment
 from sramongo.logger import logger
 
@@ -208,6 +208,10 @@ class Submission(EmbeddedDocument):
             logger.warn('%s\nSkipping this submission.' % err)
             logger.debug(sraSubmission)
             return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(sraSubmission)
+            raise err
 
 
 class Organization(EmbeddedDocument):
@@ -252,6 +256,10 @@ class Organization(EmbeddedDocument):
             logger.warn('%s\nSkipping this organization.' % err)
             logger.debug(sraOrganization)
             return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(sraOrganization)
+            raise err
 
 
 class RelatedStudy(XrefLink):
@@ -331,6 +339,10 @@ class Study(Document):
             logger.warn('%s\nSkipping this study.' % err)
             logger.debug(sraStudy)
             return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(sraStudy)
+            raise err
 
 
 # Samples
@@ -400,6 +412,10 @@ class Sample(Document):
             logger.warn('%s\nSkipping this sample.' % err)
             logger.debug(sraSample)
             return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(sraSample)
+            raise err
 
 
 # Experiment
@@ -486,6 +502,10 @@ class Experiment(Document):
             logger.warn('%s\nSkipping this experiment.' % err)
             logger.debug(sraExp)
             return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(sraExp)
+            raise err
 
 
 # Run
@@ -612,5 +632,9 @@ class Run(Document):
                 logger.warn('%s\nSkipping this run.' % err)
                 logger.debug(sraRun)
                 logger.debug(runinfo.loc[run.run_id, :])
+            except FieldDoesNotExist as err:
+                logger.error(err)
+                logger.debug(sraRun)
+                raise err
 
         return runs
