@@ -141,6 +141,9 @@ class SraExperiment(object):
             elif _id.tag == 'SUBMITTER_ID':
                 xref = {'db': _id.get('namespace'), 'id': _id.text}
                 d[_id.tag.lower()].append(xref)
+            elif _id.tag == 'UUID':
+                xref = _id.text
+                d[_id.tag.lower()].append(xref)
             else:
                 # Other types of ids (external, secondary).
                 xref = {'db': _id.get('namespace'), 'id': _id.text}

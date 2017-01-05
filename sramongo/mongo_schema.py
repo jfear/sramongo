@@ -179,6 +179,7 @@ class Submission(EmbeddedDocument):
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
     secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    uuid = ListField(StringField(), default=list)
 
     def __str__(self):
         return DocumentString(self).string
@@ -286,6 +287,7 @@ class Study(Document):
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
     secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    uuid = ListField(StringField(), default=list)
 
     # Attributes
     title = StringField()
@@ -366,6 +368,7 @@ class Sample(Document):
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
     secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    uuid = ListField(StringField(), default=list)
 
     # Attributes
     title = StringField()
@@ -438,6 +441,7 @@ class Experiment(Document):
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
     secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    uuid = ListField(StringField(), default=list)
 
     # Attributes
     title = StringField()
@@ -543,6 +547,7 @@ class Run(Document):
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
     secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    uuid = ListField(StringField(), default=list)
 
     # Attributes
     experiment_id = StringField()
