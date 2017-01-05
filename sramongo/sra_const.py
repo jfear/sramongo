@@ -43,6 +43,7 @@ LIBRARY_STRATEGY = [
     "RIP-Seq",
     "RNA-Seq",
     "Synthetic-Long-Read",
+    "SELEX",
     "Tn-Seq",
     "WCS",
     "WGA",
