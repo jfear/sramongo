@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Downloads and parses various Entrez databases."""
 import os
+import sys
 import argparse
 from argparse import RawDescriptionHelpFormatter as Raw
 from urllib.error import HTTPError
@@ -8,9 +9,8 @@ from http.client import IncompleteRead
 from xml.etree import ElementTree
 from logging import INFO, DEBUG
 import pandas as pd
-from io import StringIO
-from tempfile import NamedTemporaryFile
 import time
+from shutil import rmtree
 
 from Bio import Entrez
 from mongoengine import connect
@@ -19,13 +19,59 @@ from sramongo.logger import logger
 from sramongo.mongo import MongoDB
 from sramongo.sra import SraExperiment, XMLSchemaException
 from sramongo.mongo_schema import Submission, Organization,  Study, \
-    Sample, Pool, Experiment, Run
+    Sample, Experiment, Run
 
 STUDIES_ADDED = set()
 EXPERIMENTS_ADDED = set()
 RUNS_ADDED = set()
 
 _DEBUG = False
+
+class Cache(object):
+    def __init__(self, directory='./'):
+        cdir = os.path.join(directory, '.cache/sra2mongo')
+        if not os.path.exists(cdir):
+            os.makedirs(cdir)
+        self.cachedir = os.path.abspath(cdir)
+        self.cached = set([x.replace('.xml', '') for x in os.listdir(path=self.cachedir) if x.endswith('.xml')])
+
+    def add_to_cache(self, name, _type, data):
+        self.cached.add(name)
+
+        if _type == 'xml':
+            ext = 'xml'
+        else:
+            ext = 'csv'
+
+        fname = '{}.{}'.format(name, ext)
+
+        with open(os.path.join(self.cachedir, fname), 'w') as fh:
+            fh.write(data)
+
+    def get_cache(self, name, _type):
+        if _type == 'xml':
+            ext = 'xml'
+        else:
+            ext = 'csv'
+
+        fname = os.path.join(self.cachedir, '{}.{}'.format(name, ext))
+
+        if os.path.exists(fname):
+            with open(fname, 'r') as fh:
+                return fh.read()
+        else:
+            return None
+
+    def __iter__(self):
+        for f in self.cached:
+            xml = os.path.join(self.cachedir, '{}.{}'.format(f, 'xml'))
+            csv = os.path.join(self.cachedir, '{}.{}'.format(f, 'csv'))
+            yield xml, csv
+
+    def clear(self):
+        rmtree(self.cachedir)
+        self.cached = set()
+
 
 def arguments():
     """Pulls in command line arguments."""
@@ -56,87 +102,11 @@ def arguments():
     parser.add_argument("--debug", dest="debug", action='store_true', required=False,
                         help="Turn on debug output.")
 
+    parser.add_argument("--force", dest="force", action='store_true', required=False,
+                        help="Forces clearing the cache.")
+
     return parser.parse_args(['--dbDir', '/data/db', '--logDir', '/data/log', '--email', 'justin.fear@nih.gov',
                               '--query', '"Drosophila melanogaster"[Orgn]', '--debug'])
-
-
-class Cache(object):
-    def __init__(self):
-        if not os.path.exists('.cache/sra2mongo'):
-            os.makedirs('.cache/sra2mongo')
-        self.cachedir = os.path.abspath('.cache/sra2mongo')
-        self.cached = set([x for x in os.listdir(path=self.cachedir) if x.endswith('.txt')])
-
-    def add_to_cache(self, name, _type, data):
-        fname = '{}_{}.txt'.format(name, _type)
-        with open(os.path.join(self.cachedir, fname), 'w') as fh:
-            fh.write(data)
-        self.cached.add(fname)
-
-    def get_cache(self, name, _type):
-        fname = '{}_{}.txt'.format(name, _type)
-        if fname in self.cached:
-            with open(os.path.join(self.cachedir, fname), 'r') as fh:
-                return fh.read()
-        else:
-            return None
-
-
-def fetch_sra(records, runinfo_retmode='text', **kwargs):
-    count = int(records['Count'])
-    batch_size = 500
-
-    options = {'db': 'sra', 'webenv': records['WebEnv'],
-               'query_key': records['QueryKey'], 'retmax': batch_size}
-    options.update(kwargs)
-
-    cache = Cache()
-    for start in range(0, count, batch_size):
-        end = min(count, start+batch_size)
-
-        cache_xml = cache.get_cache(start, 'xml')
-        cache_runinfo = cache.get_cache(start, 'runinfo')
-
-        if (cache_xml is not None) and (cache_runinfo is not None):
-            logger.warn('Using cached for {} to {} instead of downloading. '
-                        'To force download please remove: {}'.format(start+1, end, cache.cachedir))
-            xml_data = cache_xml
-            runinfo_data = cache_runinfo
-        else:
-            logger.info("Downloading record %i to %i" % (start+1, end))
-            attempt = 0
-            while attempt < 3:
-                attempt += 1
-                try:
-                    xml_handle = Entrez.efetch(retstart=start, **options)
-
-                    runinfo_handle = Entrez.efetch(rettype="runinfo", retmode=runinfo_retmode,
-                                                   retstart=start, **options)
-
-                    xml_data = xml_handle.read()
-                    xml_handle.close()
-                    cache.add_to_cache(start, 'xml', xml_data)
-
-                    runinfo_data = runinfo_handle.read()
-                    runinfo_handle.close()
-                    cache.add_to_cache(start, 'runinfo', runinfo_data)
-
-                except HTTPError as err:
-                    if 500 <= err.code <= 599:
-                        logger.warn("Received error from server %s" % err)
-                        logger.warn("Attempt %i of 3" % attempt)
-                        time.sleep(15)
-                    else:
-                        raise
-                except IncompleteRead:
-                    if attempt < 3:
-                        logger.warn('Incomplete read, trying again. %s' % start)
-                        logger.warn("Attempt %i of 3" % attempt)
-                        time.sleep(15)
-                    else:
-                        raise
-
-        yield xml_data, runinfo_data
 
 
 def query_sra(query, **kwargs):
@@ -145,7 +115,68 @@ def query_sra(query, **kwargs):
     handle = Entrez.esearch(**options)
     records = Entrez.read(handle)
     handle.close()
+
+    try:
+        records['Count'] = int(records['Count'])
+        logger.info('There are {:,} records.'.format(records['Count']))
+    except:
+        pass
+
     return records
+
+
+def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
+    count = records['Count']
+    batch_size = 500
+
+    options = {'db': 'sra', 'webenv': records['WebEnv'],
+               'query_key': records['QueryKey'], 'retmax': batch_size}
+    options.update(kwargs)
+
+    for start in range(0, count, batch_size):
+        end = min(count, start+batch_size)
+
+        cache_xml = cache.get_cache(start, 'xml')
+        cache_runinfo = cache.get_cache(start, 'runinfo')
+
+        if (cache_xml is not None) & (cache_runinfo is not None):
+            logger.info('Using cached {} to {} instead of downloading. '
+                        'To force download please remove: {}'.format(start+1, end, cache.cachedir))
+        else:
+            logger.info("Downloading record %i to %i" % (start+1, end))
+            attempt = 0
+            while attempt < 3:
+                attempt += 1
+                try:
+                    xml_handle = Entrez.efetch(retstart=start, **options)
+                    xml_data = xml_handle.read()
+                    cache.add_to_cache(start, 'xml', xml_data)
+                    xml_handle.close()
+
+                    runinfo_handle = Entrez.efetch(rettype="runinfo", retmode=runinfo_retmode,
+                                                   retstart=start, **options)
+                    runinfo_data = runinfo_handle.read()
+                    cache.add_to_cache(start, 'runinfo', runinfo_data)
+                    runinfo_handle.close()
+
+                except HTTPError as err:
+                    if (500 <= err.code <= 599) & (attempt < 3):
+                        logger.warn("Received error from server %s" % err)
+                        logger.warn("Attempt %i of 3" % attempt)
+                        time.sleep(15)
+                    else:
+                        logger.error("Received error from server %s" % err)
+                        logger.error("Please re-run command latter.")
+                        sys.exit(1)
+                except IncompleteRead as err:
+                    if attempt < 3:
+                        logger.warn("Received error from server %s" % err)
+                        logger.warn("Attempt %i of 3" % attempt)
+                        time.sleep(15)
+                    else:
+                        logger.error("Received error from server %s" % err)
+                        logger.error("Please re-run command latter.")
+                        sys.exit(1)
 
 
 def add_pkg_to_database(pkg, runinfo):
@@ -162,9 +193,8 @@ def add_pkg_to_database(pkg, runinfo):
     sample = Sample.build_from_SraExperiment(sraExperiment)
 
     # Build experiment document
-    pool = Pool.build_from_SraExperiment(sraExperiment)
-    experiment = Experiment.build_from_SraExperiment(sraExperiment,
-                                                     study=study, samples=pool)
+    experiment = Experiment.build_from_SraExperiment(
+        sraExperiment, study=study)
 
     # Add experiment id to study
     if study is not None:
@@ -192,34 +222,38 @@ def main():
     else:
         logger.setLevel(INFO)
 
+    cache = Cache()
+    if args.force:
+        logger.info('Clearing cache.')
+        cache.clear()
+
     # Set email for entrez so they can contact if abbuse. Required by
     # biopython.
     Entrez.email = args.email
 
     logger.info('Starting MongoDB')
     with MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port):
-        client = connect(args.db)
-        try:
-            logger.info('Querying SRA: {}'.format(args.query))
-            sra_query = query_sra(args.query)
+        logger.info('Connecting to: {}'.format(args.db))
+        connect(args.db)
 
-            logger.info('Downloading documents')
-            for xml, runinfo in fetch_sra(sra_query):
-                tree = ElementTree.fromstring(xml)
-                ri = pd.read_csv(StringIO(runinfo), index_col='Run')
-                for exp_pkg in tree:
-                    add_pkg_to_database(exp_pkg, ri)
-        except:
-            raise
-        finally:
-           client.close()
+        logger.info('Querying SRA: {}'.format(args.query))
+        sra_query = query_sra(args.query)
 
-           logger.info('Studies Added')
-           logger.info(STUDIES_ADDED)
+        logger.info('Downloading documents')
+        fetch_sra(sra_query, cache)
 
-           logger.info('Experiments Added')
-           logger.info(EXPERIMENTS_ADDED)
+        logger.info('Adding documents to database')
+        for xml, runinfo in cache:
+            tree = ElementTree.parse(xml)
+            ri = pd.read_csv(runinfo, index_col='Run')
+            for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
+                add_pkg_to_database(exp_pkg, ri)
 
-           logger.info('Runs Added')
-           logger.info(RUNS_ADDED)
+    logger.info('Studies Added: {:,}'.format(len(STUDIES_ADDED)))
+    logger.info(STUDIES_ADDED)
 
+    logger.info('Experiments Added: {:,}'.format(len(EXPERIMENTS_ADDED)))
+    logger.info(EXPERIMENTS_ADDED)
+
+    logger.info('Runs Added: {:,}'.format(len(RUNS_ADDED)))
+    logger.info(RUNS_ADDED)

@@ -1,17 +1,22 @@
 """Test for the sra2mongo program."""
+import os
 import pytest
 import pandas as pd
-from io import StringIO
 from xml.etree import ElementTree
 
 from mongoengine import connect
 from Bio import Entrez
 
 from sramongo.mongo_schema import Experiment, Run
-from sramongo.sra2mongo import query_sra, fetch_sra, add_pkg_to_database
+from sramongo.sra2mongo import Cache, query_sra, fetch_sra, add_pkg_to_database
 
 # TODO: Probably should not set my email permanently.
 Entrez.email = 'justin.fear@nih.gov'
+
+@pytest.fixture(scope='session')
+def cache(tmpdir_factory):
+    tmpdir = str(tmpdir_factory.mktemp('sra2mongo'))
+    return Cache(tmpdir)
 
 
 @pytest.fixture(scope='session')
@@ -20,11 +25,9 @@ def sra_query():
 
 
 @pytest.fixture(scope='session')
-def sra_fetch(sra_query):
-    for xml, runinfo in fetch_sra(sra_query, runinfo_retmode='text'):
-        ri = pd.read_csv(StringIO(runinfo), index_col='Run')
-        tree = ElementTree.fromstring(xml)
-        return tree, ri
+def sra_fetch(sra_query, cache):
+    fetch_sra(sra_query, cache, runinfo_retmode='text')
+    return cache
 
 
 def test_query_sra(sra_query):
@@ -33,19 +36,20 @@ def test_query_sra(sra_query):
 
 
 def test_fetch_sra(sra_fetch):
-    xml, runinfo = sra_fetch
-    assert xml.find('*//EXPERIMENT').get('accession') == 'ERX1819343'
-    assert runinfo.index[0] == 'ERR1751044'
+    assert 0 in sra_fetch.cached
+    assert os.path.exists(os.path.join(sra_fetch.cachedir, '0.xml'))
+    assert os.path.exists(os.path.join(sra_fetch.cachedir, '0.csv'))
 
 
 def test_add_pkg_to_database(sra_fetch, mongoDB):
-    client = connect('test_sra')
-    xml, runinfo = sra_fetch
+    connect('test_sra')
+    for xml, runinfo in sra_fetch:
+        tree = ElementTree.parse(xml)
+        ri = pd.read_csv(runinfo, index_col='Run')
+        for pkg in tree.findall('EXPERIMENT_PACKAGE'):
+            add_pkg_to_database(pkg, ri)
 
-    for pkg in xml:
-        add_pkg_to_database(pkg, runinfo)
-
-    run = Run.objects(run_id='ERR1751044').first().select_related(max_depth=9)
-    assert run.run_id == 'ERR1751044'
-    assert run.experiment_id == 'ERX1819343'
-    assert run.experiment.experiment_id == 'ERX1819343'
+        run = Run.objects(run_id='ERR1751044').first().select_related(max_depth=9)
+        assert run.run_id == 'ERR1751044'
+        assert run.experiment_id == 'ERX1819343'
+        assert run.experiment.experiment_id == 'ERX1819343'
