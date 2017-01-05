@@ -53,16 +53,26 @@ class SraExperiment(object):
                   'biosample': 'BioSample',
                   'pubmed': 'pubmed'}
 
+        # Make sure fully formed xref
+        try:
+            _id = xref['id']
+            _db = xref['db']
+        except:
+            return False
+
+        if (_id is None) | (_db is None):
+            return False
+
         # normalize db name
         try:
-            norm = xref['db'].strip(' ()[].:').lower()
+            norm = _db.strip(' ()[].:').lower()
         except:
             norm = ''
 
         if norm in db_map.keys():
             # Normalize the ids a little
             id_norm = re.sub('geo|gds|bioproject|biosample|pubmed|pmid',
-                             '', xref['id'].lower()).strip(' :().').upper()
+                             '', _id.lower()).strip(' :().').upper()
             return db_map[norm], id_norm
         else:
             return False
