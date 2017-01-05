@@ -205,7 +205,7 @@ class Submission(EmbeddedDocument):
             submission = cls(**sraSubmission)
             return submission
         except ValidationError as err:
-            logger.error(err)
+            logger.warn('%s\nSkipping this submission.' % err)
             logger.debug(sraSubmission)
             return None
 
@@ -249,7 +249,7 @@ class Organization(EmbeddedDocument):
             organization = cls(**sraOrganization)
             return organization
         except ValidationError as err:
-            logger.error(err)
+            logger.warn('%s\nSkipping this organization.' % err)
             logger.debug(sraOrganization)
             return None
 
@@ -328,7 +328,7 @@ class Study(Document):
             study.save()
             return study
         except ValidationError as err:
-            logger.error(err)
+            logger.warn('%s\nSkipping this study.' % err)
             logger.debug(sraStudy)
             return None
 
@@ -397,7 +397,7 @@ class Sample(Document):
             sample.save()
             return sample
         except ValidationError as err:
-            logger.error(err)
+            logger.warn('%s\nSkipping this sample.' % err)
             logger.debug(sraSample)
             return None
 
@@ -483,7 +483,7 @@ class Experiment(Document):
             experiment.save()
             return experiment
         except ValidationError as err:
-            logger.error(err)
+            logger.warn('%s\nSkipping this experiment.' % err)
             logger.debug(sraExp)
             return None
 
@@ -609,7 +609,7 @@ class Run(Document):
                 runs.append(run)
 
             except ValidationError as err:
-                logger.error(err)
+                logger.warn('%s\nSkipping this run.' % err)
                 logger.debug(sraRun)
                 logger.debug(runinfo.loc[run.run_id, :])
 
