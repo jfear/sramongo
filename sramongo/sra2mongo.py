@@ -244,6 +244,7 @@ def main():
 
         logger.info('Adding documents to database')
         for xml, runinfo in cache:
+            logger.debug('Parsing: {}'.format(xml))
             tree = ElementTree.parse(xml)
             ri = pd.read_csv(runinfo, index_col='Run')
             for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
