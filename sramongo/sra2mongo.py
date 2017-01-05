@@ -140,8 +140,7 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
         cache_runinfo = cache.get_cache(start, 'runinfo')
 
         if (cache_xml is not None) & (cache_runinfo is not None):
-            logger.info('Using cached {} to {} instead of downloading. '
-                        'To force download please remove: {}'.format(start+1, end, cache.cachedir))
+            logger.info('Using cached version for: {} to {}.'.format(start+1, end))
         else:
             logger.info("Downloading record %i to %i" % (start+1, end))
             attempt = 0
@@ -240,6 +239,7 @@ def main():
         sra_query = query_sra(args.query)
 
         logger.info('Downloading documents')
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
         fetch_sra(sra_query, cache)
 
         logger.info('Adding documents to database')
