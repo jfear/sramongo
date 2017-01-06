@@ -28,11 +28,10 @@ RUNS_ADDED = set()
 _DEBUG = False
 
 class Cache(object):
-    def __init__(self, directory='./'):
-        cdir = os.path.join(directory, '.cache/sra2mongo')
-        if not os.path.exists(cdir):
-            os.makedirs(cdir)
-        self.cachedir = os.path.abspath(cdir)
+    def __init__(self, directory='.cache/sra2mongo/sra'):
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        self.cachedir = os.path.abspath(directory)
         self.cached = set([x.replace('.xml', '') for x in os.listdir(path=self.cachedir) if x.endswith('.xml')])
 
     def add_to_cache(self, name, _type, data):
@@ -66,7 +65,10 @@ class Cache(object):
         for f in sorted(self.cached):
             xml = os.path.join(self.cachedir, '{}.{}'.format(f, 'xml'))
             csv = os.path.join(self.cachedir, '{}.{}'.format(f, 'csv'))
-            yield xml, csv
+            if os.path.exists(csv):
+                yield xml, csv
+            else:
+                yield xml
 
     def clear(self):
         rmtree(self.cachedir)
@@ -258,3 +260,14 @@ def main():
 
         logger.info('Runs Added: {:,}'.format(len(RUNS_ADDED)))
         logger.info(RUNS_ADDED)
+
+        # Query BioSample
+        bs_cache = Cache(directory='.cache/sra2mongo/biosample')
+        biosample_ids = Sample.objects.distinct('BioSample')
+        bs_query = ' AND '.join(biosample_ids)
+        logger.info('Querying BioSample: with {:,} ids'.format(len(biosample_ids)))
+        biosmample_query = query_sra(bs_query, db='biosample')
+
+        logger.info('Downloading BioSample documents')
+        logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
+        fetch_sra(bs_query, bs_cache, db='biosample')
