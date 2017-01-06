@@ -668,3 +668,68 @@ class Run(Document):
                 raise err
 
         return runs
+
+
+class Contacts(EmbeddedDocument):
+    email = StringField()
+    first_name = StringField()
+    last_name = StringField()
+
+    def __str__(self):
+        return DocumentString(self).string
+
+
+# BioSample
+class BioSample(Document):
+    """BioSample Document.
+
+    A BioSample must have a run id (SAMN). Additional metadata may be present.
+    """
+    biosample_id = StringField(primary_key=True)
+    sample_id = StringField()
+    GEO = StringField()
+    title = StringField()
+    tax_id = StringField()
+    tax_name = StringField()
+    organism_name = StringField()
+    institute = StringField()
+    access = StringField()
+    publication_date = StringField()
+    last_update = StringField()
+    submission_date = StringField()
+    contacts = ListField(EmbeddedDocumentField(Contacts))
+    models = ListField(StringField())
+    attributes = DictField()
+
+    def __str__(self):
+        return DocumentString(self).string
+
+    @classmethod
+    def build_from_BioSample(cls, bioSample, **kwargs):
+        """Builds BioSample from an sramongo.biosample.BioSample.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no biosample_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        bioSample: sramongo.biosample.BioSample
+            An biosample object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the BioSample prior
+            to building.
+        """
+        try:
+            biosample = cls(**bioSample)
+            biosample.save()
+        except ValidationError as err:
+            logger.warn('%s\nSkipping this BioSample.' % err)
+            logger.debug(bioSample)
+            return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(bioSample)
+            raise err
+
+        return biosample

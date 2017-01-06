@@ -13,10 +13,11 @@ class BioSample(object):
             A Row element from a runinfo xml as an ElemenTree element.
 
         """
-        self.__dict__.update(self._parse_ids(node.find('Ids')))
-        self.contacts = self._parse_contacts(node.find('Owner/Contacts'))
-        self.models = self._parse_models(node.find('Models'))
-        self.attributes = self._parse_attributes(node.find('Attributes'))
+        self.biosample = {}
+        self.biosample.update(self._parse_ids(node.find('Ids')))
+        self.biosample['contacts'] = self._parse_contacts(node.find('Owner/Contacts'))
+        self.biosample['models'] = self._parse_models(node.find('Models'))
+        self.biosample['attributes'] = self._parse_attributes(node.find('Attributes'))
 
         locs = {'title': ('Description/Title', 'text'),
                 'tax_id': ('Description/Organism', 'taxonomy_id'),
@@ -28,7 +29,15 @@ class BioSample(object):
                 'last_update': ('.', 'last_update'),
                 'submission_date': ('.', 'submission_date'),
                 }
-        self.__dict__.update(parse_tree_from_dict(node, locs))
+        self.biosample.update(parse_tree_from_dict(node, locs))
+
+        # Clean up
+        # Rename biosample to be consistant with sra names
+        self.biosample['biosample_id'] = self.biosample['BioSample']
+        del self.biosample['BioSample']
+
+        self.biosample['sample_id'] = self.biosample['SRA']
+        del self.biosample['SRA']
 
         self._clean_dates()
 
@@ -72,11 +81,11 @@ class BioSample(object):
         """Cleans up biosample dates."""
         regex = r'(\d+\-\d+\-\d+)T.*'
 
-        self.publication_date = re.match(
-                regex, self.publication_date).groups()[0]
+        self.biosample['publication_date'] = re.match(
+            regex, self.biosample['publication_date']).groups()[0]
 
-        self.last_update = re.match(
-                regex, self.last_update).groups()[0]
+        self.biosample['last_update'] = re.match(
+            regex, self.biosample['last_update']).groups()[0]
 
-        self.submission_date = re.match(
-                regex, self.submission_date).groups()[0]
+        self.biosample['submission_date'] = re.match(
+            regex, self.biosample['submission_date']).groups()[0]

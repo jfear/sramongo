@@ -6,6 +6,7 @@ import pytest
 
 from sramongo.mongo import start_mongo
 from sramongo.sra import SraExperiment
+from sramongo.biosample import BioSample
 
 
 @pytest.fixture(scope='session')
@@ -34,3 +35,11 @@ def sraExperiment():
     tree = ElementTree.parse(fname)
     root = tree.getroot()
     return SraExperiment(root.find('EXPERIMENT_PACKAGE'))
+
+
+@pytest.fixture(scope='session')
+def bioSample():
+    fname = 'data/biosample_SAMN02981965.xml'
+    tree = ElementTree.parse(fname)
+    root = tree.getroot()
+    return BioSample(root.find('BioSample'))

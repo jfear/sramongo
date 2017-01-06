@@ -2,7 +2,7 @@
 from textwrap import dedent
 from sramongo.mongo_schema import URLLink, Xref, XrefLink, \
     EntrezLink, DDBJLink, ENALink, Submission, Organization, \
-    Study, Sample, Experiment, Run
+    Study, Sample, Experiment, Run, BioSample
 
 from mongoengine import connect
 
@@ -217,3 +217,16 @@ def test_run_w_sra(mongoDB, sraExperiment):
     finally:
         client.drop_database('test_sra')
 
+
+def test_biosample_w_db(mongoDB, bioSample):
+    client = connect('test_sra')
+    try:
+        biosample = BioSample(**bioSample.biosample)
+        biosample.save()
+        bs = BioSample.objects(biosample_id=biosample.id).first()
+        assert bs.sample_id == 'SRS679015'
+        assert bs.title == 'DGRP563 M_E3_2_L3'
+    except:
+        raise
+    finally:
+        client.drop_database('test_sra')
