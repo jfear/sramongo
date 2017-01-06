@@ -317,6 +317,7 @@ class SraExperiment(object):
     def _parse_experiment(self, node):
         """Parses experiment section."""
         d = dict()
+        d['db_flags'] = set()
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'experiment'))
         d.update(self._parse_links(node.find('EXPERIMENT_LINKS')))
@@ -388,6 +389,17 @@ class SraExperiment(object):
         d['instrument_model'] = INSTRUMENT_MODEL_DEPRICATED.get(d['instrument_model'], d['instrument_model'])
         d.update(_clean_const(d, 'instrument_model'))
 
+        # Add flags
+        d['db_flags'] = set()
+
+        if (d['library_source'] == 'TRANSCRIPTOMIC') | (d['library_strategy'] == 'RNA-Seq'):
+            d['db_flags'].add('RNASeq')
+
+        if d['library_layout'] == 'SINGLE':
+            d['db_flags'].add('SE')
+        elif d['library_layout'] == 'PAIRED':
+            d['db_flags'].add('PE')
+
         return d
 
     @valid_path
@@ -445,40 +457,45 @@ class SraExperiment(object):
     def _parse_run_reads(self, node, run_id):
         """Parse reads from runs."""
         d = dict()
+        d['db_flags'] = set()
 
         nreads = node.get('nreads')
         try:
             if nreads is not None:
                 d['nreads'] = int(nreads)
         except:
-            logger.debug('Non numeric nreads: "%s"' % nreads)
-            logger.debug('Setting nreads to: -1')
+            logger.debug('Non numeric nreads: "{}"\n\tSetting nreads to: -1'.format(nreads))
             d['nreads'] = -1
+            d['db_flags'].add('no_read_information')
 
         if d['nreads'] == 1:
+            # Single-ended Reads
+            d['db_flags'].add('SE')
             read = node.find('Read')
-            d['read_count'] = float(read.get('count'))
-            d['read_len'] = float(read.get('average'))
-        else:
+            d['read_count_r1'] = float(read.get('count'))
+            d['read_len_r1'] = float(read.get('average'))
+
+        elif d['nreads'] == 2:
+            # Pair-ended Reads
+            d['db_flags'].add('PE')
+            d['read_count_r1'] = 0.0
+            d['read_count_r2'] = 0.0
+            d['read_len_r1'] = 0.0
+            d['read_len_r2'] = 0.0
+
             rid = {"0": '_r1', "1": '_r2'}
             for read in node.findall('Read'):
                 index = rid[read.get('index')]
                 d['read_count' + index] = float(read.get('count'))
                 d['read_len' + index] = float(read.get('average'))
 
-            # Validate that reads that PE reads have similar lengths and counts
-            try:
-                if d['read_len_r1'] != d['read_len_r2']:
-                    warn = ('Read lengths are not equal {}: '
-                           'read 1: {} and read 2: {}'.format(run_id, d['read_len_r1'], d['read_len_r2']))
-#                     logger.warn(warn)
+            # Flag if read count or len are different
+            if abs(d['read_len_r1'] - d['read_len_r2']) > 5:
+                d['db_flags'].add('pe_reads_not_equal_len')
 
-                if d['read_count_r1'] != d['read_count_r2']:
-                    warn = ('Read counts are not equal {}: '
-                           'read 1: {} and read 2: {}'.format(run_id, d['read_count_r1'], d['read_count_r2']))
-#                     logger.warn(warn)
-            except:
-                pass
+            if abs(d['read_count_r1'] - d['read_count_r2']) > 10:
+                d['db_flags'].add('pe_reads_not_equal_count')
+
         return d
 
     # Run
@@ -488,6 +505,7 @@ class SraExperiment(object):
         runs = []
         for run in node.findall('RUN'):
             d = dict()
+            d['db_flags'] = set()
             d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
             d['samples'] = self._parse_pool(run.find('Pool'))
             d.update(self._parse_taxon(run.find('tax_analysis')))
