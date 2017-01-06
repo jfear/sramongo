@@ -10,6 +10,8 @@ Welcome to sramongo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   flags
+
 
 
 Indices and tables
