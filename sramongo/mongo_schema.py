@@ -1,11 +1,33 @@
 """Set up MonoDB schema using monogodngine."""
 from textwrap import fill
+import datetime
+
 from mongoengine import Document, EmbeddedDocument
-from mongoengine import StringField, IntField, FloatField, ListField, DictField, MapField
-from mongoengine import EmbeddedDocumentField, ReferenceField
+from mongoengine import StringField, IntField, FloatField, \
+    ListField, DictField, MapField, DateTimeField
+from mongoengine import EmbeddedDocumentField, ReferenceField, signals
 from mongoengine.errors import ValidationError, FieldDoesNotExist
+
 from sramongo.sra import SraExperiment
 from sramongo.logger import logger
+
+
+def handler(event):
+    """Signal decorator to allow use of callback functions."""
+    def decorator(fn):
+        def apply(cls):
+            event.connect(fn, sender=cls)
+            return cls
+
+        fn.apply = apply
+        return fn
+    return decorator
+
+
+@handler(signals.pre_save)
+def update_modified(sender, document):
+    """Update db_modified before saving."""
+    document.db_modified = datetime.datetime.now()
 
 
 class DocumentString(object):
@@ -470,7 +492,7 @@ class Experiment(Document):
 
     # NOTE: Additional Fields added post creation
     study = ReferenceField(Study)
-    samples = ListField(StringField(), default=list)
+    samples = ListField(ReferenceField(Sample), default=list)
     runs = ListField(StringField(), default=list)
     db_flags = ListField(StringField(), default=list)
     pipeline_flags = ListField(StringField(), default=list)
@@ -532,6 +554,7 @@ class TaxAnalysis(EmbeddedDocument):
         return DocumentString(self).string
 
 
+@update_modified.apply
 class Run(Document):
     """Run Document.
 
@@ -574,6 +597,8 @@ class Run(Document):
     download_path = StringField()
     db_flags = ListField(StringField(), default=list)
     pipeline_flags = ListField(StringField(), default=list)
+    db_created = DateTimeField(default=datetime.datetime.now)
+    db_modified = DateTimeField()
 
     def __str__(self):
         return DocumentString(self).string

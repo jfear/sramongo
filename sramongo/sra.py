@@ -3,6 +3,8 @@
 import re
 from xml.etree import ElementTree
 from collections import defaultdict
+import datetime
+
 from sramongo.logger import logger
 from sramongo.xml_helpers import valid_path, parse_tree_from_dict
 from sramongo.sra_const import EXISTING_STUDY_TYPES_ACTIVE, \
@@ -477,7 +479,6 @@ class SraExperiment(object):
 
         elif d['nreads'] == 2:
             # Pair-ended Reads
-            d['db_flags'].add('PE')
             d['read_count_r1'] = 0.0
             d['read_count_r2'] = 0.0
             d['read_len_r1'] = 0.0
@@ -489,13 +490,30 @@ class SraExperiment(object):
                 d['read_count' + index] = float(read.get('count'))
                 d['read_len' + index] = float(read.get('average'))
 
-            # Flag if read count or len are different
-            if abs(d['read_len_r1'] - d['read_len_r2']) > 5:
-                d['db_flags'].add('pe_reads_not_equal_len')
+            # Sometime nreads will be 2, but read len/count will be 0 for one
+            # of the reads. Check for this and make SE if they are 0's
+            if (d['read_len_r1'] != 0) & (d['read_len_r2'] != 0) & (d['read_count_r1'] != 0) & (d['read_count_r2'] != 0):
+                d['db_flags'].add('PE')
 
-            if abs(d['read_count_r1'] - d['read_count_r2']) > 10:
-                d['db_flags'].add('pe_reads_not_equal_count')
+                # Flag if read count or len are different
+                if abs(d['read_len_r1'] - d['read_len_r2']) > 5:
+                    d['db_flags'].add('pe_reads_not_equal_len')
 
+                if abs(d['read_count_r1'] - d['read_count_r2']) > 10:
+                    d['db_flags'].add('pe_reads_not_equal_count')
+            else:
+                d['db_flags'].add('SE')
+
+                # Set which ever read has information to R1 and delete R2.
+                if (d['read_len_r1'] == 0) | (d['read_count_r1'] == 0):
+                    d['read_len_r1'] = d['read_len_r2']
+                    d['read_count_r1'] = d['read_count_r2']
+                    del d['read_len_r2']
+                    del d['read_count_r2']
+
+                elif (d['read_len_r2'] == 0) | (d['read_count_r2'] == 0):
+                    del d['read_len_r2']
+                    del d['read_count_r2']
         return d
 
     # Run
@@ -510,6 +528,8 @@ class SraExperiment(object):
             d['samples'] = self._parse_pool(run.find('Pool'))
             d.update(self._parse_taxon(run.find('tax_analysis')))
             d.update(self._parse_run_reads(run.find('Statistics'), d['run_id']))
+            d['db_created'] = datetime.datetime.now
+            d['db_modified'] = datetime.datetime.now
 
             locs = {
                 'experiment_id': ('EXPERIMENT_REF', 'accession'),
