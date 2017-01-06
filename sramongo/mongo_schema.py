@@ -472,7 +472,8 @@ class Experiment(Document):
     study = ReferenceField(Study)
     samples = ListField(StringField(), default=list)
     runs = ListField(StringField(), default=list)
-    flags = ListField(StringField(), default=list)
+    db_flags = ListField(StringField(), default=list)
+    pipeline_flags = ListField(StringField(), default=list)
 
     def __str__(self):
         return DocumentString(self).string
@@ -571,7 +572,8 @@ class Run(Document):
     load_date = StringField()
     size_MB = IntField()
     download_path = StringField()
-    flags = ListField(StringField(), default=list)
+    db_flags = ListField(StringField(), default=list)
+    pipeline_flags = ListField(StringField(), default=list)
 
     def __str__(self):
         return DocumentString(self).string
