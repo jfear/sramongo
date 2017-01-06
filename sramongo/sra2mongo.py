@@ -250,11 +250,11 @@ def main():
             for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
                 add_pkg_to_database(exp_pkg, ri)
 
-    logger.info('Studies Added: {:,}'.format(len(STUDIES_ADDED)))
-    logger.info(STUDIES_ADDED)
+        logger.info('Studies Added: {:,}'.format(len(STUDIES_ADDED)))
+        logger.info(STUDIES_ADDED)
 
-    logger.info('Experiments Added: {:,}'.format(len(EXPERIMENTS_ADDED)))
-    logger.info(EXPERIMENTS_ADDED)
+        logger.info('Experiments Added: {:,}'.format(len(EXPERIMENTS_ADDED)))
+        logger.info(EXPERIMENTS_ADDED)
 
-    logger.info('Runs Added: {:,}'.format(len(RUNS_ADDED)))
-    logger.info(RUNS_ADDED)
+        logger.info('Runs Added: {:,}'.format(len(RUNS_ADDED)))
+        logger.info(RUNS_ADDED)
