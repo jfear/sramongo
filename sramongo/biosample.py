@@ -80,7 +80,3 @@ class BioSample(object):
 
         self.submission_date = re.match(
                 regex, self.submission_date).groups()[0]
-
-
-if __name__ == '__main__':
-    pass
