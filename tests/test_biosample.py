@@ -3,8 +3,7 @@ from xml.etree import ElementTree
 
 import pytest
 
-from sramongo.mongo_schema import BioSample
-from sramongo.biosample import BioSample
+from sramongo.biosample import BioSampleParse
 
 
 class TestSAMN02981065:
@@ -18,7 +17,7 @@ class TestSAMN02981065:
 
     @pytest.fixture(autouse=True, scope='class')
     def bioTree(self, bio_etree):
-        return BioSample(bio_etree)
+        return BioSampleParse(bio_etree)
 
     def test_parse(self, bioTree):
         assert bioTree.biosample['biosample_id'] == 'SAMN02981965'
