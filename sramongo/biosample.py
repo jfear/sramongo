@@ -45,19 +45,20 @@ class BioSampleParse(object):
     def _parse_ids(self, node):
         d = dict()
         for id in node:
-            d[id.get('db')] = id.text
+            if id.get('db') is not None:
+                d[id.get('db')] = id.text
         return d
 
     @valid_path
     def _parse_contacts(self, node):
         contacts = []
         for contact in node:
-            d = {
-                'email': contact.find('.').get('email'),
-                'first_name': contact.find('Name/First').text,
-                'last_name': contact.find('Name/Last').text,
+            locs = {
+                'email': ('.', 'email'),
+                'first_name': ('Name/First', 'text'),
+                'last_name': ('Name/Last', 'text'),
                 }
-            contacts.append(d)
+            contacts.append(parse_tree_from_dict(contact, locs))
         return contacts
 
     @valid_path
