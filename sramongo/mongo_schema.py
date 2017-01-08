@@ -697,7 +697,7 @@ class BioSample(Document):
     publication_date = StringField()
     last_update = StringField()
     submission_date = StringField()
-    contacts = ListField(EmbeddedDocumentField(Contacts))
+    contacts = ListField(EmbeddedDocumentField(Contacts), default=list)
     models = ListField(StringField())
     attributes = DictField()
 
@@ -728,6 +728,10 @@ class BioSample(Document):
             logger.debug(bioSample)
             return None
         except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(bioSample)
+            raise err
+        except Exception as err:
             logger.error(err)
             logger.debug(bioSample)
             raise err
