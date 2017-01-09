@@ -3,17 +3,39 @@ from sramongo.xml_helpers import valid_path, parse_tree_from_dict
 
 class Pubmed(object):
     def __init__(self, node):
+        self.pubmed = {}
         locs = {
                 'pubmed': ('PMID', 'text'),
                 'title': ('Article/ArticleTitle', 'text'),
                 }
-        self.__dict__.update(parse_tree_from_dict(node, locs))
-        self.date_created = self._parse_dates(node.find('DateCreated'))
-        self.date_completed = self._parse_dates(node.find('DateCompleted'))
-        self.date_revised = self._parse_dates(node.find('DateRevised'))
-        self.citation = self._parse_citation(node.find('Article/Journal'))
-        self.abstract = self._parse_abstract(node.find('Article/Abstract'))
-        self.authors = self._parse_authors(node.find('Article/AuthorList'))
+        self.pubmed.update(parse_tree_from_dict(node, locs))
+
+        self.pubmed.date_created = self._parse_dates(node.find('DateCreated'))
+        self.pubmed.date_completed = self._parse_dates(node.find('DateCompleted'))
+        self.pubmed.date_revised = self._parse_dates(node.find('DateRevised'))
+        self.pubmed.citation = self._parse_citation(node.find('Article/Journal'))
+        self.pubmed.abstract = self._parse_abstract(node.find('Article/Abstract'))
+        self.pubmed.authors = self._parse_authors(node.find('Article/AuthorList'))
+
+        # Clean up
+        self._drop_empty()
+
+    def _drop_empty(self):
+        """Scans through a dictionary and removes empy lists or None elements."""
+
+        drop_keys = []
+        for k, v in self.pubmed.items():
+            try:
+                if (v is None) or (len(v) == 0):
+                    drop_keys.append(k)
+            except TypeError as err:
+                # Some types (int, float) will cause an exception, if they are
+                # of this type I don't really care then they are not blank so
+                # skip.
+                pass
+
+        for k in drop_keys:
+            del self.pubmed[k]
 
     @valid_path
     def _parse_dates(self, node):
@@ -37,7 +59,7 @@ class Pubmed(object):
             parts.append(part.text)
         return '\n'.join(parts)
 
-    @valid_path
+    @valid_path(rettype=list)
     def _parse_authors(self, node):
         authors =[]
         for author in node:
