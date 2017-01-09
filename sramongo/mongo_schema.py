@@ -762,3 +762,50 @@ class BioSample(Document):
             logger.error(err)
             logger.debug(bio)
             raise err
+
+# BioProject
+class BioProject(Document):
+    """BioProject Document.
+
+    A BioProject must have a run id (PRJ). Additional metadata may be present.
+    """
+    bioproject_id = StringField(primary_key=True)
+    bioproject_secondary = StringField()
+    sample_id = StringField()
+
+    def __str__(self):
+        return DocumentString(self).string
+
+    @classmethod
+    def build_from_BioProject(cls, bioProject, **kwargs):
+        """Builds BioProject from an sramongo.bioproject.BioProject.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no bioproject_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        bioProject: sramongo.bioproject.BioProject
+            An bioproject object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the BioProject prior
+            to building.
+        """
+        try:
+            bio = bioProject.bioproject
+            return cls.objects(pk=sra['bioproject_id']).modify(
+                        upsert=True, new=True, **bio)
+
+        except ValidationError as err:
+            logger.warn('%s\nSkipping this BioProject.' % err)
+            logger.debug(bioProject)
+            return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(bio)
+            raise err
+        except Exception as err:
+            logger.error(err)
+            logger.debug(bio)
+            raise err

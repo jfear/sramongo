@@ -14,18 +14,54 @@ class BioProject(object):
 
         """
         locs = {
-                'BioProject': ('Project/ProjectID/ArchiveID', 'accession'),
+                'bioproject_id': ('Project/ProjectID/ArchiveID', 'accession'),
                 'name': ('Project/ProjectDescr/Name', 'text'),
                 'title': ('Project/ProjectDescr/Title', 'text'),
                 'description': ('Project/ProjectDescr/Description', 'text'),
                 'publication': ('Project/ProjectDescr/Publication', 'id'),
+                'publication_date': ('Project/ProjectDescr/Publication', 'date'),
                 'submission_id': ('Submission', 'submission_id'),
                 'last_update': ('Submission', 'last_update'),
                 'submission_date': ('Submission', 'submitted'),
                 }
 
-        self.__dict__.update(parse_tree_from_dict(node, locs))
-        self.xref = self._parse_links(node.find('ExternalLink'))
+        self.bioproject = {}
+        self.bioproject.update(parse_tree_from_dict(node, locs))
+        self.bioproject['xref'] = self._parse_links(node.find('ExternalLink'))
+
+        # Clean up
+        self._drop_empty()
+        self_clean_dates()
+
+    def _drop_empty(self):
+        """Scans through a dictionary and removes empy lists or None elements."""
+
+        drop_keys = []
+        for k, v in self.bioproject.items():
+            try:
+                if (v is None) or (len(v) == 0):
+                    drop_keys.append(k)
+            except TypeError as err:
+                # Some types (int, float) will cause an exception, if they are
+                # of this type I don't really care then they are not blank so
+                # skip.
+                pass
+
+        for k in drop_keys:
+            del self.bioproject[k]
+
+    def _clean_dates(self):
+        """Cleans up biosample dates."""
+        regex = r'(\d+\-\d+\-\d+)T.*'
+
+        self.biosample['publication_date'] = re.match(
+            regex, self.biosample['publication_date']).groups()[0]
+
+        self.biosample['last_update'] = re.match(
+            regex, self.biosample['last_update']).groups()[0]
+
+        self.biosample['submission_date'] = re.match(
+            regex, self.biosample['submission_date']).groups()[0]
 
     @valid_path
     def _parse_links(self, node):
