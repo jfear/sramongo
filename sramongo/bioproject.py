@@ -27,7 +27,7 @@ class BioProject(object):
 
         self.bioproject = {}
         self.bioproject.update(parse_tree_from_dict(node, locs))
-        self.bioproject['xref'] = self._parse_links(node.find('ExternalLink'))
+        self.bioproject['external_id'] = self._parse_links(node.find('ExternalLink'))
 
         # Clean up
         self._drop_empty()
@@ -63,7 +63,7 @@ class BioProject(object):
         self.biosample['submission_date'] = re.match(
             regex, self.biosample['submission_date']).groups()[0]
 
-    @valid_path
+    @valid_path(rettype=list)
     def _parse_links(self, node):
         links = []
         for xref in node:

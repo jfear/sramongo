@@ -770,8 +770,15 @@ class BioProject(Document):
     A BioProject must have a run id (PRJ). Additional metadata may be present.
     """
     bioproject_id = StringField(primary_key=True)
-    bioproject_secondary = StringField()
-    sample_id = StringField()
+    name = StringField()
+    title = StringField()
+    description = StringField()
+    publication = StringField()
+    publication_date = DateTimeField()
+    submission_id = StringField()
+    last_date = DateTimeField()
+    submission_date = DateTimeField()
+    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
     def __str__(self):
         return DocumentString(self).string
