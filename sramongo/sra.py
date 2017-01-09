@@ -79,12 +79,22 @@ class SraExperiment(object):
         else:
             return False
 
-    def _drop_empty(d):
+    def _drop_empty(self, d):
         """Scans through a dictionary and removes empy lists or None elements."""
 
-        for k, v in d:
-            if (len(v) == 0) or (v is None):
-                del d[k]
+        drop_keys = []
+        for k, v in d.items():
+            try:
+                if (v is None) or (len(v) == 0):
+                    drop_keys.append(k)
+            except TypeError as err:
+                # Some types (int, float) will cause an exception, if they are
+                # of this type I don't really care then they are not blank so
+                # skip.
+                pass
+
+        for k in drop_keys:
+            del d[k]
 
         return d
 
@@ -191,7 +201,7 @@ class SraExperiment(object):
         """Parses organization section."""
         d = dict()
         locs = {
-            'type': ('.', 'type'),
+            'organization_type': ('.', 'type'),
             'abbreviation': ('Name', 'abbr'),
             'name': ('Name', 'text'),
             'email': ('Contact', 'email'),
@@ -214,18 +224,18 @@ class SraExperiment(object):
         """
         d = dict()
         if node.get('existing_study_type'):
-            d['type'] = node.get('existing_study_type')
+            d['study_type'] = node.get('existing_study_type')
 
             # XSD Validation
             # If depricated replace with active type
-            d['type'] = EXISTING_STUDY_TYPES_DEPRICATED.get(d['type'], d['type'])
+            d['study_type'] = EXISTING_STUDY_TYPES_DEPRICATED.get(d['study_type'], d['study_type'])
 
             # Make sure study type is in current active types
-            if not d['type'] in EXISTING_STUDY_TYPES_ACTIVE:
-                raise XMLSchemaException('Study type: {}'.format(d['type']))
+            if not d['study_type'] in EXISTING_STUDY_TYPES_ACTIVE:
+                raise XMLSchemaException('Study type: {}'.format(d['study_type']))
 
         elif node.get('new_study_type'):
-            d['type'] = node.get('new_study_type')
+            d['study_type'] = node.get('new_study_type')
 
         return d
 

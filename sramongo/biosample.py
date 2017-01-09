@@ -32,24 +32,54 @@ class BioSampleParse(object):
         self.biosample.update(parse_tree_from_dict(node, locs))
 
         # Clean up
-        # Rename biosample to be consistant with sra names
-        self.biosample['biosample_id'] = self.biosample['BioSample']
-        del self.biosample['BioSample']
-
-        self.biosample['sample_id'] = self.biosample['SRA']
-        del self.biosample['SRA']
-
+        self._drop_empty()
         self._clean_dates()
+
+    def _drop_empty(self):
+        """Scans through a dictionary and removes empy lists or None elements."""
+
+        drop_keys = []
+        for k, v in self.biosample.items():
+            try:
+                if (v is None) or (len(v) == 0):
+                    drop_keys.append(k)
+            except TypeError as err:
+                # Some types (int, float) will cause an exception, if they are
+                # of this type I don't really care then they are not blank so
+                # skip.
+                pass
+
+        for k in drop_keys:
+            del self.biosample[k]
 
     @valid_path
     def _parse_ids(self, node):
         d = dict()
-        for id in node:
-            if id.get('db') is not None:
-                d[id.get('db')] = id.text
+        dbs_of_interest = ['GEO', 'SRA', 'BioSample']
+        for _id in node:
+            db = _id.get('db')
+            primary = _id.get('is_primary')
+
+            # Only keep useful dbs
+            if (db is not None) and (db in dbs_of_interest):
+                # If Primary BioSample then make biosample_id
+                if (db == 'BioSample') and (primary is not None):
+                    d['biosample_id'] = _id.text
+                elif (db == 'BioSample'):
+                    d['biosample_secondary'] = _id.text
+                elif (db == 'SRA'):
+                    d['sample_id'] = _id.text
+                else:
+                    d[db] = _id.text
+
+        # Try to ensure there is a biosample_id
+        if ('biosample_id' not in d) and ('biosample_secondary' in d):
+            d['biosample_id'] = d['biosample_secondary']
+            del d['biosample_secondary']
+
         return d
 
-    @valid_path
+    @valid_path(rettype=list)
     def _parse_contacts(self, node):
         contacts = []
         for contact in node:
@@ -61,7 +91,7 @@ class BioSampleParse(object):
             contacts.append(parse_tree_from_dict(contact, locs))
         return contacts
 
-    @valid_path
+    @valid_path(rettype=list)
     def _parse_models(self, node):
         models = []
         for model in node:
@@ -72,10 +102,11 @@ class BioSampleParse(object):
     def _parse_attributes(self, node):
         d = {}
         for attribute in node:
-            try:
-                d[attribute.get('harmonized_name')] = attribute.text
-            except:
-                d[attribute.get('attribute_name')] = attribute.text
+            name = attribute.get('harmonized_name')
+            if name is None:
+                name = attribute.get('attribute_name')
+            d[name] = attribute.text
+
         return d
 
     def _clean_dates(self):

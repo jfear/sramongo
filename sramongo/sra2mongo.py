@@ -18,8 +18,9 @@ from mongoengine import connect
 from sramongo.logger import logger
 from sramongo.mongo import MongoDB
 from sramongo.sra import SraExperiment, XMLSchemaException
+from sramongo.biosample import BioSampleParse
 from sramongo.mongo_schema import Submission, Organization,  Study, \
-    Sample, Experiment, Run
+    Sample, Experiment, Run, BioSample
 
 STUDIES_ADDED = set()
 EXPERIMENTS_ADDED = set()
@@ -111,20 +112,46 @@ def arguments():
                               '--query', '"Drosophila melanogaster"[Orgn]', '--debug'])
 
 
-def query_sra(query, **kwargs):
-    options = {'term': query, 'db': 'sra', 'usehistory': 'y'}
-    options.update(kwargs)
-    handle = Entrez.esearch(**options)
-    records = Entrez.read(handle)
-    handle.close()
+def iter_query(query):
+    batch_size = 5000
+    for start in range(0, len(query), batch_size):
+        end = min(len(query), start+batch_size)
+        yield '[accn] OR '.join(query[start:end]) + '[accn]'
 
-    try:
+
+def ncbi_query(query, **kwargs):
+    options = {'term': query, 'db': 'sra'}
+    options.update(kwargs)
+
+    if isinstance(query, str):
+        # Simple query
+        options['usehistory'] = 'y'
+        handle = Entrez.esearch(**options)
+        records = Entrez.read(handle)
         records['Count'] = int(records['Count'])
         logger.info('There are {:,} records.'.format(records['Count']))
-    except:
-        pass
+        return records
+    elif isinstance(query, list):
+        # This is used when there is a list of accession numbers to query.
 
-    return records
+        options['retmax'] = 100000          # the highest valid value
+        ids = []
+        for q in iter_query(query):
+            options['term'] = q
+            handle = Entrez.esearch(**options)
+            records = Entrez.read(handle)
+            ids.extend(records['IdList'])
+            handle.close()
+
+        handle = Entrez.epost(options['db'], id=','.join(ids))
+        records = Entrez.read(handle)
+        handle.close()
+        records['Count'] = len(ids)
+        logger.info('There are {:,} records.'.format(records['Count']))
+        return records
+    else:
+        logger.debug(query[:10])
+        raise ValueError('Query should be a string or list of Accession number.')
 
 
 def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
@@ -139,9 +166,9 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
         end = min(count, start+batch_size)
 
         cache_xml = cache.get_cache(start, 'xml')
-        cache_runinfo = cache.get_cache(start, 'runinfo')
+        cache_runinfo = cache.get_cache(start, 'csv')
 
-        if (cache_xml is not None) & (cache_runinfo is not None):
+        if (cache_xml is not None):
             logger.info('Using cached version for: {} to {}.'.format(start+1, end))
         else:
             logger.info("Downloading record %i to %i" % (start+1, end))
@@ -154,11 +181,12 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
                     cache.add_to_cache(start, 'xml', xml_data)
                     xml_handle.close()
 
-                    runinfo_handle = Entrez.efetch(rettype="runinfo", retmode=runinfo_retmode,
-                                                   retstart=start, **options)
-                    runinfo_data = runinfo_handle.read()
-                    cache.add_to_cache(start, 'runinfo', runinfo_data)
-                    runinfo_handle.close()
+                    if runinfo_retmode is not None:
+                        runinfo_handle = Entrez.efetch(rettype="runinfo", retmode=runinfo_retmode,
+                                                       retstart=start, **options)
+                        runinfo_data = runinfo_handle.read()
+                        cache.add_to_cache(start, 'csv', runinfo_data)
+                        runinfo_handle.close()
 
                 except HTTPError as err:
                     if (500 <= err.code <= 599) & (attempt < 3):
@@ -180,25 +208,38 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
                         sys.exit(1)
 
 
-def add_pkg_to_database(pkg, runinfo):
+def add_sra_to_database(pkg, runinfo):
 
     sraExperiment = SraExperiment(pkg)
 
     # Add Experiment Package to database
-    # Build study document
+    # build subdocs
     submission = Submission.build_from_SraExperiment(sraExperiment)
     organization = Organization.build_from_SraExperiment(sraExperiment)
-    study = Study.build_from_SraExperiment(sraExperiment, submission=submission,
-                                           organization=organization)
+
+    # Build study document
+    kwargs = {}
+    if submission is not None:
+        kwargs['submission'] = submission
+
+    if organization is not None:
+        kwargs['organization'] = organization
+
+    study = Study.build_from_SraExperiment(sraExperiment, **kwargs)
+
     # Build sample document
     sample = Sample.build_from_SraExperiment(sraExperiment)
 
     # Build experiment document
+    kwargs = {}
+    if study is not None:
+        kwargs['study'] = study
+
     experiment = Experiment.build_from_SraExperiment(
-        sraExperiment, study=study)
+        sraExperiment, samples=sraExperiment.samples, **kwargs)
 
     # Add experiment id to study
-    if study is not None:
+    if (study is not None) and (experiment is not None):
         study.modify(push__experiments=experiment.experiment_id)
         STUDIES_ADDED.add(study.study_id)
 
@@ -206,7 +247,7 @@ def add_pkg_to_database(pkg, runinfo):
     runs = Run.build_from_SraExperiment(sraExperiment, runinfo)
     RUNS_ADDED.update(set([run.run_id for run in runs]))
 
-    if experiment is not None:
+    if (experiment is not None) and (len(runs) > 1):
         experiment.modify(push_all__runs=[run.run_id for run in runs])
         EXPERIMENTS_ADDED.add(experiment.study_id)
 
@@ -225,7 +266,7 @@ def main():
 
     cache = Cache()
     if args.force:
-        logger.info('Clearing cache.')
+        logger.info('Clearing cache: {}.'.format(cache.cachedir))
         cache.clear()
 
     # Set email for entrez so they can contact if abbuse. Required by
@@ -238,7 +279,7 @@ def main():
         connect(args.db)
 
         logger.info('Querying SRA: {}'.format(args.query))
-        sra_query = query_sra(args.query)
+        sra_query = ncbi_query(args.query)
 
         logger.info('Downloading documents')
         logger.info('Saving to cache: {}'.format(cache.cachedir))
@@ -250,7 +291,7 @@ def main():
             tree = ElementTree.parse(xml)
             ri = pd.read_csv(runinfo, index_col='Run')
             for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
-                add_pkg_to_database(exp_pkg, ri)
+                add_sra_to_database(exp_pkg, ri)
 
         logger.info('Studies Added: {:,}'.format(len(STUDIES_ADDED)))
         logger.info(STUDIES_ADDED)
@@ -263,11 +304,23 @@ def main():
 
         # Query BioSample
         bs_cache = Cache(directory='.cache/sra2mongo/biosample')
-        biosample_ids = Sample.objects.distinct('BioSample')
-        bs_query = ' AND '.join(biosample_ids)
+        biosample_ids = list(Sample.objects.distinct('BioSample'))
         logger.info('Querying BioSample: with {:,} ids'.format(len(biosample_ids)))
-        biosmample_query = query_sra(bs_query, db='biosample')
+        logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
+        bs_query = ncbi_query(biosample_ids, db='biosample')
 
         logger.info('Downloading BioSample documents')
         logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
-        fetch_sra(bs_query, bs_cache, db='biosample')
+        fetch_sra(bs_query, bs_cache, runinfo_retmode=None, db='biosample')
+
+        logger.info('Adding documents to database')
+        for xml in bs_cache:
+            logger.debug('Parsing: {}'.format(xml))
+            tree = ElementTree.parse(xml)
+            for pkg in tree.findall('BioSample'):
+                bs = BioSampleParse(pkg)
+                b = BioSample.build_from_BioSample(bs)
+
+
+if __name__ == '__main__':
+    main()

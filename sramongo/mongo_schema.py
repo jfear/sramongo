@@ -223,17 +223,17 @@ class Submission(EmbeddedDocument):
             to building.
         """
         try:
-            sraSubmission = sraExperiment.submission
-            sraSubmission.update(kwargs)
-            submission = cls(**sraSubmission)
+            sra = sraExperiment.submission
+            sra.update(kwargs)
+            submission = cls(**sra)
             return submission
         except ValidationError as err:
             logger.warn('%s\nSkipping this submission.' % err)
-            logger.debug(sraSubmission)
+            logger.debug(sra)
             return None
         except FieldDoesNotExist as err:
             logger.error(err)
-            logger.debug(sraSubmission)
+            logger.debug(sra)
             raise err
 
 
@@ -243,7 +243,7 @@ class Organization(EmbeddedDocument):
     An organization has not defined id, so there are no required fields. This
     may result in multiple copies in the database.
     """
-    type = StringField()
+    organization_type = StringField()
     abbreviation = StringField()
     name = StringField()
     email = StringField()
@@ -271,17 +271,17 @@ class Organization(EmbeddedDocument):
             to building.
         """
         try:
-            sraOrganization = sraExperiment.organization
-            sraOrganization.update(kwargs)
-            organization = cls(**sraOrganization)
+            sra = sraExperiment.organization
+            sra.update(kwargs)
+            organization = cls(**sra)
             return organization
         except ValidationError as err:
             logger.warn('%s\nSkipping this organization.' % err)
-            logger.debug(sraOrganization)
+            logger.debug(sra)
             return None
         except FieldDoesNotExist as err:
             logger.error(err)
-            logger.debug(sraOrganization)
+            logger.debug(sra)
             raise err
 
 
@@ -313,7 +313,7 @@ class Study(Document):
 
     # Attributes
     title = StringField()
-    type = StringField()
+    study_type = StringField()
     abstract = StringField()
     center_name = StringField()
     center_project_name = StringField()
@@ -354,19 +354,22 @@ class Study(Document):
             to building.
         """
         try:
-            sraStudy = sraExperiment.study
-            sraStudy.update(kwargs)
-            study = cls(**sraStudy)
-            study.save()
-            return study
+            sra = sraExperiment.study
+            sra.update(kwargs)
+            return cls.objects(pk=sra['study_id']).modify(upsert=True, new=True, **sra)
         except ValidationError as err:
             logger.warn('%s\nSkipping this study.' % err)
-            logger.debug(sraStudy)
+            logger.debug(sra)
             return None
         except FieldDoesNotExist as err:
             logger.error(err)
-            logger.debug(sraStudy)
+            logger.debug(sra)
             raise err
+        except Exception as err:
+            logger.error(err)
+            logger.debug(sra)
+            raise err
+
 
 
 # Samples
@@ -382,7 +385,7 @@ class Sample(Document):
     # Look through the external/secondary/submitter for these database xrefs
     # and pull them out for easy access.
     GEO = StringField()
-    BioSample = StringField()
+    BioSample = ReferenceField('BioSample')
     BioProject = StringField()
     pubmed = StringField()
 
@@ -428,18 +431,21 @@ class Sample(Document):
             to building.
         """
         try:
-            sraSample = sraExperiment.sample
-            sraSample.update(kwargs)
-            sample = cls(**sraSample)
-            sample.save()
-            return sample
+            sra = sraExperiment.sample
+            sra.update(kwargs)
+
+            if 'BioSample' in sra:
+                sra['BioSample'] = BioSample.objects(pk=sra['BioSample']).modify(
+                    upsert=True, new=True, biosample_id=sra['BioSample'])
+
+            return cls.objects(pk=sra['sample_id']).modify(upsert=True, new=True, **sra)
         except ValidationError as err:
             logger.warn('%s\nSkipping this sample.' % err)
-            logger.debug(sraSample)
+            logger.debug(sra)
             return None
         except FieldDoesNotExist as err:
             logger.error(err)
-            logger.debug(sraSample)
+            logger.debug(sra)
             raise err
 
 
@@ -517,18 +523,33 @@ class Experiment(Document):
             to building.
         """
         try:
-            sraExp = sraExperiment.experiment
-            sraExp.update(kwargs)
-            experiment = cls(**sraExp)
-            experiment.save()
-            return experiment
+            sra = sraExperiment.experiment
+            sra.update(kwargs)
+
+            if ('study' in sra) and (isinstance(sra['study'], str)):
+                study = Study.objects(pk=sra['study']).modify(
+                            upsert=True, new=True, pk=sra['study'])
+
+            if 'samples' in sra:
+                ss = []
+                for _s in sra['samples']:
+                    if isinstance(_s, str):
+                        ss.append(Sample.objects(pk=_s).modify(
+                            upsert=True, new=True, pk=_s))
+
+                sra['samples'] = ss
+
+            return cls.objects(pk=sra['experiment_id']).modify(
+                    upsert=True, new=True, **sra)
+
         except ValidationError as err:
             logger.warn('%s\nSkipping this experiment.' % err)
-            logger.debug(sraExp)
+            logger.debug(sra)
+            raise err
             return None
         except FieldDoesNotExist as err:
             logger.error(err)
-            logger.debug(sraExp)
+            logger.debug(sra)
             raise err
 
 
@@ -622,49 +643,52 @@ class Run(Document):
             to building.
         """
         runs = []
-        for sraRun in sraExperiment.run:
+        for sra in sraExperiment.run:
             try:
-                run = cls(**sraRun)
+                if 'experiment' in sra:
+                    sra['experiment'] = Experiment.objects(pk=sra['experiment']).modify(
+                        upsert=True, new=True, pk=sra['experiment'])
+
+                run = cls.objects(pk=sra['run_id']).modify(upsert=True, new=True, **sra)
 
                 try:
                     if runinfo.notnull().loc[run.run_id, 'ReleaseDate']:
-                        run.release_date = runinfo.loc[run.run_id, 'ReleaseDate']
+                        run.modify(release_date=runinfo.loc[run.run_id, 'ReleaseDate'])
                 except KeyError:
                     pass
 
                 try:
                     if runinfo.notnull().loc[run.run_id, 'LoadDate']:
-                        run.load_date = runinfo.loc[run.run_id, 'LoadDate']
+                        run.modify(load_date=runinfo.loc[run.run_id, 'LoadDate'])
                 except KeyError:
                     pass
 
                 try:
                     if runinfo.notnull().loc[run.run_id, 'size_MB']:
-                        run.size_MB = int(runinfo.loc[run.run_id, 'size_MB'])
+                        run.modify(size_MB=int(runinfo.loc[run.run_id, 'size_MB']))
                 except KeyError:
                     pass
 
                 try:
                     if runinfo.notnull().loc[run.run_id, 'download_path']:
-                        run.download_path = runinfo.loc[run.run_id, 'download_path']
+                        run.modify(download_path=runinfo.loc[run.run_id, 'download_path'])
                 except KeyError:
                     pass
 
                 try:
-                    run.experiment = Experiment.objects(experiment_id=run.experiment_id).first()
+                    run.modfiy(experiment=Experiment.objects(experiment_id=run.experiment_id).first())
                 except:
                     pass
 
-                run.save()
                 runs.append(run)
 
             except ValidationError as err:
                 logger.warn('%s\nSkipping this run.' % err)
-                logger.debug(sraRun)
+                logger.debug(sra)
                 logger.debug(runinfo.loc[run.run_id, :])
             except FieldDoesNotExist as err:
                 logger.error(err)
-                logger.debug(sraRun)
+                logger.debug(sra)
                 raise err
 
         return runs
@@ -686,6 +710,7 @@ class BioSample(Document):
     A BioSample must have a run id (SAMN). Additional metadata may be present.
     """
     biosample_id = StringField(primary_key=True)
+    biosample_secondary = StringField()
     sample_id = StringField()
     GEO = StringField()
     title = StringField()
@@ -721,19 +746,19 @@ class BioSample(Document):
             to building.
         """
         try:
-            biosample = cls(**bioSample)
-            biosample.save()
+            bio = bioSample.biosample
+            return cls.objects(pk=sra['biosample_id']).modify(
+                        upsert=True, new=True, **bio)
+
         except ValidationError as err:
             logger.warn('%s\nSkipping this BioSample.' % err)
             logger.debug(bioSample)
             return None
         except FieldDoesNotExist as err:
             logger.error(err)
-            logger.debug(bioSample)
+            logger.debug(bio)
             raise err
         except Exception as err:
             logger.error(err)
-            logger.debug(bioSample)
+            logger.debug(bio)
             raise err
-
-        return biosample
