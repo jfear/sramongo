@@ -752,7 +752,7 @@ class BioSample(Document):
 
         except ValidationError as err:
             logger.warn('%s\nSkipping this BioSample.' % err)
-            logger.debug(bioSample)
+            logger.debug(bio)
             return None
         except FieldDoesNotExist as err:
             logger.error(err)
@@ -762,6 +762,7 @@ class BioSample(Document):
             logger.error(err)
             logger.debug(bio)
             raise err
+
 
 # BioProject
 class BioProject(Document):
@@ -806,11 +807,64 @@ class BioProject(Document):
 
         except ValidationError as err:
             logger.warn('%s\nSkipping this BioProject.' % err)
-            logger.debug(bioProject)
+            logger.debug(bio)
             return None
         except FieldDoesNotExist as err:
             logger.error(err)
             logger.debug(bio)
+            raise err
+        except Exception as err:
+            logger.error(err)
+            logger.debug(bio)
+            raise err
+
+
+# Pubmed
+class Pubmed(Document):
+    """Pubmed Document.
+
+    A Pubmed must have a pubmed id (PMID). Additional metadata may be present.
+    """
+    pubmed_id = StringField(primary_key=True)
+    title = StringField()
+    abstract = StringField()
+    authors = ListField(DictField())
+    citation = StringField()
+    date_created = DateTimeField()
+    date_completed = DateTimeField()
+    date_revised = DateTimeField()
+
+    def __str__(self):
+        return DocumentString(self).string
+
+    @classmethod
+    def build_from_Pubmed(cls, pubmed, **kwargs):
+        """Builds Pubmed from an sramongo.pubmed.Pubmed.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no bioproject_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        pubmed: sramongo.pubmed.Pubmed
+            An pubmed object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the BioProject prior
+            to building.
+        """
+        try:
+            pub = Pubmed.pubmed
+            return cls.objects(pk=sra['pubmed_id']).modify(
+                        upsert=True, new=True, **pub)
+
+        except ValidationError as err:
+            logger.warn('%s\nSkipping this Pubmed.' % err)
+            logger.debug(pub)
+            return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(pub)
             raise err
         except Exception as err:
             logger.error(err)

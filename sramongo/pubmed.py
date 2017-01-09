@@ -5,17 +5,17 @@ class Pubmed(object):
     def __init__(self, node):
         self.pubmed = {}
         locs = {
-                'pubmed': ('PMID', 'text'),
+                'pubmed_id': ('PMID', 'text'),
                 'title': ('Article/ArticleTitle', 'text'),
                 }
         self.pubmed.update(parse_tree_from_dict(node, locs))
 
-        self.pubmed.date_created = self._parse_dates(node.find('DateCreated'))
-        self.pubmed.date_completed = self._parse_dates(node.find('DateCompleted'))
-        self.pubmed.date_revised = self._parse_dates(node.find('DateRevised'))
-        self.pubmed.citation = self._parse_citation(node.find('Article/Journal'))
-        self.pubmed.abstract = self._parse_abstract(node.find('Article/Abstract'))
-        self.pubmed.authors = self._parse_authors(node.find('Article/AuthorList'))
+        self.pubmed['date_created'] = self._parse_dates(node.find('DateCreated'))
+        self.pubmed['date_completed'] = self._parse_dates(node.find('DateCompleted'))
+        self.pubmed['date_revised'] = self._parse_dates(node.find('DateRevised'))
+        self.pubmed['citation'] = self._parse_citation(node.find('Article/Journal'))
+        self.pubmed['abstract'] = self._parse_abstract(node.find('Article/Abstract'))
+        self.pubmed['authors'] = self._parse_authors(node.find('Article/AuthorList'))
 
         # Clean up
         self._drop_empty()
