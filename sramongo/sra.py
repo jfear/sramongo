@@ -79,6 +79,15 @@ class SraExperiment(object):
         else:
             return False
 
+    def _drop_empty(d):
+        """Scans through a dictionary and removes empy lists or None elements."""
+
+        for k, v in d:
+            if (len(v) == 0) or (v is None):
+                del d[k]
+
+        return d
+
     @valid_path
     def _parse_link_parts(self, node):
         """Parse the different parts of a link.
@@ -173,6 +182,7 @@ class SraExperiment(object):
         d = dict()
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'submission'))
         d.update(parse_tree_from_dict(node, {'broker': ('.', 'broker_name')}))
+        d = self._drop_empty(d)
         return d
 
     # Organization
@@ -189,7 +199,7 @@ class SraExperiment(object):
             'last_name': ('Contact/Name/Last', 'text'),
         }
         d.update(parse_tree_from_dict(node, locs))
-
+        d = self._drop_empty(d)
         return d
 
     @valid_path
@@ -232,6 +242,7 @@ class SraExperiment(object):
             links.append(d)
 
         d = {'related_studies': links}
+        d = self._drop_empty(d)
         return d
 
     # Study
@@ -254,7 +265,7 @@ class SraExperiment(object):
             'description': ('DESCRIPTOR/STUDY_DESCRIPTION', 'text'),
         }
         d.update(parse_tree_from_dict(node, locs))
-
+        d = self._drop_empty(d)
         return d
 
     @valid_path
@@ -279,7 +290,6 @@ class SraExperiment(object):
             except:
                 logger.debug('Malformed attribute: "%s: %s"',
                              attribute.find('TAG').text, attribute.find('VALUE').text)
-
         return d
 
     # Sample
@@ -301,7 +311,7 @@ class SraExperiment(object):
             'description': ('SAMPLE/DESCRIPTION', 'text'),
         }
         d.update(parse_tree_from_dict(node, locs))
-
+        d = self._drop_empty(d)
         return d
 
     @valid_path(rettype=list)
@@ -402,6 +412,7 @@ class SraExperiment(object):
         elif d['library_layout'] == 'PAIRED':
             d['db_flags'].add('PE')
 
+        d = self._drop_empty(d)
         return d
 
     @valid_path
@@ -558,6 +569,7 @@ class SraExperiment(object):
                     logger.debug('Setting nbases to None')
                     d['nbases'] = None
 
+            d = self._drop_empty(d)
             runs.append(d)
 
         return runs
