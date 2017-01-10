@@ -5,7 +5,7 @@ from sramongo.xml_helpers import valid_path, parse_tree_from_dict
 
 class BioProject(object):
     def __init__(self, node):
-        """Represents the biosample XML.
+        """Represents the bioproject XML.
 
         Parameters
         ----------
@@ -31,7 +31,7 @@ class BioProject(object):
 
         # Clean up
         self._drop_empty()
-        self_clean_dates()
+        self._clean_dates()
 
     def _drop_empty(self):
         """Scans through a dictionary and removes empy lists or None elements."""
@@ -51,17 +51,17 @@ class BioProject(object):
             del self.bioproject[k]
 
     def _clean_dates(self):
-        """Cleans up biosample dates."""
+        """Cleans up bioproject dates."""
         regex = r'(\d+\-\d+\-\d+)T.*'
 
-        self.biosample['publication_date'] = re.match(
-            regex, self.biosample['publication_date']).groups()[0]
+        self.bioproject['publication_date'] = re.match(
+            regex, self.bioproject['publication_date']).groups()[0]
 
-        self.biosample['last_update'] = re.match(
-            regex, self.biosample['last_update']).groups()[0]
+        self.bioproject['last_update'] = re.match(
+            regex, self.bioproject['last_update']).groups()[0]
 
-        self.biosample['submission_date'] = re.match(
-            regex, self.biosample['submission_date']).groups()[0]
+        self.bioproject['submission_date'] = re.match(
+            regex, self.bioproject['submission_date']).groups()[0]
 
     @valid_path(rettype=list)
     def _parse_links(self, node):

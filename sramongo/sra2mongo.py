@@ -22,10 +22,6 @@ from sramongo.biosample import BioSampleParse
 from sramongo.mongo_schema import Submission, Organization,  Study, \
     Sample, Experiment, Run, BioSample
 
-STUDIES_ADDED = set()
-EXPERIMENTS_ADDED = set()
-RUNS_ADDED = set()
-
 _DEBUG = False
 
 class Cache(object):
@@ -132,11 +128,21 @@ def ncbi_query(query, **kwargs):
         logger.info('There are {:,} records.'.format(records['Count']))
         return records
     elif isinstance(query, list):
+        logger.debug('Using list of accessions.')
         # This is used when there is a list of accession numbers to query.
-
         options['retmax'] = 100000          # the highest valid value
+
+        # Some of the biosample_accn are actually biosamples IDs lets pull
+        # those out.
         ids = []
-        for q in iter_query(query):
+        accn = []
+        for _id in query:
+            if _id.startswith('SAM'):
+                accn.append(_id)
+            else:
+                ids.append(_id)
+
+        for q in iter_query(accn):
             options['term'] = q
             handle = Entrez.esearch(**options)
             records = Entrez.read(handle)
@@ -151,7 +157,7 @@ def ncbi_query(query, **kwargs):
         return records
     else:
         logger.debug(query[:10])
-        raise ValueError('Query should be a string or list of Accession number.')
+        raise ValueError('Query should be a string or list of Accession numbers.')
 
 
 def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
@@ -241,15 +247,12 @@ def add_sra_to_database(pkg, runinfo):
     # Add experiment id to study
     if (study is not None) and (experiment is not None):
         study.modify(push__experiments=experiment.experiment_id)
-        STUDIES_ADDED.add(study.study_id)
 
     # Build run documents
     runs = Run.build_from_SraExperiment(sraExperiment, runinfo)
-    RUNS_ADDED.update(set([run.run_id for run in runs]))
 
     if (experiment is not None) and (len(runs) > 1):
         experiment.modify(push_all__runs=[run.run_id for run in runs])
-        EXPERIMENTS_ADDED.add(experiment.study_id)
 
 
 def main():
@@ -278,36 +281,32 @@ def main():
         logger.info('Connecting to: {}'.format(args.db))
         connect(args.db)
 
-        logger.info('Querying SRA: {}'.format(args.query))
-        sra_query = ncbi_query(args.query)
-
-        logger.info('Downloading documents')
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        fetch_sra(sra_query, cache)
-
-        logger.info('Adding documents to database')
-        for xml, runinfo in cache:
-            logger.debug('Parsing: {}'.format(xml))
-            tree = ElementTree.parse(xml)
-            ri = pd.read_csv(runinfo, index_col='Run')
-            for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
-                add_sra_to_database(exp_pkg, ri)
-
-        logger.info('Studies Added: {:,}'.format(len(STUDIES_ADDED)))
-        logger.info(STUDIES_ADDED)
-
-        logger.info('Experiments Added: {:,}'.format(len(EXPERIMENTS_ADDED)))
-        logger.info(EXPERIMENTS_ADDED)
-
-        logger.info('Runs Added: {:,}'.format(len(RUNS_ADDED)))
-        logger.info(RUNS_ADDED)
+#         logger.info('Querying SRA: {}'.format(args.query))
+#         sra_query = ncbi_query(args.query)
+#
+#         logger.info('Downloading documents')
+#         logger.info('Saving to cache: {}'.format(cache.cachedir))
+#         fetch_sra(sra_query, cache)
+#
+#         logger.info('Adding documents to database')
+#         for xml, runinfo in cache:
+#             logger.debug('Parsing: {}'.format(xml))
+#             tree = ElementTree.parse(xml)
+#             ri = pd.read_csv(runinfo, index_col='Run')
+#             for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
+#                 add_sra_to_database(exp_pkg, ri)
+#
+#         logger.info('{:,} Studies'.format(Study.objects.count()))
+#         logger.info('{:,} Experiments'.format(Experiment.objects.count()))
+#         logger.info('{:,} Runs'.format(Run.objects.count()))
 
         # Query BioSample
         bs_cache = Cache(directory='.cache/sra2mongo/biosample')
-        biosample_ids = list(Sample.objects.distinct('BioSample'))
-        logger.info('Querying BioSample: with {:,} ids'.format(len(biosample_ids)))
+        biosample_accn = list(BioSample.objects.distinct('biosample_id'))
+
+        logger.info('Querying BioSample: with {:,} ids'.format(len(biosample_accn)))
         logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
-        bs_query = ncbi_query(biosample_ids, db='biosample')
+        bs_query = ncbi_query(biosample_accn, db='biosample')
 
         logger.info('Downloading BioSample documents')
         logger.info('Saving to cache: {}'.format(bs_cache.cachedir))

@@ -356,7 +356,10 @@ class Study(Document):
         try:
             sra = sraExperiment.study
             sra.update(kwargs)
-            return cls.objects(pk=sra['study_id']).modify(upsert=True, new=True, **sra)
+            if 'study_id' in sra:
+                return cls.objects(pk=sra['study_id']).modify(upsert=True, new=True, **sra)
+            else:
+                raise ValidationError('No study_id')
         except ValidationError as err:
             logger.warn('%s\nSkipping this study.' % err)
             logger.debug(sra)
@@ -438,7 +441,10 @@ class Sample(Document):
                 sra['BioSample'] = BioSample.objects(pk=sra['BioSample']).modify(
                     upsert=True, new=True, biosample_id=sra['BioSample'])
 
-            return cls.objects(pk=sra['sample_id']).modify(upsert=True, new=True, **sra)
+            if 'sample_id' in sra:
+                return cls.objects(pk=sra['sample_id']).modify(upsert=True, new=True, **sra)
+            else:
+                raise ValidationError('No sample_id')
         except ValidationError as err:
             logger.warn('%s\nSkipping this sample.' % err)
             logger.debug(sra)
@@ -539,9 +545,11 @@ class Experiment(Document):
 
                 sra['samples'] = ss
 
-            return cls.objects(pk=sra['experiment_id']).modify(
-                    upsert=True, new=True, **sra)
-
+            if 'experiment_id' in sra:
+                return cls.objects(pk=sra['experiment_id']).modify(
+                        upsert=True, new=True, **sra)
+            else:
+                raise ValidationError('No experiment_id')
         except ValidationError as err:
             logger.warn('%s\nSkipping this experiment.' % err)
             logger.debug(sra)
@@ -649,7 +657,10 @@ class Run(Document):
                     sra['experiment'] = Experiment.objects(pk=sra['experiment']).modify(
                         upsert=True, new=True, pk=sra['experiment'])
 
-                run = cls.objects(pk=sra['run_id']).modify(upsert=True, new=True, **sra)
+                if 'run_id' in sra:
+                    run = cls.objects(pk=sra['run_id']).modify(upsert=True, new=True, **sra)
+                else:
+                    raise ValidationError('No run_id')
 
                 try:
                     if runinfo.notnull().loc[run.run_id, 'ReleaseDate']:
@@ -711,6 +722,7 @@ class BioSample(Document):
     """
     biosample_id = StringField(primary_key=True)
     biosample_secondary = StringField()
+    db_id = StringField()
     sample_id = StringField()
     GEO = StringField()
     title = StringField()
@@ -747,8 +759,20 @@ class BioSample(Document):
         """
         try:
             bio = bioSample.biosample
-            return cls.objects(pk=sra['biosample_id']).modify(
-                        upsert=True, new=True, **bio)
+
+            if 'biosample_id' in bio:
+                bs = cls.objects(pk=bio['biosample_id']).modify(
+                            upsert=True, new=True, **bio)
+                # Make sure the samples are pointing at the right BioSample
+                # object
+                Sample.objects(BioSample=bs.db_id).update(BioSample=bs)
+
+                # Delete BioSample document with wrong id
+                BioSample.objects(pk=bs.db_id).delete()
+
+                return bs
+            else:
+                raise ValidationError('No biosample_id')
 
         except ValidationError as err:
             logger.warn('%s\nSkipping this BioSample.' % err)
@@ -802,8 +826,11 @@ class BioProject(Document):
         """
         try:
             bio = bioProject.bioproject
-            return cls.objects(pk=sra['bioproject_id']).modify(
-                        upsert=True, new=True, **bio)
+            if 'bioproject_id' in bio:
+                return cls.objects(pk=bio['bioproject_id']).modify(
+                            upsert=True, new=True, **bio)
+            else:
+                raise ValidationError('No bioproject_id')
 
         except ValidationError as err:
             logger.warn('%s\nSkipping this BioProject.' % err)
@@ -855,9 +882,11 @@ class Pubmed(Document):
         """
         try:
             pub = Pubmed.pubmed
-            return cls.objects(pk=sra['pubmed_id']).modify(
-                        upsert=True, new=True, **pub)
-
+            if 'pubmed_id' in pub:
+                return cls.objects(pk=pub['pubmed_id']).modify(
+                            upsert=True, new=True, **pub)
+            else:
+                raise ValidationError('No pubmed_id')
         except ValidationError as err:
             logger.warn('%s\nSkipping this Pubmed.' % err)
             logger.debug(pub)

@@ -487,9 +487,14 @@ class SraExperiment(object):
             if nreads is not None:
                 d['nreads'] = int(nreads)
         except:
-            logger.debug('Non numeric nreads: "{}"\n\tSetting nreads to: -1'.format(nreads))
-            d['nreads'] = -1
-            d['db_flags'].add('no_read_information')
+            # Sometimes nreads is set to 'variable' and no read information is
+            # provided. I set these values to -1.
+            if d['nreads'] == 'varaible':
+                d['nreads'] = -1
+                d['db_flags'].add('no_read_information')
+            else:
+                raise ValueError('nreads is "{}", this value is not expected. '
+                                 'Please adjust "sra.py" to account for this.'.format(d['nreads']))
 
         if d['nreads'] == 1:
             # Single-ended Reads

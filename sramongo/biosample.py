@@ -28,6 +28,7 @@ class BioSampleParse(object):
                 'publication_date': ('.', 'publication_date'),
                 'last_update': ('.', 'last_update'),
                 'submission_date': ('.', 'submission_date'),
+                'db_id': ('.', 'id'),
                 }
         self.biosample.update(parse_tree_from_dict(node, locs))
 
