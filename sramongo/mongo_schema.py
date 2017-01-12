@@ -414,6 +414,8 @@ class Sample(Document):
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
+    meta = {'allow_inheritance': True}
+
     def __str__(self):
         return DocumentString(self).string
 
@@ -508,6 +510,8 @@ class Experiment(Document):
     runs = ListField(StringField(), default=list)
     db_flags = ListField(StringField(), default=list)
     pipeline_flags = ListField(StringField(), default=list)
+
+    meta = {'allow_inheritance': True}
 
     def __str__(self):
         return DocumentString(self).string
@@ -628,6 +632,8 @@ class Run(Document):
     pipeline_flags = ListField(StringField(), default=list)
     db_created = DateTimeField(default=datetime.datetime.now)
     db_modified = DateTimeField()
+
+    meta = {'allow_inheritance': True}
 
     def __str__(self):
         return DocumentString(self).string
