@@ -104,8 +104,7 @@ def arguments():
     parser.add_argument("--force", dest="force", action='store_true', required=False,
                         help="Forces clearing the cache.")
 
-    return parser.parse_args(['--dbDir', '/data/db', '--logDir', '/data/log', '--email', 'justin.fear@nih.gov',
-                              '--query', '"Drosophila melanogaster"[Orgn]', '--debug'])
+    return parser.parse_args()
 
 
 def iter_query(query):
