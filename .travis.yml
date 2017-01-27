@@ -1,6 +1,5 @@
 language: python
   - "3.5"
-sudo: required
 install: bash travis-setup.sh
 before_script:
   - export PATH=~/anaconda/bin:$PATH
