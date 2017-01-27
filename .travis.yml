@@ -6,4 +6,4 @@ before_script:
 script:
     - which python
     - python -c 'import sramongo; print(sramongo.__file__)'
-    - py.test tests/ -v
+    - pytest tests/ -v
