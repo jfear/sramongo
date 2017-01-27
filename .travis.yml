@@ -3,6 +3,10 @@ language: python
 install: bash travis-setup.sh
 before_script:
   - export PATH=~/anaconda/bin:$PATH
+addons:
+  apt:
+    packages:
+      - openssl
 script:
   - which python
   - python -c 'import sramongo; print(sramongo.__file__)'
