@@ -1,12 +1,10 @@
 language: python
   - "3.5"
+sudo: required
 install: bash travis-setup.sh
 before_script:
   - export PATH=~/anaconda/bin:$PATH
-addons:
-  apt:
-    - mongodb
 script:
   - which python
   - python -c 'import sramongo; print(sramongo.__file__)'
-  - py.test -v tests
+  - pytest -v tests
