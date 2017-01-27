@@ -14,6 +14,6 @@ conda config --add channels bioconda
 conda config --add channels jfear
 
 conda install -y mongodb openssl
-conda install -y --file requirements.txt
+# conda install -y --file requirements.txt
 
-~/anaconda/bin/python setup.py install
+# ~/anaconda/bin/python setup.py install
