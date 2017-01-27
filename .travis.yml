@@ -5,5 +5,5 @@ before_script:
     - export PATH=~/anaconda/bin:$PATH
 script:
     - which python
-    - python -c 'import sra2mongo; print(sra2mongo.__file__)'
+    - python -c 'import sramongo; print(sramongo.__file__)'
     - py.test tests/ -v
