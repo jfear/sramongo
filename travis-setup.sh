@@ -2,9 +2,6 @@
 set -euo pipefail
 set -x
 
-sudo ln -s /lib/x86_64-linux-gnu/libssl.so.1.0.0 /usr/lib/libssl.so.10
-sudo ln -s /lib/x86_64-linux-gnu/libcrypto.so.1.0.0 /usr/lib/libcrypto.so.10
-
 curl -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/anaconda
 export PATH=~/anaconda/bin:$PATH
@@ -16,8 +13,6 @@ conda config --add channels r
 conda config --add channels bioconda
 conda config --add channels jfear
 
-conda install -y mongodb
+conda install -y --file requirements.txt
 
-# conda install -y --file requirements.txt
-
-# ~/anaconda/bin/python setup.py install
+~/anaconda/bin/python setup.py install
