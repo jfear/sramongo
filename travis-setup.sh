@@ -9,7 +9,7 @@ tar -zxf mongodb-linux-x86_64-ubuntu1204-3.4.1.tgz && mv mongodb-linux-x86_64-ub
 # Download and set up conda
 curl -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/anaconda
-export PATH=~/anaconda/bin:~/mongo/bin:$PATH
+export PATH=~/anaconda/bin:$PATH
 
 # Add channels in the specified order.
 conda config --add channels conda-forge

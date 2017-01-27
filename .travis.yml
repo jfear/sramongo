@@ -1,7 +1,8 @@
 language: python
   - "3.5"
-install: source travis-setup.sh
+install: bash travis-setup.sh
 before_script:
+  - export PATH=~/mongo/bin:$PATH
   - export PATH=~/anaconda/bin:$PATH
 script:
   - which python
