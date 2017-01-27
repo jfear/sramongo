@@ -13,9 +13,7 @@ conda config --add channels r
 conda config --add channels bioconda
 conda config --add channels jfear
 
-ls /usr/lib
-
-conda install -y mongodb openssl
+conda install -y mongodb
 
 # conda install -y --file requirements.txt
 

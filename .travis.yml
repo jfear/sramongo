@@ -9,5 +9,5 @@ addons:
       - openssl
 script:
   - which python
-  - python -c 'import sramongo; print(sramongo.__file__)'
-  - mongod --dbpath /tmp/db
+  - find / -type f -iname "*libssl*"
+    #- python -c 'import sramongo; print(sramongo.__file__)'
