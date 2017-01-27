@@ -6,4 +6,5 @@ before_script:
 script:
     - which python
     - python -c 'import sramongo; print(sramongo.__file__)'
+    - mongod --dbpath /tmp/db
     - pytest tests/ -v
