@@ -9,4 +9,4 @@ addons:
 script:
   - which python
   - python -c 'import sramongo; print(sramongo.__file__)'
-  - pytest -v tests/
+  - py.test -v tests
