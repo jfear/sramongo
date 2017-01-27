@@ -1,0 +1,1006 @@
+<?xml version="1.0"?>
+<EXPERIMENT_PACKAGE_SET>
+  <EXPERIMENT_PACKAGE>
+    <EXPERIMENT alias="GSM1646282" accession="SRX971855" center_name="GEO">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRX971855</PRIMARY_ID>
+        <SUBMITTER_ID namespace="GEO">GSM1646282</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <TITLE>GSM1646282: AH_dsxNullM_3; Drosophila melanogaster; RNA-Seq</TITLE>
+      <STUDY_REF accession="SRP056660" refname="GSE67400">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRP056660</PRIMARY_ID>
+        </IDENTIFIERS>
+      </STUDY_REF>
+      <DESIGN>
+        <DESIGN_DESCRIPTION/>
+        <SAMPLE_DESCRIPTOR accession="SRS886861">
+          <IDENTIFIERS>
+            <PRIMARY_ID>SRS886861</PRIMARY_ID>
+            <EXTERNAL_ID namespace="GEO">GSM1646282</EXTERNAL_ID>
+          </IDENTIFIERS>
+        </SAMPLE_DESCRIPTOR>
+        <LIBRARY_DESCRIPTOR>
+          <LIBRARY_STRATEGY>RNA-Seq</LIBRARY_STRATEGY>
+          <LIBRARY_SOURCE>TRANSCRIPTOMIC</LIBRARY_SOURCE>
+          <LIBRARY_SELECTION>cDNA</LIBRARY_SELECTION>
+          <LIBRARY_LAYOUT>
+            <SINGLE/>
+          </LIBRARY_LAYOUT>
+          <LIBRARY_CONSTRUCTION_PROTOCOL>Total RNA was extracted using TRIzol&#xAE; Reagent (Invitrogen), and RNA was precipitated by addition of 250 &#xB5;L 100% isopropanol and 250 &#xB5;L 1.2 M NaCitrate, 0.8 M NaCl in DEPC-treated water. The Zymo Research RNA Clean &amp; Concentrator&#x2122;-25 In-Column DNase Digestion protocol and 10 units Ambion&#xAE; TURBO&#x2122; DNase was used on ~25 &#xB5;g total RNA. Poly(A)+ transcripts were subsequently isolated from total RNA using Ambion&#xAE; MicroPoly(A)Purist&#x2122; Kit. One hundred ng mRNA was chemically fragmented to a range of approximately 200-500 base pairs using the Ambion&#xAE; RNA Fragmentation Reagent, and the reaction was cleaned using Zymo Research RNA Clean &amp; Concentrator&#x2122;-5. First strand cDNA was synthesized using SuperScript&#xAE; II Reverse Transcriptase (Invitrogen&#x2122;) and a combination of 3 &#xB5;g random hexamers and 0.15 &#xB5;g oligo(dT)20 primers. The second strand of the cDNA was synthesized using DNA polymerase I (Invitrogen&#x2122;), RNase H (New England Biolabs&#xAE; Inc.), dNTPs and second strand buffer (Invitrogen&#x2122;). This reaction and all subsequent reactions were cleaned using Zymo Research DNA Clean &amp; Concentrator&#x2122;-5 kit. Double stranded cDNA templates were blunt ended using End-It&#x2122; Repair Kit (Epicentre&#xAE;). A-overhangs were added to both ends with Klenow fragment (3'&#x2192;5' exo-minus) (New England Biolabs&#xAE; Inc.) and Illumina sequencing adapters were then ligated to both ends of the cDNA templates using Fast-Link&#x2122; DNA Ligation Kit (Epicentre&#xAE;). cDNA templates were  amplified by performing PCR for 18 cycles, which extended the adapter and incorporated a different six base pair index into each sample. The product was then isolated by gel purification of 250-550 base pair fragments.</LIBRARY_CONSTRUCTION_PROTOCOL>
+        </LIBRARY_DESCRIPTOR>
+      </DESIGN>
+      <PLATFORM>
+        <ILLUMINA>
+          <INSTRUMENT_MODEL>Illumina Genome Analyzer IIx</INSTRUMENT_MODEL>
+        </ILLUMINA>
+      </PLATFORM>
+      <EXPERIMENT_LINKS>
+        <EXPERIMENT_LINK>
+          <URL_LINK>
+            <LABEL>GEO Sample GSM1646282</LABEL>
+            <URL>http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1646282</URL>
+          </URL_LINK>
+        </EXPERIMENT_LINK>
+        <EXPERIMENT_LINK>
+          <XREF_LINK>
+            <DB>gds</DB>
+            <ID>301646282</ID>
+          </XREF_LINK>
+        </EXPERIMENT_LINK>
+      </EXPERIMENT_LINKS>
+      <EXPERIMENT_ATTRIBUTES>
+        <EXPERIMENT_ATTRIBUTE>
+          <TAG>GEO Accession</TAG>
+          <VALUE>GSM1646282</VALUE>
+        </EXPERIMENT_ATTRIBUTE>
+      </EXPERIMENT_ATTRIBUTES>
+    </EXPERIMENT>
+    <SUBMISSION alias="GEO: GSE67400" broker_name="GEO" center_name="GEO" submission_comment="submission brokered by GEO" lab_name="" accession="SRA249127">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRA249127</PRIMARY_ID>
+        <SUBMITTER_ID namespace="GEO">GEO: GSE67400</SUBMITTER_ID>
+      </IDENTIFIERS>
+    </SUBMISSION>
+    <Organization type="center">
+      <Name abbr="GEO">Gene Expression Omnibus</Name>
+    </Organization>
+    <STUDY center_name="GEO" alias="GSE67400" accession="SRP056660">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRP056660</PRIMARY_ID>
+        <EXTERNAL_ID namespace="BioProject" label="primary">PRJNA279833</EXTERNAL_ID>
+        <EXTERNAL_ID namespace="GEO">GSE67400</EXTERNAL_ID>
+      </IDENTIFIERS>
+      <DESCRIPTOR>
+        <STUDY_TITLE>The Wright Stuff: Reimagining Path Analysis Reveals Novel Components of the Sex Determination Hierarchy in Drosophila Melanogaster</STUDY_TITLE>
+        <STUDY_TYPE existing_study_type="Transcriptome Analysis"/>
+        <STUDY_ABSTRACT>The Drosophila sex determination hierarchy consists of a splicing cascade with sex-specific transcription directing somatic sexual dimorphism. Our understanding of this pathway, and many others, is incomplete. Here we pioneer an approach to expand our knowledge of gene regulatory networks (GRNs) by leveraging natural genetic variation. This approach is generalizable to any natural population, including humans. Two studies from Drosophila female head tissue were used &#x2013; the DSPR collection (alleles from 15 natural variants) and F1-hybrid collection (alleles from heterozygotes of 75 isogenic lines crossed to w1118) &#x2013; in a structural equation model (SEM) analysis. We expanded the sex hierarchy GRN by adding novel links among genes in the pathway and by adding novel genes to the pathway. A link from fruitless (fru) to Sex-lethal (Sxl) was found in both populations, which is supported by the presence of fru binding sites in the Sxl locus. The splicing factors male-specific lethal 2 and Rm62 were correctly identified as downstream targets of Sxl. There were 754 additional candidate genes for an expanded sex hierarchy GRN. These candidates were enriched for genes with sex-biased splicing and many components of the spliceosome were placed in the GRN. As with other population-genetic analyses, the number of alleles limits the number of observable interactions. Network expansion was only clear in the F1-hybrid population, which has an average of twice as many alleles as the DSPR population. Independent studies of doublesex and transformer mutants support many novel connections, including evidence for a link between the sex hierarchy and metabolism, with the inclusion of Insulin-like receptor in the sex hierarchy GRN. Overall design: RNA sequencing was performed on mRNA derived from adult male or female heads, for a total of 9 samples. These samples included females that produce the male isoform of dsx [w/+;DsxD/dsxm+r15 (XX)], and two dsx mutants: females [w/+; dsxm+r15/dsxd+r3 (XX)] and males [w;dsxm+r15/dsxd+r3 (XY)]. Two wild type genotypes (Berlin and Canton-S) were sequenced at the same time, but have previously been published as part of GSE50515. There were at least 3 replicates from biological samples.</STUDY_ABSTRACT>
+        <CENTER_PROJECT_NAME>GSE67400</CENTER_PROJECT_NAME>
+      </DESCRIPTOR>
+      <STUDY_LINKS>
+        <STUDY_LINK>
+          <XREF_LINK>
+            <DB>pubmed</DB>
+            <ID>26335107</ID>
+          </XREF_LINK>
+        </STUDY_LINK>
+      </STUDY_LINKS>
+    </STUDY>
+    <SAMPLE alias="GSM1646282" accession="SRS886861">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRS886861</PRIMARY_ID>
+        <EXTERNAL_ID namespace="BioSample">SAMN03450822</EXTERNAL_ID>
+        <EXTERNAL_ID namespace="GEO">GSM1646282</EXTERNAL_ID>
+      </IDENTIFIERS>
+      <TITLE>AH_dsxNullM_3</TITLE>
+      <SAMPLE_NAME>
+        <TAXON_ID>7227</TAXON_ID>
+        <SCIENTIFIC_NAME>Drosophila melanogaster</SCIENTIFIC_NAME>
+      </SAMPLE_NAME>
+      <SAMPLE_LINKS>
+        <SAMPLE_LINK>
+          <XREF_LINK>
+            <DB>bioproject</DB>
+            <ID>279833</ID>
+            <LABEL>PRJNA279833</LABEL>
+          </XREF_LINK>
+        </SAMPLE_LINK>
+      </SAMPLE_LINKS>
+      <SAMPLE_ATTRIBUTES>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>source_name</TAG>
+          <VALUE>Adult Head Tissue</VALUE>
+        </SAMPLE_ATTRIBUTE>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>strain</TAG>
+          <VALUE>unknown</VALUE>
+        </SAMPLE_ATTRIBUTE>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>genotype</TAG>
+          <VALUE>w;dsxm+r15/dsxd+r3 (XY)</VALUE>
+        </SAMPLE_ATTRIBUTE>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>Sex</TAG>
+          <VALUE>male</VALUE>
+        </SAMPLE_ATTRIBUTE>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>developmental stage</TAG>
+          <VALUE>adult</VALUE>
+        </SAMPLE_ATTRIBUTE>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>tissue</TAG>
+          <VALUE>head</VALUE>
+        </SAMPLE_ATTRIBUTE>
+      </SAMPLE_ATTRIBUTES>
+    </SAMPLE>
+    <Pool>
+      <Member member_name="" accession="SRS886861" sample_name="GSM1646282" sample_title="AH_dsxNullM_3" spots="7018100" bases="533375600" tax_id="7227" organism="Drosophila melanogaster">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRS886861</PRIMARY_ID>
+          <EXTERNAL_ID namespace="BioSample">SAMN03450822</EXTERNAL_ID>
+          <EXTERNAL_ID namespace="GEO">GSM1646282</EXTERNAL_ID>
+        </IDENTIFIERS>
+      </Member>
+    </Pool>
+    <RUN_SET>
+      <RUN alias="GSM1646282_r1" accession="SRR1945105" center_name="GEO" total_spots="7018100" total_bases="533375600" size="352633666" load_done="true" published="2015-09-01 17:39:56" is_public="true" cluster_name="public" static_data_available="1">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRR1945105</PRIMARY_ID>
+          <SUBMITTER_ID namespace="GEO">GSM1646282_r1</SUBMITTER_ID>
+        </IDENTIFIERS>
+        <EXPERIMENT_REF accession="SRX971855" refname="GSM1646282"/>
+        <PLATFORM>
+          <ILLUMINA>
+            <INSTRUMENT_MODEL>Illumina Genome Analyzer IIx</INSTRUMENT_MODEL>
+          </ILLUMINA>
+        </PLATFORM>
+        <Pool>
+          <Member member_name="" accession="SRS886861" sample_name="GSM1646282" sample_title="AH_dsxNullM_3" spots="7018100" bases="533375600" tax_id="7227" organism="Drosophila melanogaster">
+            <IDENTIFIERS>
+              <PRIMARY_ID>SRS886861</PRIMARY_ID>
+              <EXTERNAL_ID namespace="BioSample">SAMN03450822</EXTERNAL_ID>
+              <EXTERNAL_ID namespace="GEO">GSM1646282</EXTERNAL_ID>
+            </IDENTIFIERS>
+          </Member>
+        </Pool>
+        <Statistics nreads="1" nspots="7018100">
+          <Read index="0" count="7018100" average="76" stdev="0"/>
+        </Statistics>
+        <Bases cs_native="false" count="533375600">
+          <Base value="A" count="150884197"/>
+          <Base value="C" count="118225877"/>
+          <Base value="G" count="119703318"/>
+          <Base value="T" count="144526048"/>
+          <Base value="N" count="36160"/>
+        </Bases>
+        <tax_analysis parser_version="0.4" dbs_mtime="2016-06-28 06:01:03" aligns_to_version="0.34" dbss_name="tree_filter.dbss" analyzed_spot_count="7018100" total_spot_count="7018100" dbss_mtime="2016-07-07 08:15:09" identified_spot_count="2748748" dbs_name="tree_index.dbs"> <taxon self_count="23" tax_id="131567" name="cellular organisms" total_count="2748729"> <taxon self_count="87139" tax_id="2759" rank="superkingdom" name="Eukaryota" total_count="2718284">
+              <taxon self_count="6790" tax_id="33154" name="Opisthokonta" total_count="2631135">
+                <taxon self_count="12" tax_id="33208" rank="kingdom" name="Metazoa" total_count="2623029">
+                  <taxon self_count="1429" tax_id="6072" name="Eumetazoa" total_count="2623017">
+                    <taxon self_count="11931" tax_id="33213" name="Bilateria" total_count="2621588">
+                      <taxon self_count="1054" tax_id="33317" name="Protostomia" total_count="2608619">
+                        <taxon self_count="126" tax_id="1206794" name="Ecdysozoa" total_count="2607552">
+                          <taxon self_count="0" tax_id="88770" name="Panarthropoda" total_count="2607426">
+                            <taxon self_count="7196" tax_id="6656" rank="phylum" name="Arthropoda" total_count="2607426">
+                              <taxon self_count="163" tax_id="197563" name="Mandibulata" total_count="2600230">
+                                <taxon self_count="81010" tax_id="197562" name="Pancrustacea" total_count="2600067">
+                                  <taxon self_count="0" tax_id="6960" rank="superclass" name="Hexapoda" total_count="2519054">
+                                    <taxon self_count="0" tax_id="50557" rank="class" name="Insecta" total_count="2519054">
+                                      <taxon self_count="0" tax_id="85512" name="Dicondylia" total_count="2519054">
+                                        <taxon self_count="383" tax_id="7496" name="Pterygota" total_count="2519054">
+                                          <taxon self_count="11037" tax_id="33340" rank="subclass" name="Neoptera" total_count="2518671">
+                                            <taxon self_count="256272" tax_id="33392" rank="infraclass" name="Endopterygota" total_count="2507624">
+                                              <taxon self_count="23461" tax_id="7147" rank="order" name="Diptera" total_count="2251285">
+                                                <taxon self_count="0" tax_id="7203" rank="suborder" name="Brachycera" total_count="2227822">
+                                                  <taxon self_count="0" tax_id="43733" rank="infraorder" name="Muscomorpha" total_count="2227822">
+                                                    <taxon self_count="0" tax_id="480118" name="Eremoneura" total_count="2227822">
+                                                      <taxon self_count="18" tax_id="480117" name="Cyclorrhapha" total_count="2227822">
+                                                        <taxon self_count="40380" tax_id="43738" name="Schizophora" total_count="2227804">
+                                                          <taxon self_count="9" tax_id="43742" name="Calyptratae" total_count="18">
+                                                            <taxon self_count="0" tax_id="43755" rank="superfamily" name="Oestroidea" total_count="9">
+                                                            <taxon self_count="4" tax_id="7371" rank="family" name="Calliphoridae" total_count="9">
+                                                            <taxon self_count="0" tax_id="43913" rank="subfamily" name="Chrysomyinae" total_count="4">
+                                                            <taxon self_count="0" tax_id="54281" rank="tribe" name="Chrysomyini" total_count="4">
+                                                            <taxon self_count="0" tax_id="45449" rank="genus" name="Chrysomya" total_count="4">
+                                                            <taxon self_count="1" tax_id="81419" rank="species" name="Chrysomya albiceps" total_count="1"/>
+                                                            <taxon self_count="3" tax_id="69364" rank="species" name="Chrysomya bezziana" total_count="3"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="43912" rank="subfamily" name="Calliphorinae" total_count="1">
+                                                            <taxon self_count="0" tax_id="7372" rank="genus" name="Calliphora" total_count="1">
+                                                            <taxon self_count="1" tax_id="7373" rank="species" name="Calliphora vicina" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                          </taxon>
+                                                          <taxon self_count="47310" tax_id="43741" name="Acalyptratae" total_count="2187406">
+                                                            <taxon self_count="0" tax_id="43746" rank="superfamily" name="Ephydroidea" total_count="2140058">
+                                                            <taxon self_count="0" tax_id="7214" rank="family" name="Drosophilidae" total_count="2140058">
+                                                            <taxon self_count="0" tax_id="43845" rank="subfamily" name="Drosophilinae" total_count="2140058">
+                                                            <taxon self_count="0" tax_id="46877" rank="tribe" name="Drosophilini" total_count="2140058">
+                                                            <taxon self_count="85168" tax_id="7215" rank="genus" name="Drosophila" total_count="2140058">
+                                                            <taxon self_count="73601" tax_id="32341" rank="subgenus" name="Sophophora" total_count="2050110">
+                                                            <taxon self_count="63847" tax_id="32346" rank="species group" name="melanogaster group" total_count="1974434">
+                                                            <taxon self_count="0" tax_id="32347" rank="species subgroup" name="ananassae subgroup" total_count="1778">
+                                                            <taxon self_count="0" tax_id="545632" name="ananassae species complex" total_count="1778">
+                                                            <taxon self_count="1778" tax_id="7217" rank="species" name="Drosophila ananassae" total_count="1778"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="1491749" tax_id="32351" rank="species subgroup" name="melanogaster subgroup" total_count="1908809">
+                                                            <taxon self_count="49006" tax_id="7220" rank="species" name="Drosophila erecta" total_count="49006"/>
+                                                            <taxon self_count="45739" tax_id="7227" rank="species" name="Drosophila melanogaster" total_count="45739"/>
+                                                            <taxon self_count="79702" tax_id="7238" rank="species" name="Drosophila sechellia" total_count="79702"/>
+                                                            <taxon self_count="196899" tax_id="7240" rank="species" name="Drosophila simulans" total_count="196899"/>
+                                                            <taxon self_count="45714" tax_id="7245" rank="species" name="Drosophila yakuba" total_count="45714"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="32365" rank="species group" name="willistoni group" total_count="759">
+                                                            <taxon self_count="0" tax_id="32367" rank="species subgroup" name="willistoni subgroup" total_count="759">
+                                                            <taxon self_count="759" tax_id="7260" rank="species" name="Drosophila willistoni" total_count="759"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="32355" rank="species group" name="obscura group" total_count="1316">
+                                                            <taxon self_count="1316" tax_id="32358" rank="species subgroup" name="pseudoobscura subgroup" total_count="1316"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="32281" rank="subgenus" name="Drosophila" total_count="4780">
+                                                            <taxon self_count="0" tax_id="32321" rank="species group" name="repleta group" total_count="472">
+                                                            <taxon self_count="0" tax_id="32324" rank="species subgroup" name="mulleri subgroup" total_count="472">
+                                                            <taxon self_count="0" tax_id="198037" name="mojavensis species complex" total_count="472">
+                                                            <taxon self_count="472" tax_id="7230" rank="species" name="Drosophila mojavensis" total_count="472"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="32335" rank="species group" name="virilis group" total_count="847">
+                                                            <taxon self_count="847" tax_id="7244" rank="species" name="Drosophila virilis" total_count="847"/>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="306032" rank="species group" name="flavopilosa group" total_count="8">
+                                                            <taxon self_count="0" tax_id="306034" rank="species subgroup" name="nesiota subgroup" total_count="8">
+                                                            <taxon self_count="8" tax_id="306035" rank="species" name="Drosophila incompta" total_count="8"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="32304" rank="species group" name="immigrans group" total_count="3453">
+                                                            <taxon self_count="0" tax_id="32306" rank="species subgroup" name="immigrans subgroup" total_count="3453">
+                                                            <taxon self_count="3453" tax_id="157056" rank="species" name="Drosophila formosana" total_count="3453"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="43750" rank="superfamily" name="Sciomyzoidea" total_count="1">
+                                                            <taxon self_count="0" tax_id="137503" rank="family" name="Sepsidae" total_count="1">
+                                                            <taxon self_count="0" tax_id="292386" rank="genus" name="Nemopoda" total_count="1">
+                                                            <taxon self_count="1" tax_id="1577136" rank="species" name="Nemopoda mamaevi" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="43752" rank="superfamily" name="Tephritoidea" total_count="37">
+                                                            <taxon self_count="0" tax_id="7211" rank="family" name="Tephritidae" total_count="37">
+                                                            <taxon self_count="0" tax_id="164860" rank="subfamily" name="Dacinae" total_count="37">
+                                                            <taxon self_count="0" tax_id="43871" rank="tribe" name="Dacini" total_count="37">
+                                                            <taxon self_count="0" tax_id="27456" rank="genus" name="Bactrocera" total_count="37">
+                                                            <taxon self_count="0" tax_id="69624" rank="subgenus" name="Daculus" total_count="35">
+                                                            <taxon self_count="35" tax_id="104688" rank="species" name="Bactrocera oleae" total_count="35"/>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="47832" rank="subgenus" name="Bactrocera" total_count="2">
+                                                            <taxon self_count="2" tax_id="98805" name="Bactrocera dorsalis species complex" total_count="2"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                                <taxon self_count="1" tax_id="7148" rank="suborder" name="Nematocera" total_count="2">
+                                                  <taxon self_count="0" tax_id="43786" rank="infraorder" name="Culicomorpha" total_count="1">
+                                                    <taxon self_count="0" tax_id="41827" rank="superfamily" name="Culicoidea" total_count="1">
+                                                      <taxon self_count="0" tax_id="7157" rank="family" name="Culicidae" total_count="1">
+                                                        <taxon self_count="0" tax_id="43816" rank="subfamily" name="Anophelinae" total_count="1">
+                                                          <taxon self_count="0" tax_id="7164" rank="genus" name="Anopheles" total_count="1">
+                                                            <taxon self_count="0" tax_id="44534" rank="subgenus" name="Cellia" total_count="1">
+                                                            <taxon self_count="0" tax_id="44537" name="Pyretophorus" total_count="1">
+                                                            <taxon self_count="1" tax_id="43041" rank="species" name="Anopheles christyi" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                              <taxon self_count="0" tax_id="7041" rank="order" name="Coleoptera" total_count="10">
+                                                <taxon self_count="3" tax_id="41071" rank="suborder" name="Adephaga" total_count="3"/>
+                                                <taxon self_count="0" tax_id="63907" rank="suborder" name="Myxophaga" total_count="6">
+                                                  <taxon self_count="0" tax_id="110033" rank="family" name="Sphaeriusidae" total_count="6">
+                                                    <taxon self_count="0" tax_id="174920" rank="genus" name="Sphaerius" total_count="6">
+                                                      <taxon self_count="6" tax_id="546487" rank="species" name="Sphaerius sp. BT0074" total_count="6"/>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                                <taxon self_count="0" tax_id="41084" rank="suborder" name="Polyphaga" total_count="1">
+                                                  <taxon self_count="0" tax_id="41088" rank="infraorder" name="Cucujiformia" total_count="1">
+                                                    <taxon self_count="0" tax_id="71527" rank="superfamily" name="Tenebrionoidea" total_count="1">
+                                                      <taxon self_count="1" tax_id="7065" rank="family" name="Tenebrionidae" total_count="1"/>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                              <taxon self_count="0" tax_id="85604" rank="superorder" name="Amphiesmenoptera" total_count="22">
+                                                <taxon self_count="0" tax_id="7088" rank="order" name="Lepidoptera" total_count="22">
+                                                  <taxon self_count="0" tax_id="41191" rank="suborder" name="Glossata" total_count="22">
+                                                    <taxon self_count="0" tax_id="41196" rank="infraorder" name="Neolepidoptera" total_count="22">
+                                                      <taxon self_count="0" tax_id="41197" rank="parvorder" name="Heteroneura" total_count="22">
+                                                        <taxon self_count="0" tax_id="37567" name="Ditrysia" total_count="22">
+                                                          <taxon self_count="0" tax_id="104430" name="Apoditrysia" total_count="1">
+                                                            <taxon self_count="0" tax_id="37568" rank="superfamily" name="Tortricoidea" total_count="1">
+                                                            <taxon self_count="0" tax_id="7139" rank="family" name="Tortricidae" total_count="1">
+                                                            <taxon self_count="0" tax_id="81687" rank="subfamily" name="Olethreutinae" total_count="1">
+                                                            <taxon self_count="0" tax_id="581389" rank="tribe" name="Olethreutini" total_count="1">
+                                                            <taxon self_count="0" tax_id="209533" rank="genus" name="Lobesia" total_count="1">
+                                                            <taxon self_count="1" tax_id="209534" rank="species" name="Lobesia botrana" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                          </taxon>
+                                                          <taxon self_count="12" tax_id="104431" name="Obtectomera" total_count="21">
+                                                            <taxon self_count="0" tax_id="37573" rank="superfamily" name="Pyraloidea" total_count="3">
+                                                            <taxon self_count="0" tax_id="268499" rank="family" name="Crambidae" total_count="3">
+                                                            <taxon self_count="0" tax_id="40080" rank="subfamily" name="Pyraustinae" total_count="3">
+                                                            <taxon self_count="3" tax_id="29056" rank="genus" name="Ostrinia" total_count="3"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="37572" rank="superfamily" name="Papilionoidea" total_count="5">
+                                                            <taxon self_count="0" tax_id="33415" rank="family" name="Nymphalidae" total_count="4">
+                                                            <taxon self_count="0" tax_id="100750" rank="subfamily" name="Limenitidinae" total_count="1">
+                                                            <taxon self_count="0" tax_id="215788" rank="tribe" name="Limenitidini" total_count="1">
+                                                            <taxon self_count="0" tax_id="351416" rank="genus" name="Athyma" total_count="1">
+                                                            <taxon self_count="1" tax_id="1417363" rank="species" name="Athyma cama" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="127268" rank="subfamily" name="Biblidinae" total_count="3">
+                                                            <taxon self_count="0" tax_id="215752" rank="tribe" name="Biblidini" total_count="3">
+                                                            <taxon self_count="0" tax_id="224103" rank="genus" name="Ariadne" total_count="3">
+                                                            <taxon self_count="3" tax_id="396705" rank="species" name="Ariadne ariadne" total_count="3"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="27544" rank="family" name="Lycaenidae" total_count="1">
+                                                            <taxon self_count="0" tax_id="42297" rank="subfamily" name="Polyommatinae" total_count="1">
+                                                            <taxon self_count="0" tax_id="42298" rank="genus" name="Celastrina" total_count="1">
+                                                            <taxon self_count="1" tax_id="797158" rank="species" name="Celastrina hersilia" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="37570" rank="superfamily" name="Noctuoidea" total_count="1">
+                                                            <taxon self_count="0" tax_id="695564" rank="family" name="Erebidae" total_count="1">
+                                                            <taxon self_count="0" tax_id="30225" rank="subfamily" name="Arctiinae" total_count="1">
+                                                            <taxon self_count="0" tax_id="132199" rank="tribe" name="Lithosiini" total_count="1">
+                                                            <taxon self_count="0" tax_id="694615" rank="genus" name="Vamuna" total_count="1">
+                                                            <taxon self_count="1" tax_id="1492315" rank="species" name="Vamuna virilis" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                              <taxon self_count="0" tax_id="85817" name="Neuropterida" total_count="8">
+                                                <taxon self_count="0" tax_id="7516" rank="order" name="Neuroptera" total_count="3">
+                                                  <taxon self_count="0" tax_id="146494" rank="family" name="Ascalaphidae" total_count="2">
+                                                    <taxon self_count="0" tax_id="1310334" rank="genus" name="Ascalohybris" total_count="2">
+                                                      <taxon self_count="2" tax_id="1310335" rank="species" name="Ascalohybris subjacens" total_count="2"/>
+                                                    </taxon>
+                                                  </taxon>
+                                                  <taxon self_count="0" tax_id="34746" rank="family" name="Mantispidae" total_count="1">
+                                                    <taxon self_count="0" tax_id="560958" rank="genus" name="Ditaxis" total_count="1">
+                                                      <taxon self_count="1" tax_id="560959" rank="species" name="Ditaxis biseriata" total_count="1"/>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                                <taxon self_count="0" tax_id="50553" rank="order" name="Megaloptera" total_count="5">
+                                                  <taxon self_count="0" tax_id="50554" rank="family" name="Corydalidae" total_count="5">
+                                                    <taxon self_count="0" tax_id="85815" rank="subfamily" name="Corydalinae" total_count="5">
+                                                      <taxon self_count="0" tax_id="50555" rank="genus" name="Corydalus" total_count="4">
+                                                        <taxon self_count="4" tax_id="559164" rank="species" name="Corydalus cornutus" total_count="4"/>
+                                                      </taxon>
+                                                      <taxon self_count="0" tax_id="1219908" rank="genus" name="Acanthacorydalis" total_count="1">
+                                                        <taxon self_count="1" tax_id="1449960" rank="species" name="Acanthacorydalis orientalis" total_count="1"/>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                              <taxon self_count="0" tax_id="7399" rank="order" name="Hymenoptera" total_count="27">
+                                                <taxon self_count="0" tax_id="7400" name="Apocrita" total_count="27">
+                                                  <taxon self_count="0" tax_id="7401" rank="superfamily" name="Ichneumonoidea" total_count="1">
+                                                    <taxon self_count="0" tax_id="7402" rank="family" name="Braconidae" total_count="1">
+                                                      <taxon self_count="0" tax_id="65207" rank="subfamily" name="Microgastrinae" total_count="1">
+                                                        <taxon self_count="0" tax_id="51538" rank="genus" name="Microplitis" total_count="1">
+                                                          <taxon self_count="1" tax_id="69319" rank="species" name="Microplitis demolitor" total_count="1"/>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                  <taxon self_count="0" tax_id="7434" rank="suborder" name="Aculeata" total_count="26">
+                                                    <taxon self_count="0" tax_id="34725" rank="superfamily" name="Vespoidea" total_count="26">
+                                                      <taxon self_count="0" tax_id="7438" rank="family" name="Vespidae" total_count="26">
+                                                        <taxon self_count="0" tax_id="7455" rank="subfamily" name="Polistinae" total_count="26">
+                                                          <taxon self_count="0" tax_id="76984" rank="tribe" name="Polistini" total_count="26">
+                                                            <taxon self_count="0" tax_id="7456" rank="genus" name="Polistes" total_count="26">
+                                                            <taxon self_count="26" tax_id="743375" rank="species" name="Polistes dominula" total_count="26"/>
+                                                            </taxon>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                            </taxon>
+                                            <taxon self_count="0" tax_id="33342" rank="infraclass" name="Paraneoptera" total_count="10">
+                                              <taxon self_count="0" tax_id="7524" rank="order" name="Hemiptera" total_count="10">
+                                                <taxon self_count="0" tax_id="35567" name="Euhemiptera" total_count="10">
+                                                  <taxon self_count="0" tax_id="35568" name="Neohemiptera" total_count="10">
+                                                    <taxon self_count="0" tax_id="33343" name="Prosorrhyncha" total_count="10">
+                                                      <taxon self_count="0" tax_id="33345" name="Heteroptera" total_count="10">
+                                                        <taxon self_count="0" tax_id="33347" name="Euheteroptera" total_count="10">
+                                                          <taxon self_count="0" tax_id="33349" name="Neoheteroptera" total_count="10">
+                                                            <taxon self_count="0" tax_id="33351" name="Panheteroptera" total_count="10">
+                                                            <taxon self_count="7" tax_id="33357" name="Pentatomomorpha" total_count="8">
+                                                            <taxon self_count="0" tax_id="38105" rank="superfamily" name="Coreoidea" total_count="1">
+                                                            <taxon self_count="0" tax_id="38106" rank="family" name="Rhopalidae" total_count="1">
+                                                            <taxon self_count="0" tax_id="319427" rank="genus" name="Stictopleurus" total_count="1">
+                                                            <taxon self_count="1" tax_id="319428" rank="species" name="Stictopleurus subviridis" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="33352" name="Nepomorpha" total_count="1">
+                                                            <taxon self_count="0" tax_id="236410" rank="family" name="Helotrephidae" total_count="1">
+                                                            <taxon self_count="0" tax_id="280224" rank="subfamily" name="Helotrephinae" total_count="1">
+                                                            <taxon self_count="0" tax_id="1250272" rank="genus" name="Helotrephes" total_count="1">
+                                                            <taxon self_count="1" tax_id="1320099" rank="species" name="Helotrephes sp. NKMT027" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            <taxon self_count="0" tax_id="33354" name="Cimicomorpha" total_count="1">
+                                                            <taxon self_count="0" tax_id="33355" rank="superfamily" name="Cimicoidea" total_count="1">
+                                                            <taxon self_count="0" tax_id="30083" rank="family" name="Miridae" total_count="1">
+                                                            <taxon self_count="0" tax_id="173680" rank="subfamily" name="Mirinae" total_count="1">
+                                                            <taxon self_count="0" tax_id="236659" name="Mirini" total_count="1">
+                                                            <taxon self_count="0" tax_id="236345" rank="genus" name="Adelphocoris" total_count="1">
+                                                            <taxon self_count="1" tax_id="323752" rank="species" name="Adelphocoris fasciaticollis" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                            </taxon>
+                                          </taxon>
+                                        </taxon>
+                                      </taxon>
+                                    </taxon>
+                                  </taxon>
+                                  <taxon self_count="0" tax_id="6657" rank="subphylum" name="Crustacea" total_count="3">
+                                    <taxon self_count="0" tax_id="6681" rank="class" name="Malacostraca" total_count="3">
+                                      <taxon self_count="0" tax_id="72041" rank="subclass" name="Eumalacostraca" total_count="3">
+                                        <taxon self_count="0" tax_id="6682" rank="superorder" name="Eucarida" total_count="3">
+                                          <taxon self_count="0" tax_id="6683" rank="order" name="Decapoda" total_count="3">
+                                            <taxon self_count="0" tax_id="6692" rank="suborder" name="Pleocyemata" total_count="3">
+                                              <taxon self_count="0" tax_id="6712" rank="infraorder" name="Astacidea" total_count="2">
+                                                <taxon self_count="0" tax_id="6724" rank="superfamily" name="Astacoidea" total_count="2">
+                                                  <taxon self_count="0" tax_id="6725" rank="family" name="Cambaridae" total_count="2">
+                                                    <taxon self_count="0" tax_id="72430" rank="subfamily" name="Cambarinae" total_count="2">
+                                                      <taxon self_count="0" tax_id="6726" rank="genus" name="Procambarus" total_count="2">
+                                                        <taxon self_count="2" tax_id="215716" rank="species" name="Procambarus fallax" total_count="2"/>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                              <taxon self_count="0" tax_id="6752" rank="infraorder" name="Brachyura" total_count="1">
+                                                <taxon self_count="0" tax_id="116704" name="Eubrachyura" total_count="1">
+                                                  <taxon self_count="0" tax_id="116706" name="Heterotremata" total_count="1">
+                                                    <taxon self_count="0" tax_id="6774" rank="superfamily" name="Portunoidea" total_count="1">
+                                                      <taxon self_count="0" tax_id="6775" rank="family" name="Geryonidae" total_count="1">
+                                                        <taxon self_count="0" tax_id="107257" rank="genus" name="Chaceon" total_count="1">
+                                                          <taxon self_count="1" tax_id="557237" rank="species" name="Chaceon granulatus" total_count="1"/>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                            </taxon>
+                                          </taxon>
+                                        </taxon>
+                                      </taxon>
+                                    </taxon>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                        <taxon self_count="0" tax_id="1206795" name="Lophotrochozoa" total_count="13">
+                          <taxon self_count="0" tax_id="6447" rank="phylum" name="Mollusca" total_count="13">
+                            <taxon self_count="0" tax_id="6650" rank="class" name="Polyplacophora" total_count="13">
+                              <taxon self_count="0" tax_id="6651" rank="order" name="Neoloricata" total_count="13">
+                                <taxon self_count="0" tax_id="6652" rank="suborder" name="Chitonida" total_count="13">
+                                  <taxon self_count="0" tax_id="291862" name="Chitonina" total_count="13">
+                                    <taxon self_count="0" tax_id="39684" rank="family" name="Chitonidae" total_count="13">
+                                      <taxon self_count="0" tax_id="291881" rank="subfamily" name="Chitoninae" total_count="13">
+                                        <taxon self_count="13" tax_id="256426" rank="genus" name="Sypharochiton" total_count="13"/>
+                                      </taxon>
+                                    </taxon>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                      <taxon self_count="0" tax_id="66780" rank="phylum" name="Gnathostomulida" total_count="1">
+                        <taxon self_count="0" tax_id="66781" rank="order" name="Bursovaginoidea" total_count="1">
+                          <taxon self_count="0" tax_id="338264" rank="family" name="Gnathostomulidae" total_count="1">
+                            <taxon self_count="0" tax_id="66782" rank="genus" name="Gnathostomula" total_count="1">
+                              <taxon self_count="1" tax_id="231613" rank="species" name="Gnathostomula armata" total_count="1"/>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                      <taxon self_count="0" tax_id="33511" name="Deuterostomia" total_count="1037">
+                        <taxon self_count="0" tax_id="7711" rank="phylum" name="Chordata" total_count="1037">
+                          <taxon self_count="0" tax_id="89593" rank="subphylum" name="Craniata" total_count="1037">
+                            <taxon self_count="0" tax_id="7742" name="Vertebrata" total_count="1037">
+                              <taxon self_count="0" tax_id="7776" name="Gnathostomata" total_count="1037">
+                                <taxon self_count="0" tax_id="117570" name="Teleostomi" total_count="1037">
+                                  <taxon self_count="286" tax_id="117571" name="Euteleostomi" total_count="1037">
+                                    <taxon self_count="0" tax_id="8287" name="Sarcopterygii" total_count="751">
+                                      <taxon self_count="0" tax_id="1338369" name="Dipnotetrapodomorpha" total_count="751">
+                                        <taxon self_count="0" tax_id="32523" name="Tetrapoda" total_count="751">
+                                          <taxon self_count="346" tax_id="32524" name="Amniota" total_count="751">
+                                            <taxon self_count="0" tax_id="40674" rank="class" name="Mammalia" total_count="405">
+                                              <taxon self_count="0" tax_id="32525" name="Theria" total_count="405">
+                                                <taxon self_count="0" tax_id="9347" name="Eutheria" total_count="405">
+                                                  <taxon self_count="62" tax_id="1437010" name="Boreoeutheria" total_count="405">
+                                                    <taxon self_count="0" tax_id="314146" rank="superorder" name="Euarchontoglires" total_count="343">
+                                                      <taxon self_count="0" tax_id="9392" rank="order" name="Scandentia" total_count="1">
+                                                        <taxon self_count="0" tax_id="9393" rank="family" name="Tupaiidae" total_count="1">
+                                                          <taxon self_count="0" tax_id="9394" rank="genus" name="Tupaia" total_count="1">
+                                                            <taxon self_count="1" tax_id="246437" rank="species" name="Tupaia chinensis" total_count="1"/>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                      <taxon self_count="0" tax_id="9443" rank="order" name="Primates" total_count="342">
+                                                        <taxon self_count="0" tax_id="376913" rank="suborder" name="Haplorrhini" total_count="342">
+                                                          <taxon self_count="63" tax_id="314293" rank="infraorder" name="Simiiformes" total_count="342">
+                                                            <taxon self_count="87" tax_id="9526" rank="parvorder" name="Catarrhini" total_count="279">
+                                                            <taxon self_count="56" tax_id="314295" rank="superfamily" name="Hominoidea" total_count="192">
+                                                            <taxon self_count="46" tax_id="9604" rank="family" name="Hominidae" total_count="136">
+                                                            <taxon self_count="0" tax_id="207598" rank="subfamily" name="Homininae" total_count="90">
+                                                            <taxon self_count="0" tax_id="9605" rank="genus" name="Homo" total_count="90">
+                                                            <taxon self_count="90" tax_id="9606" rank="species" name="Homo sapiens" total_count="90"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                            </taxon>
+                                          </taxon>
+                                        </taxon>
+                                      </taxon>
+                                    </taxon>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+                <taxon self_count="41" tax_id="4751" rank="kingdom" name="Fungi" total_count="1316">
+                  <taxon self_count="26" tax_id="451864" rank="subkingdom" name="Dikarya" total_count="1274">
+                    <taxon self_count="0" tax_id="4890" rank="phylum" name="Ascomycota" total_count="1119">
+                      <taxon self_count="187" tax_id="716545" name="saccharomyceta" total_count="1119">
+                        <taxon self_count="21" tax_id="147538" rank="subphylum" name="Pezizomycotina" total_count="626">
+                          <taxon self_count="191" tax_id="716546" name="leotiomyceta" total_count="604">
+                            <taxon self_count="3" tax_id="715962" name="dothideomyceta" total_count="33">
+                              <taxon self_count="16" tax_id="147541" rank="class" name="Dothideomycetes" total_count="29">
+                                <taxon self_count="0" tax_id="451867" rank="subclass" name="Dothideomycetidae" total_count="13">
+                                  <taxon self_count="0" tax_id="5014" rank="order" name="Dothideales" total_count="1">
+                                    <taxon self_count="0" tax_id="41253" rank="family" name="Dothideaceae" total_count="1">
+                                      <taxon self_count="0" tax_id="45096" rank="genus" name="Dothidea" total_count="1">
+                                        <taxon self_count="1" tax_id="162394" rank="species" name="Dothidea sambuci" total_count="1"/>
+                                      </taxon>
+                                    </taxon>
+                                  </taxon>
+                                  <taxon self_count="0" tax_id="134362" rank="order" name="Capnodiales" total_count="4">
+                                    <taxon self_count="0" tax_id="93133" rank="family" name="Mycosphaerellaceae" total_count="2">
+                                      <taxon self_count="0" tax_id="131324" rank="genus" name="Pseudocercospora" total_count="2">
+                                        <taxon self_count="2" tax_id="133175" rank="species" name="Pseudocercospora angolensis" total_count="2"/>
+                                      </taxon>
+                                    </taxon>
+                                    <taxon self_count="0" tax_id="668547" rank="family" name="Teratosphaeriaceae" total_count="2">
+                                      <taxon self_count="0" tax_id="329881" rank="genus" name="Friedmanniomyces" total_count="2">
+                                        <taxon self_count="2" tax_id="329884" rank="species" name="Friedmanniomyces simplex" total_count="2"/>
+                                      </taxon>
+                                    </taxon>
+                                  </taxon>
+                                  <taxon self_count="4" tax_id="45676" rank="order" name="Myriangiales" total_count="8">
+                                    <taxon self_count="0" tax_id="147568" rank="family" name="Myriangiaceae" total_count="4">
+                                      <taxon self_count="0" tax_id="147569" rank="genus" name="Myriangium" total_count="4">
+                                        <taxon self_count="4" tax_id="147570" rank="species" name="Myriangium duriaei" total_count="4"/>
+                                      </taxon>
+                                    </taxon>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                              <taxon self_count="0" tax_id="147539" rank="class" name="Arthoniomycetes" total_count="1">
+                                <taxon self_count="0" tax_id="39677" rank="order" name="Arthoniales" total_count="1">
+                                  <taxon self_count="0" tax_id="40111" rank="family" name="Roccellaceae" total_count="1">
+                                    <taxon self_count="0" tax_id="40109" rank="genus" name="Dendrographa" total_count="1">
+                                      <taxon self_count="1" tax_id="279122" rank="species" name="Dendrographa decolorans" total_count="1"/>
+                                    </taxon>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                            <taxon self_count="0" tax_id="715989" name="sordariomyceta" total_count="375">
+                              <taxon self_count="166" tax_id="147550" rank="class" name="Sordariomycetes" total_count="374">
+                                <taxon self_count="0" tax_id="222545" rank="subclass" name="Xylariomycetidae" total_count="8">
+                                  <taxon self_count="0" tax_id="37989" rank="order" name="Xylariales" total_count="8">
+                                    <taxon self_count="0" tax_id="189359" name="Xylariales incertae sedis" total_count="8">
+                                      <taxon self_count="8" tax_id="1354494" rank="genus" name="Phialemoniopsis" total_count="8"/>
+                                    </taxon>
+                                  </taxon>
+                                </taxon>
+                                <taxon self_count="200" tax_id="222544" rank="subclass" name="Sordariomycetidae" total_count="200"/>
+                              </taxon>
+                              <taxon self_count="0" tax_id="147548" rank="class" name="Leotiomycetes" total_count="1">
+                                <taxon self_count="0" tax_id="5178" rank="order" name="Helotiales" total_count="1">
+                                  <taxon self_count="0" tax_id="159639" name="Helotiales incertae sedis" total_count="1">
+                                    <taxon self_count="1" tax_id="38037" rank="genus" name="Rhynchosporium" total_count="1"/>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                            <taxon self_count="0" tax_id="147545" rank="class" name="Eurotiomycetes" total_count="5">
+                              <taxon self_count="0" tax_id="451871" rank="subclass" name="Eurotiomycetidae" total_count="5">
+                                <taxon self_count="0" tax_id="5042" rank="order" name="Eurotiales" total_count="5">
+                                  <taxon self_count="0" tax_id="1131492" rank="family" name="Aspergillaceae" total_count="2">
+                                    <taxon self_count="2" tax_id="5052" rank="genus" name="Aspergillus" total_count="2"/>
+                                  </taxon>
+                                  <taxon self_count="0" tax_id="28568" rank="family" name="Trichocomaceae" total_count="3">
+                                    <taxon self_count="3" tax_id="5094" rank="genus" name="Talaromyces" total_count="3"/>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                          </taxon>
+                          <taxon self_count="0" tax_id="147549" rank="class" name="Pezizomycetes" total_count="1">
+                            <taxon self_count="0" tax_id="5185" rank="order" name="Pezizales" total_count="1">
+                              <taxon self_count="0" tax_id="40289" rank="family" name="Tuberaceae" total_count="1">
+                                <taxon self_count="0" tax_id="36048" rank="genus" name="Tuber" total_count="1">
+                                  <taxon self_count="0" tax_id="39416" rank="species" name="Tuber melanosporum" total_count="1">
+                                    <taxon self_count="1" tax_id="656061" name="Tuber melanosporum Mel28" total_count="1"/>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                        <taxon self_count="0" tax_id="147537" rank="subphylum" name="Saccharomycotina" total_count="306">
+                          <taxon self_count="0" tax_id="4891" rank="class" name="Saccharomycetes" total_count="306">
+                            <taxon self_count="24" tax_id="4892" rank="order" name="Saccharomycetales" total_count="306">
+                              <taxon self_count="22" tax_id="4893" rank="family" name="Saccharomycetaceae" total_count="227">
+                                <taxon self_count="0" tax_id="71245" rank="genus" name="Kazachstania" total_count="1">
+                                  <taxon self_count="1" tax_id="382647" rank="species" name="Kazachstania siamensis" total_count="1"/>
+                                </taxon>
+                                <taxon self_count="19" tax_id="4930" rank="genus" name="Saccharomyces" total_count="204">
+                                  <taxon self_count="2" tax_id="4932" rank="species" name="Saccharomyces cerevisiae" total_count="185">
+                                    <taxon self_count="183" tax_id="559292" name="Saccharomyces cerevisiae S288c" total_count="183"/>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                              <taxon self_count="28" tax_id="766764" rank="family" name="Debaryomycetaceae" total_count="46">
+                                <taxon self_count="0" tax_id="549703" rank="genus" name="Kurtzmaniella" total_count="17">
+                                  <taxon self_count="17" tax_id="121466" rank="species" name="Kurtzmaniella cleridarum" total_count="17"/>
+                                </taxon>
+                                <taxon self_count="1" tax_id="4958" rank="genus" name="Debaryomyces" total_count="1"/>
+                              </taxon>
+                              <taxon self_count="0" tax_id="27319" rank="family" name="Metschnikowiaceae" total_count="9">
+                                <taxon self_count="0" tax_id="77850" rank="genus" name="Kodamaea" total_count="9">
+                                  <taxon self_count="9" tax_id="34356" rank="species" name="Kodamaea ohmeri" total_count="9"/>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                    <taxon self_count="0" tax_id="5204" rank="phylum" name="Basidiomycota" total_count="129">
+                      <taxon self_count="3" tax_id="452284" rank="subphylum" name="Ustilaginomycotina" total_count="126">
+                        <taxon self_count="7" tax_id="5257" rank="class" name="Ustilaginomycetes" total_count="122">
+                          <taxon self_count="0" tax_id="5267" rank="order" name="Ustilaginales" total_count="115">
+                            <taxon self_count="115" tax_id="5268" rank="family" name="Ustilaginaceae" total_count="115"/>
+                          </taxon>
+                        </taxon>
+                        <taxon self_count="0" tax_id="452283" rank="class" name="Exobasidiomycetes" total_count="1">
+                          <taxon self_count="0" tax_id="5404" rank="order" name="Exobasidiales" total_count="1">
+                            <taxon self_count="0" tax_id="190068" rank="family" name="Brachybasidiaceae" total_count="1">
+                              <taxon self_count="1" tax_id="215251" rank="genus" name="Meira" total_count="1"/>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                      <taxon self_count="0" tax_id="5302" rank="subphylum" name="Agaricomycotina" total_count="3">
+                        <taxon self_count="0" tax_id="155616" rank="class" name="Tremellomycetes" total_count="3">
+                          <taxon self_count="0" tax_id="5234" rank="order" name="Tremellales" total_count="3">
+                            <taxon self_count="0" tax_id="415703" name="Tremellales incertae sedis" total_count="3">
+                              <taxon self_count="0" tax_id="165440" rank="genus" name="Dioszegia" total_count="3">
+                                <taxon self_count="3" tax_id="4972" rank="species" name="Dioszegia hungarica" total_count="3"/>
+                              </taxon>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                  <taxon self_count="0" tax_id="112252" name="Fungi incertae sedis" total_count="1">
+                    <taxon self_count="0" tax_id="451828" rank="subphylum" name="Kickxellomycotina" total_count="1">
+                      <taxon self_count="0" tax_id="4861" rank="order" name="Kickxellales" total_count="1">
+                        <taxon self_count="0" tax_id="4862" rank="family" name="Kickxellaceae" total_count="1">
+                          <taxon self_count="0" tax_id="4863" rank="genus" name="Coemansia" total_count="1">
+                            <taxon self_count="1" tax_id="61392" rank="species" name="Coemansia reversa" total_count="1"/>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+              </taxon>
+              <taxon self_count="0" tax_id="33090" rank="kingdom" name="Viridiplantae" total_count="2">
+                <taxon self_count="0" tax_id="35493" rank="phylum" name="Streptophyta" total_count="2">
+                  <taxon self_count="0" tax_id="131221" name="Streptophytina" total_count="2">
+                    <taxon self_count="0" tax_id="3193" name="Embryophyta" total_count="2">
+                      <taxon self_count="0" tax_id="58023" name="Tracheophyta" total_count="2">
+                        <taxon self_count="0" tax_id="78536" name="Euphyllophyta" total_count="2">
+                          <taxon self_count="2" tax_id="58024" name="Spermatophyta" total_count="2"/>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+              </taxon>
+              <taxon self_count="0" tax_id="33630" name="Alveolata" total_count="7">
+                <taxon self_count="0" tax_id="5794" rank="phylum" name="Apicomplexa" total_count="7">
+                  <taxon self_count="0" tax_id="1280412" name="Conoidasida" total_count="7">
+                    <taxon self_count="0" tax_id="5796" rank="class" name="Coccidia" total_count="7">
+                      <taxon self_count="0" tax_id="75739" rank="order" name="Eucoccidiorida" total_count="7">
+                        <taxon self_count="0" tax_id="423054" rank="suborder" name="Eimeriorina" total_count="7">
+                          <taxon self_count="0" tax_id="5799" rank="family" name="Eimeriidae" total_count="7">
+                            <taxon self_count="0" tax_id="5800" rank="genus" name="Eimeria" total_count="7">
+                              <taxon self_count="7" tax_id="5804" rank="species" name="Eimeria maxima" total_count="7"/>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+              </taxon>
+              <taxon self_count="0" tax_id="554296" name="Apusozoa" total_count="1">
+                <taxon self_count="0" tax_id="172820" rank="family" name="Apusomonadidae" total_count="1">
+                  <taxon self_count="0" tax_id="877559" rank="genus" name="Thecamonas" total_count="1">
+                    <taxon self_count="1" tax_id="529818" rank="species" name="Thecamonas trahens" total_count="1"/>
+                  </taxon>
+                </taxon>
+              </taxon>
+            </taxon>
+            <taxon self_count="6066" tax_id="2" rank="superkingdom" name="Bacteria" total_count="30421">
+              <taxon self_count="4115" tax_id="1224" rank="phylum" name="Proteobacteria" total_count="24280">
+                <taxon self_count="30" tax_id="28211" rank="class" name="Alphaproteobacteria" total_count="49">
+                  <taxon self_count="0" tax_id="204455" rank="order" name="Rhodobacterales" total_count="2">
+                    <taxon self_count="2" tax_id="69657" rank="family" name="Hyphomonadaceae" total_count="2"/>
+                  </taxon>
+                  <taxon self_count="1" tax_id="766" rank="order" name="Rickettsiales" total_count="2">
+                    <taxon self_count="0" tax_id="775" rank="family" name="Rickettsiaceae" total_count="1">
+                      <taxon self_count="0" tax_id="33988" rank="tribe" name="Rickettsieae" total_count="1">
+                        <taxon self_count="0" tax_id="69474" rank="genus" name="Orientia" total_count="1">
+                          <taxon self_count="1" tax_id="784" rank="species" name="Orientia tsutsugamushi" total_count="1"/>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                  <taxon self_count="0" tax_id="356" rank="order" name="Rhizobiales" total_count="1">
+                    <taxon self_count="0" tax_id="772" rank="family" name="Bartonellaceae" total_count="1">
+                      <taxon self_count="0" tax_id="773" rank="genus" name="Bartonella" total_count="1">
+                        <taxon self_count="0" tax_id="165694" rank="species" name="Bartonella schoenbuchensis" total_count="1">
+                          <taxon self_count="1" tax_id="1094496" name="Bartonella schoenbuchensis m07a" total_count="1"/>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                  <taxon self_count="0" tax_id="204441" rank="order" name="Rhodospirillales" total_count="14">
+                    <taxon self_count="14" tax_id="433" rank="family" name="Acetobacteraceae" total_count="14"/>
+                  </taxon>
+                </taxon>
+                <taxon self_count="0" tax_id="1236" rank="class" name="Gammaproteobacteria" total_count="58">
+                  <taxon self_count="0" tax_id="91347" rank="order" name="Enterobacteriales" total_count="27">
+                    <taxon self_count="0" tax_id="543" rank="family" name="Enterobacteriaceae" total_count="27">
+                      <taxon self_count="0" tax_id="561" rank="genus" name="Escherichia" total_count="27">
+                        <taxon self_count="27" tax_id="562" rank="species" name="Escherichia coli" total_count="27"/>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                  <taxon self_count="0" tax_id="72274" rank="order" name="Pseudomonadales" total_count="8">
+                    <taxon self_count="0" tax_id="468" rank="family" name="Moraxellaceae" total_count="3">
+                      <taxon self_count="0" tax_id="469" rank="genus" name="Acinetobacter" total_count="1">
+                        <taxon self_count="0" tax_id="909768" rank="species group" name="Acinetobacter calcoaceticus/baumannii complex" total_count="1">
+                          <taxon self_count="0" tax_id="470" rank="species" name="Acinetobacter baumannii" total_count="1">
+                            <taxon self_count="1" tax_id="1116235" name="Acinetobacter baumannii AB5256" total_count="1"/>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                      <taxon self_count="0" tax_id="475" rank="genus" name="Moraxella" total_count="2">
+                        <taxon self_count="0" tax_id="46226" rank="subgenus" name="Branhamella" total_count="2">
+                          <taxon self_count="2" tax_id="480" rank="species" name="Moraxella catarrhalis" total_count="2"/>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                    <taxon self_count="0" tax_id="135621" rank="family" name="Pseudomonadaceae" total_count="5">
+                      <taxon self_count="5" tax_id="286" rank="genus" name="Pseudomonas" total_count="5"/>
+                    </taxon>
+                  </taxon>
+                  <taxon self_count="0" tax_id="135614" rank="order" name="Xanthomonadales" total_count="23">
+                    <taxon self_count="1" tax_id="32033" rank="family" name="Xanthomonadaceae" total_count="1"/>
+                    <taxon self_count="22" tax_id="1775411" rank="family" name="Rhodanobacteraceae" total_count="22"/>
+                  </taxon>
+                </taxon>
+                <taxon self_count="3749" tax_id="28216" rank="class" name="Betaproteobacteria" total_count="20057">
+                  <taxon self_count="4243" tax_id="80840" rank="order" name="Burkholderiales" total_count="16308">
+                    <taxon self_count="6241" tax_id="119060" rank="family" name="Burkholderiaceae" total_count="12065">
+                      <taxon self_count="3" tax_id="48736" rank="genus" name="Ralstonia" total_count="3"/>
+                      <taxon self_count="1605" tax_id="1822464" rank="genus" name="Paraburkholderia" total_count="1611">
+                        <taxon self_count="6" tax_id="28092" rank="species" name="Paraburkholderia andropogonis" total_count="6"/>
+                      </taxon>
+                      <taxon self_count="3030" tax_id="32008" rank="genus" name="Burkholderia" total_count="4210">
+                        <taxon self_count="323" tax_id="87882" rank="species group" name="Burkholderia cepacia complex" total_count="323"/>
+                        <taxon self_count="851" tax_id="28095" rank="species" name="Burkholderia gladioli" total_count="856">
+                          <taxon self_count="5" tax_id="1263856" name="Burkholderia gladioli 3848s-5" total_count="5"/>
+                        </taxon>
+                        <taxon self_count="1" tax_id="1468409" rank="species" name="Burkholderia sp. 2002721687" total_count="1"/>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+                <taxon self_count="0" tax_id="68525" rank="subphylum" name="delta/epsilon subdivisions" total_count="1">
+                  <taxon self_count="0" tax_id="28221" rank="class" name="Deltaproteobacteria" total_count="1">
+                    <taxon self_count="0" tax_id="213462" rank="order" name="Syntrophobacterales" total_count="1">
+                      <taxon self_count="0" tax_id="213468" rank="family" name="Syntrophaceae" total_count="1">
+                        <taxon self_count="0" tax_id="60892" rank="genus" name="Desulfobacca" total_count="1">
+                          <taxon self_count="0" tax_id="60893" rank="species" name="Desulfobacca acetoxidans" total_count="1">
+                            <taxon self_count="1" tax_id="880072" name="Desulfobacca acetoxidans DSM 11109" total_count="1"/>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+              </taxon>
+              <taxon self_count="10" tax_id="1783272" name="Terrabacteria group" total_count="73">
+                <taxon self_count="0" tax_id="201174" rank="phylum" name="Actinobacteria" total_count="50">
+                  <taxon self_count="10" tax_id="1760" rank="class" name="Actinobacteria" total_count="50">
+                    <taxon self_count="0" tax_id="85006" rank="order" name="Micrococcales" total_count="3">
+                      <taxon self_count="3" tax_id="85023" rank="family" name="Microbacteriaceae" total_count="3"/>
+                    </taxon>
+                    <taxon self_count="0" tax_id="85007" rank="order" name="Corynebacteriales" total_count="5">
+                      <taxon self_count="0" tax_id="1653" rank="family" name="Corynebacteriaceae" total_count="5">
+                        <taxon self_count="4" tax_id="1716" rank="genus" name="Corynebacterium" total_count="5">
+                          <taxon self_count="1" tax_id="43768" rank="species" name="Corynebacterium matruchotii" total_count="1"/>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                    <taxon self_count="0" tax_id="85009" rank="order" name="Propionibacteriales" total_count="32">
+                      <taxon self_count="0" tax_id="31957" rank="family" name="Propionibacteriaceae" total_count="32">
+                        <taxon self_count="32" tax_id="1743" rank="genus" name="Propionibacterium" total_count="32"/>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+                <taxon self_count="9" tax_id="1239" rank="phylum" name="Firmicutes" total_count="13">
+                  <taxon self_count="0" tax_id="91061" rank="class" name="Bacilli" total_count="4">
+                    <taxon self_count="0" tax_id="1385" rank="order" name="Bacillales" total_count="3">
+                      <taxon self_count="0" tax_id="90964" rank="family" name="Staphylococcaceae" total_count="1">
+                        <taxon self_count="0" tax_id="1279" rank="genus" name="Staphylococcus" total_count="1">
+                          <taxon self_count="1" tax_id="1280" rank="species" name="Staphylococcus aureus" total_count="1"/>
+                        </taxon>
+                      </taxon>
+                      <taxon self_count="0" tax_id="186817" rank="family" name="Bacillaceae" total_count="2">
+                        <taxon self_count="0" tax_id="1386" rank="genus" name="Bacillus" total_count="2">
+                          <taxon self_count="0" tax_id="653685" rank="species group" name="Bacillus subtilis group" total_count="2">
+                            <taxon self_count="2" tax_id="1390" rank="species" name="Bacillus amyloliquefaciens" total_count="2"/>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                    <taxon self_count="0" tax_id="186826" rank="order" name="Lactobacillales" total_count="1">
+                      <taxon self_count="0" tax_id="81850" rank="family" name="Leuconostocaceae" total_count="1">
+                        <taxon self_count="1" tax_id="1243" rank="genus" name="Leuconostoc" total_count="1"/>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+              </taxon>
+              <taxon self_count="0" tax_id="1853220" rank="phylum" name="Rhodothermaeota" total_count="2">
+                <taxon self_count="0" tax_id="1853221" rank="class" name="Balneolia" total_count="2">
+                  <taxon self_count="0" tax_id="1853223" rank="order" name="Balneolales" total_count="2">
+                    <taxon self_count="0" tax_id="1813606" rank="family" name="Balneolaceae" total_count="2">
+                      <taxon self_count="0" tax_id="455358" rank="genus" name="Balneola" total_count="2">
+                        <taxon self_count="0" tax_id="287535" rank="species" name="Balneola vulgaris" total_count="2">
+                          <taxon self_count="2" tax_id="1121104" name="Balneola vulgaris DSM 17893" total_count="2"/>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+              </taxon>
+            </taxon>
+            <taxon self_count="1" tax_id="2157" rank="superkingdom" name="Archaea" total_count="1"/>
+          </taxon>
+          <taxon self_count="0" tax_id="10239" rank="superkingdom" name="Viruses" total_count="19">
+            <taxon self_count="0" tax_id="439488" name="ssRNA viruses" total_count="19">
+              <taxon self_count="0" tax_id="35278" name="ssRNA positive-strand viruses, no DNA stage" total_count="19">
+                <taxon self_count="0" tax_id="38173" name="unclassified ssRNA positive-strand viruses" total_count="19">
+                  <taxon self_count="19" tax_id="363716" rank="species" name="Nora virus" total_count="19"/>
+                </taxon>
+              </taxon>
+            </taxon>
+          </taxon>
+        </tax_analysis>
+      </RUN>
+    </RUN_SET>
+  </EXPERIMENT_PACKAGE>
+</EXPERIMENT_PACKAGE_SET>

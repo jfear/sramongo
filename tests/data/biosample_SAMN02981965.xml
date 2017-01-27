@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<BioSampleSet>
+  <BioSample access="public" publication_date="2015-12-22T01:15:47.477" last_update="2015-12-22T01:19:06.303" submission_date="2014-08-11T13:36:38.303" id="2981965" accession="SAMN02981965">
+    <Ids>
+      <Id db="BioSample" is_primary="1">SAMN02981965</Id>
+      <Id db="SRA">SRS679015</Id>
+      <Id db="GEO">GSM1471477</Id>
+    </Ids>
+    <Description>
+      <Title>DGRP563 M_E3_2_L3</Title>
+      <Organism taxonomy_id="7227" taxonomy_name="Drosophila melanogaster">
+        <OrganismName>Drosophila melanogaster</OrganismName>
+      </Organism>
+    </Description>
+    <Owner>
+      <Name>Developmental Genomics, LCDB, NIDDK, NIH</Name>
+      <Contacts>
+        <Contact email="briano@helix.nih.gov">
+          <Name>
+            <First>Brian</First>
+            <Last>Oliver</Last>
+          </Name>
+        </Contact>
+      </Contacts>
+    </Owner>
+    <Models>
+      <Model>Generic</Model>
+    </Models>
+    <Package display_name="Generic">Generic.1.0</Package>
+    <Attributes>
+      <Attribute attribute_name="source_name" harmonized_name="source_name" display_name="source name">Whole body</Attribute>
+      <Attribute attribute_name="strain" harmonized_name="strain" display_name="strain">DGRP-563</Attribute>
+      <Attribute attribute_name="developmental stage" harmonized_name="dev_stage" display_name="development stage">Adult</Attribute>
+      <Attribute attribute_name="Sex" harmonized_name="sex" display_name="sex">male</Attribute>
+      <Attribute attribute_name="tissue" harmonized_name="tissue" display_name="tissue">Whole body</Attribute>
+    </Attributes>
+    <Links>
+      <Link type="url" label="GEO Sample GSM1471477">http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM1471477</Link>
+      <Link type="entrez" target="bioproject" label="PRJNA258012">258012</Link>
+    </Links>
+    <Status status="live" when="2015-12-22T01:15:47.495"/>
+  </BioSample>
+</BioSampleSet>

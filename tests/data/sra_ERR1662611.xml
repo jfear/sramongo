@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<EXPERIMENT_PACKAGE_SET>
+  <EXPERIMENT_PACKAGE>
+    <EXPERIMENT alias="ena-EXPERIMENT-Groningen Institute for Evolutionary Life Sciences-28-09-2016-22:10:07:389-79" center_name="Groningen Institute for Evolutionary Life Sciences" accession="ERX1732932" broker_name="">
+      <IDENTIFIERS>
+        <PRIMARY_ID>ERX1732932</PRIMARY_ID>
+        <SUBMITTER_ID namespace="Groningen Institute for Evolutionary Life Sciences">ena-EXPERIMENT-Groningen Institute for Evolutionary Life Sciences-28-09-2016-22:10:07:389-79</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <TITLE>Illumina HiSeq 2000 paired end sequencing</TITLE>
+      <STUDY_REF accession="ERP017353">
+        <IDENTIFIERS>
+          <PRIMARY_ID>ERP017353</PRIMARY_ID>
+        </IDENTIFIERS>
+      </STUDY_REF>
+        # connect to database
+        # self.db = MongoClient(db_name)
+
+        # connect to database
+        # self.db = MongoClient(db_name)
+
+      <DESIGN>
+        <DESIGN_DESCRIPTION/>
+        <SAMPLE_DESCRIPTOR accession="ERS1370008">
+          <IDENTIFIERS>
+            <PRIMARY_ID>ERS1370008</PRIMARY_ID>
+            <EXTERNAL_ID namespace="BioSample">SAMEA4470829</EXTERNAL_ID>
+          </IDENTIFIERS>
+        </SAMPLE_DESCRIPTOR>
+        <LIBRARY_DESCRIPTOR>
+          <LIBRARY_NAME>unspecified</LIBRARY_NAME>
+          <LIBRARY_STRATEGY>RNA-Seq</LIBRARY_STRATEGY>
+          <LIBRARY_SOURCE>TRANSCRIPTOMIC</LIBRARY_SOURCE>
+          <LIBRARY_SELECTION>RANDOM</LIBRARY_SELECTION>
+          <LIBRARY_LAYOUT>
+            <PAIRED NOMINAL_LENGTH="200"/>
+          </LIBRARY_LAYOUT>
+        </LIBRARY_DESCRIPTOR>
+      </DESIGN>
+      <PLATFORM>
+        <ILLUMINA>
+          <INSTRUMENT_MODEL>Illumina HiSeq 2000</INSTRUMENT_MODEL>
+        </ILLUMINA>
+      </PLATFORM>
+    </EXPERIMENT>
+    <SUBMISSION alias="ena-SUBMISSION-Groningen Institute for Evolutionary Life Sciences-28-09-2016-20:43:47:906-1" center_name="Groningen Institute for Evolutionary Life Sciences" accession="ERA713471" lab_name="European Nucleotide Archive">
+      <IDENTIFIERS>
+        <PRIMARY_ID>ERA713471</PRIMARY_ID>
+        <SUBMITTER_ID namespace="Groningen Institute for Evolutionary Life Sciences">ena-SUBMISSION-Groningen Institute for Evolutionary Life Sciences-28-09-2016-20:43:47:906-1</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <TITLE>Submitted by Groningen Institute for Evolutionary Life Sciences on 28-SEP-2016</TITLE>
+    </SUBMISSION>
+    <Organization type="center">
+      <Name abbr="Groningen Institute for Evolutionary Life Sciences">Groningen Institute for Evolutionary Life Sciences</Name>
+    </Organization>
+    <STUDY alias="ena-STUDY-Groningen Institute for Evolutionary Life Sciences-28-09-2016-19:34:34:264-514" center_name="Groningen Institute for Evolutionary Life Sciences" accession="ERP017353">
+      <IDENTIFIERS>
+        <PRIMARY_ID>ERP017353</PRIMARY_ID>
+        <EXTERNAL_ID namespace="BioProject">PRJEB15540</EXTERNAL_ID>
+        <SUBMITTER_ID namespace="Groningen Institute for Evolutionary Life Sciences">ena-STUDY-Groningen Institute for Evolutionary Life Sciences-28-09-2016-19:34:34:264-514</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <DESCRIPTOR>
+        <STUDY_TITLE>Inter- and intra-species variation in the genome-wide gene expression of Drosophila in response to parasitoid wasp attack</STUDY_TITLE>
+        <STUDY_TYPE existing_study_type="Other"/>
+        <STUDY_ABSTRACT>Parasitoid resistance in Drosophila varies considerably, among and within species. Among species, resistance evolved in a subclade of Drosophila and was subsequently lost in at least one species within this subclade. Within D. melanogaster, resistance differs among geographic populations and can be experimentally selected to higher levels. While the mechanisms of resistance are fairly well documented in D. melanogaster, much less is known for closely related species. Here, we studied the inter- and intra-species variation in gene expression after parasitoid attack in Drosophila. We used RNA-seq after parasitization of four closely related Drosophila species of the melanogaster subgroup and replicated lines of D. melanogaster experimentally selected for increased resistance. We found a core set of genes that is consistently up-regulated after parasitoid attack in the species and lines tested, regardless of their level resistance.Another set of genes showed no up-regulation or expression in the species unable to raise an immune response against parasitoids. This set consists largely of genes that are lineage-restricted to the melanogaster subgroup, supporting the hypothesis that the ability to immunologically resist parasitoid attack is contingent on these new genes. Artificially selected lines did not show significant differences in gene expression with respect to non-selected lines in their responses to parasitoid attack, but several genes showed differential exon usage.</STUDY_ABSTRACT>
+        <CENTER_PROJECT_NAME>RNAseq Drosophila species against parasitoid</CENTER_PROJECT_NAME>
+        <STUDY_DESCRIPTION>Parasitoid resistance in Drosophila varies considerably, among and within species. Among species, resistance evolved in a subclade of Drosophila and was subsequently lost in at least one species within this subclade. Within D. melanogaster, resistance differs among geographic populations and can be experimentally selected to higher levels. While the mechanisms of resistance are fairly well documented in D. melanogaster, much less is known for closely related species. Here, we studied the inter- and intra-species variation in gene expression after parasitoid attack in Drosophila. We used RNA-seq after parasitization of four closely related Drosophila species of the melanogaster subgroup and replicated lines of D. melanogaster experimentally selected for increased resistance. We found a core set of genes that is consistently up-regulated after parasitoid attack in the species and lines tested, regardless of their level resistance.Another set of genes showed no up-regulation or expression in the species unable to raise an immune response against parasitoids. This set consists largely of genes that are lineage-restricted to the melanogaster subgroup, supporting the hypothesis that the ability to immunologically resist parasitoid attack is contingent on these new genes. Artificially selected lines did not show significant differences in gene expression with respect to non-selected lines in their responses to parasitoid attack, but several genes showed differential exon usage.</STUDY_DESCRIPTION>
+      </DESCRIPTOR>
+      <STUDY_ATTRIBUTES>
+        <STUDY_ATTRIBUTE>
+          <TAG>ENA-FIRST-PUBLIC</TAG>
+          <VALUE>2016-11-28</VALUE>
+        </STUDY_ATTRIBUTE>
+        <STUDY_ATTRIBUTE>
+          <TAG>ENA-LAST-UPDATE</TAG>
+          <VALUE>2016-09-28</VALUE>
+        </STUDY_ATTRIBUTE>
+      </STUDY_ATTRIBUTES>
+    </STUDY>
+    <SAMPLE alias="Drosopar_80" center_name="Groningen Institute for Evolutionary Life Sciences" accession="ERS1370008">
+      <IDENTIFIERS>
+        <PRIMARY_ID>ERS1370008</PRIMARY_ID>
+        <EXTERNAL_ID namespace="BioSample">SAMEA4470829</EXTERNAL_ID>
+        <SUBMITTER_ID namespace="Groningen Institute for Evolutionary Life Sciences">Drosopar_80</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <TITLE>D. melanogaster parasitized 50</TITLE>
+      <SAMPLE_NAME>
+        <TAXON_ID>7227</TAXON_ID>
+        <SCIENTIFIC_NAME>Drosophila melanogaster</SCIENTIFIC_NAME>
+        <COMMON_NAME>fruit fly</COMMON_NAME>
+      </SAMPLE_NAME>
+      <SAMPLE_ATTRIBUTES>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>experimental_condition</TAG>
+          <VALUE>parasitized</VALUE>
+        </SAMPLE_ATTRIBUTE>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>time_point</TAG>
+          <VALUE>50</VALUE>
+        </SAMPLE_ATTRIBUTE>
+      </SAMPLE_ATTRIBUTES>
+    </SAMPLE>
+    <Pool>
+      <Member member_name="" accession="ERS1370008" sample_name="Drosopar_80" sample_title="D. melanogaster parasitized 50" spots="12314272" bases="2438225856" tax_id="7227" organism="Drosophila melanogaster">
+        <IDENTIFIERS>
+          <PRIMARY_ID>ERS1370008</PRIMARY_ID>
+          <EXTERNAL_ID namespace="BioSample">SAMEA4470829</EXTERNAL_ID>
+          <SUBMITTER_ID namespace="Groningen Institute for Evolutionary Life Sciences">Drosopar_80</SUBMITTER_ID>
+        </IDENTIFIERS>
+      </Member>
+    </Pool>
+    <RUN_SET>
+      <RUN alias="ena-RUN-Groningen Institute for Evolutionary Life Sciences-28-09-2016-22:10:07:389-79" center_name="Groningen Institute for Evolutionary Life Sciences" accession="ERR1662611" total_spots="12314272" total_bases="2438225856" size="1596648252" load_done="true" published="2016-11-29 08:45:21" is_public="true" cluster_name="public" static_data_available="1">
+        <IDENTIFIERS>
+          <PRIMARY_ID>ERR1662611</PRIMARY_ID>
+          <SUBMITTER_ID namespace="Groningen Institute for Evolutionary Life Sciences">ena-RUN-Groningen Institute for Evolutionary Life Sciences-28-09-2016-22:10:07:389-79</SUBMITTER_ID>
+        </IDENTIFIERS>
+        <TITLE>Illumina HiSeq 2000 paired end sequencing</TITLE>
+        <EXPERIMENT_REF accession="ERX1732932">
+          <IDENTIFIERS>
+            <PRIMARY_ID>ERX1732932</PRIMARY_ID>
+          </IDENTIFIERS>
+        </EXPERIMENT_REF>
+        <PLATFORM>
+          <ILLUMINA>
+            <INSTRUMENT_MODEL>Illumina HiSeq 2000</INSTRUMENT_MODEL>
+          </ILLUMINA>
+        </PLATFORM>
+        <RUN_ATTRIBUTES>
+          <RUN_ATTRIBUTE>
+            <TAG>ENA-FIRST-PUBLIC</TAG>
+            <VALUE>2016-11-28</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+            <TAG>ENA-LAST-UPDATE</TAG>
+            <VALUE>2016-09-29</VALUE>
+          </RUN_ATTRIBUTE>
+        </RUN_ATTRIBUTES>
+        <Pool>
+          <Member member_name="" accession="ERS1370008" sample_name="Drosopar_80" sample_title="D. melanogaster parasitized 50" spots="12314272" bases="2438225856" tax_id="7227" organism="Drosophila melanogaster">
+            <IDENTIFIERS>
+              <PRIMARY_ID>ERS1370008</PRIMARY_ID>
+              <EXTERNAL_ID namespace="BioSample">SAMEA4470829</EXTERNAL_ID>
+              <SUBMITTER_ID namespace="Groningen Institute for Evolutionary Life Sciences">Drosopar_80</SUBMITTER_ID>
+            </IDENTIFIERS>
+          </Member>
+        </Pool>
+        <Statistics nreads="2" nspots="12314272">
+          <Read index="0" count="12314272" average="99" stdev="0"/>
+          <Read index="1" count="12314272" average="99" stdev="0"/>
+        </Statistics>
+        <Bases cs_native="false" count="2438225856">
+          <Base value="A" count="680629046"/>
+          <Base value="C" count="542525093"/>
+          <Base value="G" count="541384478"/>
+          <Base value="T" count="671062636"/>
+          <Base value="N" count="2624603"/>
+        </Bases>
+        <Run size="1596649995" date="2016-11-29 09:27:26" accession="/netmnt/traces04/era16/ERR/ERR1662/ERR1662611" read_length="fixed" spot_count="12314272" base_count="2438225856" base_count_bio="2438225856" spot_count_mates="12314272" base_count_bio_mates="2438225856" spot_count_bad="0" base_count_bio_bad="0" spot_count_filtered="0" base_count_bio_filtered="0">
+          <Size value="1596648252" units="bytes"/>
+          <Bases cs_native="false" count="2438225856">
+            <Base value="A" count="680629046"/>
+            <Base value="C" count="542525093"/>
+            <Base value="G" count="541384478"/>
+            <Base value="T" count="671062636"/>
+            <Base value="N" count="2624603"/>
+          </Bases>
+          <Statistics nreads="2" nspots="12314272">
+            <Read index="0" count="12314272" average="99" stdev="0"/>
+            <Read index="1" count="12314272" average="99" stdev="0"/>
+          </Statistics>
+          <QualityCount>
+            <Quality value="2" count="59842160"/>
+            <Quality value="5" count="730101"/>
+            <Quality value="6" count="671135"/>
+            <Quality value="7" count="3483717"/>
+            <Quality value="8" count="2438521"/>
+            <Quality value="9" count="1018793"/>
+            <Quality value="10" count="2240084"/>
+            <Quality value="11" count="1130225"/>
+            <Quality value="12" count="980094"/>
+            <Quality value="13" count="1158819"/>
+            <Quality value="14" count="686554"/>
+            <Quality value="15" count="2898416"/>
+            <Quality value="16" count="1783510"/>
+            <Quality value="17" count="2783765"/>
+            <Quality value="18" count="5136131"/>
+            <Quality value="19" count="3744704"/>
+            <Quality value="20" count="7334026"/>
+            <Quality value="21" count="2132235"/>
+            <Quality value="22" count="3384961"/>
+            <Quality value="23" count="8285809"/>
+            <Quality value="24" count="10281870"/>
+            <Quality value="25" count="13363189"/>
+            <Quality value="26" count="14559494"/>
+            <Quality value="27" count="18104276"/>
+            <Quality value="28" count="9815322"/>
+            <Quality value="29" count="28295263"/>
+            <Quality value="30" count="34208363"/>
+            <Quality value="31" count="62342550"/>
+            <Quality value="32" count="44718786"/>
+            <Quality value="33" count="87043078"/>
+            <Quality value="34" count="179159294"/>
+            <Quality value="35" count="381199428"/>
+            <Quality value="36" count="114036656"/>
+            <Quality value="37" count="212608156"/>
+            <Quality value="38" count="112945402"/>
+            <Quality value="39" count="231534018"/>
+            <Quality value="40" count="246057061"/>
+            <Quality value="41" count="526089890"/>
+          </QualityCount>
+          <Hashes run_hash="ESmrztljeWonL0je4RedQQ==" read_hash="puf9koDLe+OO1Kocw1jSDw=="/>
+        </Run>
+      </RUN>
+    </RUN_SET>
+  </EXPERIMENT_PACKAGE>
+</EXPERIMENT_PACKAGE_SET>

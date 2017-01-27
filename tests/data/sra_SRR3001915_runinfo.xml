@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<SraRunInfo>
+  <Row>
+    <Run>SRR3001915</Run>
+    <ReleaseDate>2015-12-21</ReleaseDate>
+    <LoadDate>2015-12-15</LoadDate>
+    <spots>2001211</spots>
+    <bases>152092036</bases>
+    <spots_with_mates>0</spots_with_mates>
+    <avgLength>76</avgLength>
+    <size_MB>97</size_MB>
+    <download_path>https://sra-download.ncbi.nlm.nih.gov/srapub/SRR3001915</download_path>
+    <Experiment>SRX1483046</Experiment>
+    <LibraryStrategy>RNA-Seq</LibraryStrategy>
+    <LibrarySelection>cDNA</LibrarySelection>
+    <LibrarySource>TRANSCRIPTOMIC</LibrarySource>
+    <LibraryLayout>SINGLE</LibraryLayout>
+    <InsertSize>0</InsertSize>
+    <InsertDev>0</InsertDev>
+    <Platform>ILLUMINA</Platform>
+    <Model>Illumina HiSeq 2000</Model>
+    <SRAStudy>SRP045429</SRAStudy>
+    <BioProject>PRJNA258012</BioProject>
+    <Study_Pubmed_id>2</Study_Pubmed_id>
+    <ProjectID>258012</ProjectID>
+    <Sample>SRS679015</Sample>
+    <BioSample>SAMN02981965</BioSample>
+    <SampleType>simple</SampleType>
+    <TaxID>7227</TaxID>
+    <ScientificName>Drosophila melanogaster</ScientificName>
+    <SampleName>GSM1471477</SampleName>
+    <Tumor>no</Tumor>
+    <CenterName>GEO</CenterName>
+    <Submission>SRA178685</Submission>
+    <Consent>public</Consent>
+    <RunHash>565B5B7D846F21B0FF86D770445560DA</RunHash>
+    <ReadHash>F39A9755010159B1E08869CF5D920C40</ReadHash>
+  </Row>
+</SraRunInfo>

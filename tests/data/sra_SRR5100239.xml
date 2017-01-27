@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+<EXPERIMENT_PACKAGE_SET>
+  <EXPERIMENT_PACKAGE>
+    <EXPERIMENT alias="GSM2425536" accession="SRX2416970">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRX2416970</PRIMARY_ID>
+        <SUBMITTER_ID namespace="GEO">GSM2425536</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <TITLE>GSM2425536: Drosophila melanogaster w1118 testis total RNA replicate 1; Drosophila melanogaster; RNA-Seq</TITLE>
+      <STUDY_REF accession="SRP094985" refname="GSE92305">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRP094985</PRIMARY_ID>
+        </IDENTIFIERS>
+      </STUDY_REF>
+      <DESIGN>
+        <DESIGN_DESCRIPTION/>
+        <SAMPLE_DESCRIPTOR accession="SRS1854358">
+          <IDENTIFIERS>
+            <PRIMARY_ID>SRS1854358</PRIMARY_ID>
+            <EXTERNAL_ID namespace="GEO">GSM2425536</EXTERNAL_ID>
+          </IDENTIFIERS>
+        </SAMPLE_DESCRIPTOR>
+        <LIBRARY_DESCRIPTOR>
+          <LIBRARY_STRATEGY>RNA-Seq</LIBRARY_STRATEGY>
+          <LIBRARY_SOURCE>TRANSCRIPTOMIC</LIBRARY_SOURCE>
+          <LIBRARY_SELECTION>cDNA</LIBRARY_SELECTION>
+          <LIBRARY_LAYOUT>
+            <PAIRED/>
+          </LIBRARY_LAYOUT>
+          <LIBRARY_CONSTRUCTION_PROTOCOL>Total RNAs were isolated from w1118, Tailor, Dis3L2, and Tailor/Dis3L2 mutant 5 day old fly testes using Trizol. Two independent dissections were made to generate biologically replicate RNA samples, whose quality was assessed by Bioanalyzer The Illumina Truseq Total RNA library Prep Kit LT was used to make RNAseq libraries from 650 ng of total RNA. Manufacturer&#x2019;s protocol was followed except for using 8 cycles of PCR to amplify the final library instead of the recommended 15 cycles, to minimize artifacts caused by PCR amplification. All samples were pooled together, using the barcoded adapters provided by the manufacturer, over 2 flow cells of a HiSeq2500 and sequenced using pair-end PE50 at the New York Genome Center.</LIBRARY_CONSTRUCTION_PROTOCOL>
+        </LIBRARY_DESCRIPTOR>
+      </DESIGN>
+      <PLATFORM>
+        <ILLUMINA>
+          <INSTRUMENT_MODEL>Illumina HiSeq 2500</INSTRUMENT_MODEL>
+        </ILLUMINA>
+      </PLATFORM>
+      <EXPERIMENT_LINKS>
+        <EXPERIMENT_LINK>
+          <XREF_LINK>
+            <DB>gds</DB>
+            <ID>302425536</ID>
+          </XREF_LINK>
+        </EXPERIMENT_LINK>
+      </EXPERIMENT_LINKS>
+      <EXPERIMENT_ATTRIBUTES>
+        <EXPERIMENT_ATTRIBUTE>
+          <TAG>GEO Accession</TAG>
+          <VALUE>GSM2425536</VALUE>
+        </EXPERIMENT_ATTRIBUTE>
+      </EXPERIMENT_ATTRIBUTES>
+    </EXPERIMENT>
+    <SUBMISSION alias="GEO: GSE92305" broker_name="GEO" center_name="GEO" submission_comment="submission brokered by GEO" lab_name="" accession="SRA502713">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRA502713</PRIMARY_ID>
+        <SUBMITTER_ID namespace="GEO">GEO: GSE92305</SUBMITTER_ID>
+      </IDENTIFIERS>
+    </SUBMISSION>
+    <Organization type="center">
+      <Name abbr="GEO">NCBI</Name>
+      <Contact email="geo-group@ncbi.nlm.nih.gov">
+        <Name>
+          <First>Geo</First>
+          <Last>Curators</Last>
+        </Name>
+      </Contact>
+    </Organization>
+    <STUDY center_name="GEO" alias="GSE92305" accession="SRP094985">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRP094985</PRIMARY_ID>
+        <EXTERNAL_ID namespace="BioProject" label="primary">PRJNA357158</EXTERNAL_ID>
+        <EXTERNAL_ID namespace="GEO">GSE92305</EXTERNAL_ID>
+      </IDENTIFIERS>
+      <DESCRIPTOR>
+        <STUDY_TITLE>Characterization of a TUTase/nuclease complex required for Drosophila gametogenesis</STUDY_TITLE>
+        <STUDY_TYPE existing_study_type="Transcriptome Analysis"/>
+        <STUDY_ABSTRACT>Total RNAs were cloned from wt, Dis3L2 and Tailor mutant testis tissues to study the role of Tailor and Dis3L2 TUTase/nuclease complex Overall design: Replicated total RNA samples from Dis3L2 and Tailor single mutant, and Dis3L2/Tailor double mutant and WT (w1118) testes</STUDY_ABSTRACT>
+        <CENTER_PROJECT_NAME>GSE92305</CENTER_PROJECT_NAME>
+      </DESCRIPTOR>
+    </STUDY>
+    <SAMPLE alias="GSM2425536" accession="SRS1854358">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRS1854358</PRIMARY_ID>
+        <EXTERNAL_ID namespace="BioSample">SAMN06134387</EXTERNAL_ID>
+        <EXTERNAL_ID namespace="GEO">GSM2425536</EXTERNAL_ID>
+      </IDENTIFIERS>
+      <TITLE>Drosophila melanogaster w1118 testis total RNA replicate 1</TITLE>
+      <SAMPLE_NAME>
+        <TAXON_ID>7227</TAXON_ID>
+        <SCIENTIFIC_NAME>Drosophila melanogaster</SCIENTIFIC_NAME>
+      </SAMPLE_NAME>
+      <SAMPLE_LINKS>
+        <SAMPLE_LINK>
+          <XREF_LINK>
+            <DB>bioproject</DB>
+            <ID>357158</ID>
+            <LABEL>PRJNA357158</LABEL>
+          </XREF_LINK>
+        </SAMPLE_LINK>
+      </SAMPLE_LINKS>
+      <SAMPLE_ATTRIBUTES>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>source_name</TAG>
+          <VALUE>dissected testes</VALUE>
+        </SAMPLE_ATTRIBUTE>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>tissue</TAG>
+          <VALUE>testes</VALUE>
+        </SAMPLE_ATTRIBUTE>
+        <SAMPLE_ATTRIBUTE>
+          <TAG>genotype</TAG>
+          <VALUE>w1118</VALUE>
+        </SAMPLE_ATTRIBUTE>
+      </SAMPLE_ATTRIBUTES>
+    </SAMPLE>
+    <Pool>
+      <Member member_name="" accession="SRS1854358" sample_name="GSM2425536" sample_title="Drosophila melanogaster w1118 testis total RNA replicate 1" spots="25818690" bases="2581869000" tax_id="7227" organism="Drosophila melanogaster">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRS1854358</PRIMARY_ID>
+          <EXTERNAL_ID namespace="BioSample">SAMN06134387</EXTERNAL_ID>
+          <EXTERNAL_ID namespace="GEO">GSM2425536</EXTERNAL_ID>
+        </IDENTIFIERS>
+      </Member>
+    </Pool>
+    <RUN_SET>
+      <RUN alias="GSM2425536_r1" accession="SRR5100239" total_spots="25818690" total_bases="2581869000" size="1322886522" load_done="true" published="2016-12-14 16:12:25" is_public="true" cluster_name="public" static_data_available="1">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRR5100239</PRIMARY_ID>
+          <SUBMITTER_ID namespace="GEO">GSM2425536_r1</SUBMITTER_ID>
+        </IDENTIFIERS>
+        <EXPERIMENT_REF accession="SRX2416970" refname="GSM2425536"/>
+        <PLATFORM>
+          <ILLUMINA>
+            <INSTRUMENT_MODEL>Illumina HiSeq 2500</INSTRUMENT_MODEL>
+          </ILLUMINA>
+        </PLATFORM>
+        <Pool>
+          <Member member_name="" accession="SRS1854358" sample_name="GSM2425536" sample_title="Drosophila melanogaster w1118 testis total RNA replicate 1" spots="25818690" bases="2581869000" tax_id="7227" organism="Drosophila melanogaster">
+            <IDENTIFIERS>
+              <PRIMARY_ID>SRS1854358</PRIMARY_ID>
+              <EXTERNAL_ID namespace="BioSample">SAMN06134387</EXTERNAL_ID>
+              <EXTERNAL_ID namespace="GEO">GSM2425536</EXTERNAL_ID>
+            </IDENTIFIERS>
+          </Member>
+        </Pool>
+        <Statistics nreads="2" nspots="25818690">
+          <Read index="0" count="25818690" average="50" stdev="0"/>
+          <Read index="1" count="25818690" average="50" stdev="0"/>
+        </Statistics>
+        <Bases cs_native="false" count="2581869000">
+          <Base value="A" count="649003540"/>
+          <Base value="C" count="625740401"/>
+          <Base value="G" count="628338635"/>
+          <Base value="T" count="677750651"/>
+          <Base value="N" count="1035773"/>
+        </Bases>
+        <Run size="1322888271" date="2016-12-12 23:00:19" accession="/netmnt/traces04/sra44/SRR/004980/SRR5100239" read_length="fixed" spot_count="25818690" base_count="2581869000" base_count_bio="2581869000" spot_count_mates="25818690" base_count_bio_mates="2581869000" spot_count_bad="0" base_count_bio_bad="0" spot_count_filtered="0" base_count_bio_filtered="0">
+          <Size value="1322886522" units="bytes"/>
+          <Bases cs_native="false" count="2581869000">
+            <Base value="A" count="649003540"/>
+            <Base value="C" count="625740401"/>
+            <Base value="G" count="628338635"/>
+            <Base value="T" count="677750651"/>
+            <Base value="N" count="1035773"/>
+          </Bases>
+          <Statistics nreads="2" nspots="25818690">
+            <Read index="0" count="25818690" average="50" stdev="0"/>
+            <Read index="1" count="25818690" average="50" stdev="0"/>
+          </Statistics>
+          <QualityCount>
+            <Quality value="2" count="1035773"/>
+            <Quality value="14" count="31095797"/>
+            <Quality value="15" count="19319664"/>
+            <Quality value="16" count="82052014"/>
+            <Quality value="18" count="7184091"/>
+            <Quality value="24" count="5276234"/>
+            <Quality value="25" count="18889488"/>
+            <Quality value="26" count="8879874"/>
+            <Quality value="27" count="22679605"/>
+            <Quality value="28" count="22051127"/>
+            <Quality value="29" count="32714288"/>
+            <Quality value="30" count="6067420"/>
+            <Quality value="31" count="31650383"/>
+            <Quality value="32" count="21789927"/>
+            <Quality value="33" count="123551784"/>
+            <Quality value="34" count="165994552"/>
+            <Quality value="35" count="42622661"/>
+            <Quality value="36" count="79002134"/>
+            <Quality value="37" count="120819776"/>
+            <Quality value="38" count="1739192408"/>
+          </QualityCount>
+          <Hashes run_hash="8JT2X9nyRd8nToJLUSaSuw==" read_hash="SJxrhUGURjlC846hiksXBg=="/>
+        </Run>
+      </RUN>
+    </RUN_SET>
+  </EXPERIMENT_PACKAGE>
+</EXPERIMENT_PACKAGE_SET>

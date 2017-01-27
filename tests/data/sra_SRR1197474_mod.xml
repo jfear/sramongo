@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+<EXPERIMENT_PACKAGE_SET>
+  <EXPERIMENT_PACKAGE>
+    <EXPERIMENT alias="D.mel. mated female, eclosion + 20 days, heads Graveley Lab sequencing RNA:550" center_name="BDGP" accession="SRX494126">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRX494126</PRIMARY_ID>
+        <SUBMITTER_ID namespace="BDGP">D.mel. mated female, eclosion + 20 days, heads Graveley Lab sequencing RNA:550</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <TITLE>Illumina Transcriptome Sequencing of mated female, eclosion + 20 days, heads</TITLE>
+      <STUDY_REF accession="SRP001696">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRP001696</PRIMARY_ID>
+          <SUBMITTER_ID namespace="BDGP">modENCODE D. melanogaster Developmental Total RNA-Seq</SUBMITTER_ID>
+        </IDENTIFIERS>
+      </STUDY_REF>
+      <DESIGN>
+        <DESIGN_DESCRIPTION>Libraries were paired-end sequenced on an Illumina HiSeq 2000</DESIGN_DESCRIPTION>
+        <SAMPLE_DESCRIPTOR accession="SRS118259">
+          <IDENTIFIERS>
+            <PRIMARY_ID>SRS118259</PRIMARY_ID>
+            <EXTERNAL_ID namespace="BioSample">SAMN00116726</EXTERNAL_ID>
+            <SUBMITTER_ID namespace="BDGP">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+          </IDENTIFIERS>
+        </SAMPLE_DESCRIPTOR>
+        <LIBRARY_DESCRIPTOR>
+          <LIBRARY_NAME>RNA:550</LIBRARY_NAME>
+          <LIBRARY_STRATEGY>RNA-Seq</LIBRARY_STRATEGY>
+          <LIBRARY_SOURCE>TRANSCRIPTOMIC</LIBRARY_SOURCE>
+          <LIBRARY_SELECTION>cDNA</LIBRARY_SELECTION>
+          <LIBRARY_LAYOUT>
+            <PAIRED NOMINAL_LENGTH="250"/>
+          </LIBRARY_LAYOUT>
+        </LIBRARY_DESCRIPTOR>
+        <SPOT_DESCRIPTOR>
+          <SPOT_DECODE_SPEC>
+            <SPOT_LENGTH>200</SPOT_LENGTH>
+            <READ_SPEC>
+              <READ_INDEX>0</READ_INDEX>
+              <READ_LABEL>Read 1</READ_LABEL>
+              <READ_CLASS>Application Read</READ_CLASS>
+              <READ_TYPE>Forward</READ_TYPE>
+              <BASE_COORD>1</BASE_COORD>
+            </READ_SPEC>
+            <READ_SPEC>
+              <READ_INDEX>1</READ_INDEX>
+              <READ_LABEL>Read 2</READ_LABEL>
+              <READ_CLASS>Application Read</READ_CLASS>
+              <READ_TYPE>Reverse</READ_TYPE>
+              <BASE_COORD>101</BASE_COORD>
+            </READ_SPEC>
+          </SPOT_DECODE_SPEC>
+        </SPOT_DESCRIPTOR>
+      </DESIGN>
+      <PLATFORM>
+        <ILLUMINA>
+          <INSTRUMENT_MODEL>Illumina HiSeq 2000</INSTRUMENT_MODEL>
+        </ILLUMINA>
+      </PLATFORM>
+      <EXPERIMENT_ATTRIBUTES>
+        <EXPERIMENT_ATTRIBUTE>
+          <TAG>Biological Sample ID</TAG>
+          <VALUE>BS287</VALUE>
+        </EXPERIMENT_ATTRIBUTE>
+        <EXPERIMENT_ATTRIBUTE>
+          <TAG>RNA ID</TAG>
+          <VALUE>550</VALUE>
+        </EXPERIMENT_ATTRIBUTE>
+      </EXPERIMENT_ATTRIBUTES>
+    </EXPERIMENT>
+    <SUBMISSION center_name="BDGP" alias="BDGP modENCODE D. melanogaster Transcriptome Sequencing" lab_name="" accession="SRA009364">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRA009364</PRIMARY_ID>
+        <SUBMITTER_ID namespace="BDGP">BDGP modENCODE D. melanogaster Transcriptome Sequencing</SUBMITTER_ID>
+      </IDENTIFIERS>
+    </SUBMISSION>
+    <Organization type="center">
+      <Name abbr="BDGP">Berkeley Drosophila Genome Project</Name>
+    </Organization>
+    <STUDY xmlns="" center_name="BDGP" alias="Drosophila melanogaster total RNA-Seq" accession="SRP001696">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRP001696</PRIMARY_ID>
+        <SUBMITTER_ID namespace="BDGP">Drosophila melanogaster total RNA-Seq</SUBMITTER_ID>
+        <SUBMITTER_ID namespace="BDGP">modENCODE D. melanogaster Developmental Total RNA-Seq</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <DESCRIPTOR>
+        <STUDY_TITLE>modENCODE D. melanogaster Total RNA-Seq</STUDY_TITLE>
+        <STUDY_TYPE existing_study_type="Transcriptome Analysis"/>
+        <STUDY_ABSTRACT>These data were produced for the modENCODE project (http://www.modencode.org/). For a description of the protocols and other experimental details please refer to the data distribution site http://www.modencode.org/Celniker.shtml. In accordance with NHGRI guidelines for community resource projects (http://www.genome.gov/), there is no restriction on the use or analysis of these data. However, the end-user is asked to respect a nine-month moratorium (from the public submission date) before submitting manuscripts describing analysis of these data. If the data producer has published any description of these data before the nine-month period, the moratorium ceases to apply and this accession page will be updated to note the appropriate citation.</STUDY_ABSTRACT>
+        <CENTER_PROJECT_NAME>modENCODE Total RNA-Seq</CENTER_PROJECT_NAME>
+        <RELATED_STUDIES>
+          <RELATED_STUDY>
+            <RELATED_LINK>
+              <DB>bioproject</DB>
+              <ID>75285</ID>
+              <LABEL>PRJNA75285</LABEL>
+            </RELATED_LINK>
+            <IS_PRIMARY>false</IS_PRIMARY>
+          </RELATED_STUDY>
+        </RELATED_STUDIES>
+        <STUDY_DESCRIPTION/>
+      </DESCRIPTOR>
+      <STUDY_LINKS>
+        <STUDY_LINK>
+          <URL_LINK>
+            <LABEL>modENCODE Project</LABEL>
+            <URL>http://www.modencode.org</URL>
+          </URL_LINK>
+        </STUDY_LINK>
+      </STUDY_LINKS>
+    </STUDY>
+    <SAMPLE center_name="BDGP" alias="Adult Mated Female 20 days Post-eclosion Heads" accession="SRS118259">
+      <IDENTIFIERS>
+        <PRIMARY_ID>SRS118259</PRIMARY_ID>
+        <EXTERNAL_ID namespace="BioSample">SAMN00116726</EXTERNAL_ID>
+        <SUBMITTER_ID namespace="BDGP">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+        <SUBMITTER_ID namespace="BDGP" label="Sample name">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+      </IDENTIFIERS>
+      <TITLE>D. melanogaster Dissected Tissue: Adult Mated Female 20 days Post-eclosion Heads</TITLE>
+      <SAMPLE_NAME>
+        <TAXON_ID>7227</TAXON_ID>
+        <SCIENTIFIC_NAME>Drosophila melanogaster</SCIENTIFIC_NAME>
+      </SAMPLE_NAME>
+    </SAMPLE>
+    <Pool>
+      <Member member_name="" accession="SRS118259" sample_name="Adult Mated Female 20 days Post-eclosion Heads" sample_title="D. melanogaster Dissected Tissue: Adult Mated Female 20 days Post-eclosion Heads" spots="58362756" bases="9058322484" tax_id="7227" organism="Drosophila melanogaster">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRS118259</PRIMARY_ID>
+          <EXTERNAL_ID namespace="BioSample">SAMN00116726</EXTERNAL_ID>
+          <SUBMITTER_ID namespace="BDGP">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+          <SUBMITTER_ID namespace="BDGP" label="Sample name">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+        </IDENTIFIERS>
+      </Member>
+    </Pool>
+    <RUN_SET>
+      <RUN center_name="BDGP" alias="AC1EM4ACXX_8_ACTTGA" accession="SRR1197474" total_spots="42422337" total_bases="8484467400" size="5688053951" load_done="true" published="2014-03-17 13:22:43" is_public="true" cluster_name="public" static_data_available="1">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRR1197474</PRIMARY_ID>
+          <SUBMITTER_ID namespace="BDGP">AC1EM4ACXX_8_ACTTGA</SUBMITTER_ID>
+        </IDENTIFIERS>
+        <EXPERIMENT_REF accession="SRX494126" refname="D.mel. mated female, eclosion + 20 days, heads Graveley Lab sequencing RNA:550" refcenter="BDGP">
+          <IDENTIFIERS>
+            <PRIMARY_ID>SRX494126</PRIMARY_ID>
+            <SUBMITTER_ID namespace="BDGP">D.mel. mated female, eclosion + 20 days, heads Graveley Lab sequencing RNA:550</SUBMITTER_ID>
+          </IDENTIFIERS>
+        </EXPERIMENT_REF>
+        <Pool>
+          <Member member_name="" accession="SRS118259" sample_name="Adult Mated Female 20 days Post-eclosion Heads" sample_title="D. melanogaster Dissected Tissue: Adult Mated Female 20 days Post-eclosion Heads" spots="42422337" bases="8484467400" tax_id="7227" organism="Drosophila melanogaster">
+            <IDENTIFIERS>
+              <PRIMARY_ID>SRS118259</PRIMARY_ID>
+              <EXTERNAL_ID namespace="BioSample">SAMN00116726</EXTERNAL_ID>
+              <SUBMITTER_ID namespace="BDGP">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+              <SUBMITTER_ID namespace="BDGP" label="Sample name">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+            </IDENTIFIERS>
+          </Member>
+        </Pool>
+        <Statistics nreads="2" nspots="42422337">
+          <Read index="0" count="42422337" average="100" stdev="0"/>
+          <Read index="1" count="42422337" average="100" stdev="0"/>
+        </Statistics>
+        <Bases cs_native="false" count="8484467400">
+          <Base value="A" count="2273121974"/>
+          <Base value="C" count="1934347412"/>
+          <Base value="G" count="1954460361"/>
+          <Base value="T" count="2320185681"/>
+          <Base value="N" count="2351972"/>
+        </Bases>
+        <Run md5="5dff010db5ee1a6964fbce91c0f94da3" size="5688055697" date="2014-03-17 18:04:42" accession="/netmnt/traces04/sra17/SRR/001169/SRR1197474" read_length="fixed" spot_count="42422337" base_count="8484467400" base_count_bio="8484467400" spot_count_mates="42422337" base_count_bio_mates="8484467400" spot_count_bad="0" base_count_bio_bad="0" spot_count_filtered="0" base_count_bio_filtered="0">
+          <Size value="5688053951" units="bytes"/>
+          <Bases cs_native="false" count="8484467400">
+            <Base value="A" count="2273121974"/>
+            <Base value="C" count="1934347412"/>
+            <Base value="G" count="1954460361"/>
+            <Base value="T" count="2320185681"/>
+            <Base value="N" count="2351972"/>
+          </Bases>
+          <Statistics nreads="2" nspots="42422337">
+            <Read index="0" count="42422337" average="100" stdev="0"/>
+            <Read index="1" count="42422337" average="100" stdev="0"/>
+          </Statistics>
+          <QualityCount>
+            <Quality value="2" count="478115748"/>
+            <Quality value="5" count="2760754"/>
+            <Quality value="6" count="4103703"/>
+            <Quality value="7" count="17575765"/>
+            <Quality value="8" count="16717638"/>
+            <Quality value="9" count="8290763"/>
+            <Quality value="10" count="16633469"/>
+            <Quality value="11" count="6167165"/>
+            <Quality value="12" count="4312163"/>
+            <Quality value="13" count="6622070"/>
+            <Quality value="14" count="3811332"/>
+            <Quality value="15" count="13331119"/>
+            <Quality value="16" count="12041653"/>
+            <Quality value="17" count="15435165"/>
+            <Quality value="18" count="25141106"/>
+            <Quality value="19" count="17323740"/>
+            <Quality value="20" count="26923010"/>
+            <Quality value="21" count="10322566"/>
+            <Quality value="22" count="16866102"/>
+            <Quality value="23" count="35652539"/>
+            <Quality value="24" count="43105476"/>
+            <Quality value="25" count="60039336"/>
+            <Quality value="26" count="62704808"/>
+            <Quality value="27" count="77184466"/>
+            <Quality value="28" count="49862782"/>
+            <Quality value="29" count="110155582"/>
+            <Quality value="30" count="151723746"/>
+            <Quality value="31" count="241081108"/>
+            <Quality value="32" count="185890807"/>
+            <Quality value="33" count="327979057"/>
+            <Quality value="34" count="630006542"/>
+            <Quality value="35" count="1260943756"/>
+            <Quality value="36" count="374588986"/>
+            <Quality value="37" count="693077381"/>
+            <Quality value="38" count="419152009"/>
+            <Quality value="39" count="783390577"/>
+            <Quality value="40" count="817157793"/>
+            <Quality value="41" count="1458275618"/>
+          </QualityCount>
+          <Hashes run_hash="9mw7t0Qs0a51Kzc7h6wGyA==" read_hash="5SkyOdHwpRp41mDlx2psXg=="/>
+        </Run>
+      </RUN>
+      <RUN center_name="BDGP" alias="600D5AAXX_2" run_date="2012-01-04T12:00:00Z" accession="SRR1509499" total_spots="15940419" total_bases="573855084" size="238386503" load_done="true" published="2014-07-09 07:22:10" is_public="true" cluster_name="public" static_data_available="1">
+        <IDENTIFIERS>
+          <PRIMARY_ID>SRR1509499</PRIMARY_ID>
+          <SUBMITTER_ID namespace="BDGP">600D5AAXX_2</SUBMITTER_ID>
+        </IDENTIFIERS>
+        <EXPERIMENT_REF accession="SRX494126">
+          <IDENTIFIERS>
+            <PRIMARY_ID>SRX494126</PRIMARY_ID>
+            <SUBMITTER_ID namespace="BDGP">D.mel. mated female, eclosion + 20 days, heads Graveley Lab sequencing RNA:550</SUBMITTER_ID>
+          </IDENTIFIERS>
+        </EXPERIMENT_REF>
+        <PLATFORM>
+          <ILLUMINA>
+            <INSTRUMENT_MODEL>Illumina Genome Analyzer IIx</INSTRUMENT_MODEL>
+          </ILLUMINA>
+        </PLATFORM>
+        <Pool>
+          <Member member_name="" accession="SRS118259" sample_name="Adult Mated Female 20 days Post-eclosion Heads" sample_title="D. melanogaster Dissected Tissue: Adult Mated Female 20 days Post-eclosion Heads" spots="15940419" bases="573855084" tax_id="7227" organism="Drosophila melanogaster">
+            <IDENTIFIERS>
+              <PRIMARY_ID>SRS118259</PRIMARY_ID>
+              <EXTERNAL_ID namespace="BioSample">SAMN00116726</EXTERNAL_ID>
+              <SUBMITTER_ID namespace="BDGP">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+              <SUBMITTER_ID namespace="BDGP" label="Sample name">Adult Mated Female 20 days Post-eclosion Heads</SUBMITTER_ID>
+            </IDENTIFIERS>
+          </Member>
+        </Pool>
+        <Statistics nreads="1" nspots="15940419">
+          <Read index="0" count="15940419" average="36" stdev="0"/>
+        </Statistics>
+        <Bases cs_native="false" count="573855084">
+          <Base value="A" count="117702662"/>
+          <Base value="C" count="82735068"/>
+          <Base value="G" count="109989975"/>
+          <Base value="T" count="256920588"/>
+          <Base value="N" count="6506791"/>
+        </Bases>
+        <tax_analysis parser_version="0.4" dbs_mtime="2016-06-28 06:01:03" aligns_to_version="0.34" dbss_name="tree_filter.dbss" analyzed_spot_count="15940419" total_spot_count="15940419" dbss_mtime="2016-07-07 08:15:09" identified_spot_count="3" dbs_name="tree_index.dbs">
+          <taxon self_count="0" tax_id="131567" name="cellular organisms" total_count="3">
+            <taxon self_count="0" tax_id="2759" rank="superkingdom" name="Eukaryota" total_count="3">
+              <taxon self_count="0" tax_id="33154" name="Opisthokonta" total_count="3">
+                <taxon self_count="0" tax_id="33208" rank="kingdom" name="Metazoa" total_count="3">
+                  <taxon self_count="0" tax_id="6072" name="Eumetazoa" total_count="3">
+                    <taxon self_count="0" tax_id="33213" name="Bilateria" total_count="3">
+                      <taxon self_count="0" tax_id="33511" name="Deuterostomia" total_count="3">
+                        <taxon self_count="0" tax_id="7711" rank="phylum" name="Chordata" total_count="3">
+                          <taxon self_count="0" tax_id="89593" rank="subphylum" name="Craniata" total_count="3">
+                            <taxon self_count="0" tax_id="7742" name="Vertebrata" total_count="3">
+                              <taxon self_count="0" tax_id="7776" name="Gnathostomata" total_count="3">
+                                <taxon self_count="0" tax_id="117570" name="Teleostomi" total_count="3">
+                                  <taxon self_count="0" tax_id="117571" name="Euteleostomi" total_count="3">
+                                    <taxon self_count="0" tax_id="8287" name="Sarcopterygii" total_count="3">
+                                      <taxon self_count="0" tax_id="1338369" name="Dipnotetrapodomorpha" total_count="3">
+                                        <taxon self_count="0" tax_id="32523" name="Tetrapoda" total_count="3">
+                                          <taxon self_count="0" tax_id="32524" name="Amniota" total_count="3">
+                                            <taxon self_count="0" tax_id="40674" rank="class" name="Mammalia" total_count="3">
+                                              <taxon self_count="0" tax_id="32525" name="Theria" total_count="3">
+                                                <taxon self_count="0" tax_id="9347" name="Eutheria" total_count="3">
+                                                  <taxon self_count="0" tax_id="1437010" name="Boreoeutheria" total_count="3">
+                                                    <taxon self_count="0" tax_id="314146" rank="superorder" name="Euarchontoglires" total_count="1">
+                                                      <taxon self_count="0" tax_id="314147" name="Glires" total_count="1">
+                                                        <taxon self_count="0" tax_id="9989" rank="order" name="Rodentia" total_count="1">
+                                                          <taxon self_count="0" tax_id="33553" rank="suborder" name="Sciurognathi" total_count="1">
+                                                            <taxon self_count="0" tax_id="337687" name="Muroidea" total_count="1">
+                                                            <taxon self_count="0" tax_id="337677" rank="family" name="Cricetidae" total_count="1">
+                                                            <taxon self_count="0" tax_id="39087" rank="subfamily" name="Arvicolinae" total_count="1">
+                                                            <taxon self_count="0" tax_id="10053" rank="genus" name="Microtus" total_count="1">
+                                                            <taxon self_count="1" tax_id="79684" rank="species" name="Microtus ochrogaster" total_count="1"/>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                            </taxon>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                    <taxon self_count="0" tax_id="314145" rank="superorder" name="Laurasiatheria" total_count="2">
+                                                      <taxon self_count="0" tax_id="33554" rank="order" name="Carnivora" total_count="2">
+                                                        <taxon self_count="0" tax_id="379584" rank="suborder" name="Caniformia" total_count="2">
+                                                          <taxon self_count="0" tax_id="9709" rank="family" name="Phocidae" total_count="2">
+                                                            <taxon self_count="0" tax_id="9712" rank="genus" name="Leptonychotes" total_count="2">
+                                                            <taxon self_count="2" tax_id="9713" rank="species" name="Leptonychotes weddellii" total_count="2"/>
+                                                            </taxon>
+                                                          </taxon>
+                                                        </taxon>
+                                                      </taxon>
+                                                    </taxon>
+                                                  </taxon>
+                                                </taxon>
+                                              </taxon>
+                                            </taxon>
+                                          </taxon>
+                                        </taxon>
+                                      </taxon>
+                                    </taxon>
+                                  </taxon>
+                                </taxon>
+                              </taxon>
+                            </taxon>
+                          </taxon>
+                        </taxon>
+                      </taxon>
+                    </taxon>
+                  </taxon>
+                </taxon>
+              </taxon>
+            </taxon>
+          </taxon>
+        </tax_analysis>
+      </RUN>
+    </RUN_SET>
+  </EXPERIMENT_PACKAGE>
+</EXPERIMENT_PACKAGE_SET>

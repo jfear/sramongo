@@ -1,0 +1,410 @@
+<?xml version="1.0"?>
+<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2017//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_170101.dtd">
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+      <PMID Version="1">26732976</PMID>
+      <DateCreated>
+        <Year>2016</Year>
+        <Month>01</Month>
+        <Day>06</Day>
+      </DateCreated>
+      <DateCompleted>
+        <Year>2016</Year>
+        <Month>09</Month>
+        <Day>28</Day>
+      </DateCompleted>
+      <DateRevised>
+        <Year>2016</Year>
+        <Month>10</Month>
+        <Day>19</Day>
+      </DateRevised>
+      <Article PubModel="Electronic">
+        <Journal>
+          <ISSN IssnType="Electronic">1471-2164</ISSN>
+          <JournalIssue CitedMedium="Internet">
+            <Volume>17</Volume>
+            <PubDate>
+              <Year>2016</Year>
+              <Month>Jan</Month>
+              <Day>05</Day>
+            </PubDate>
+          </JournalIssue>
+          <Title>BMC genomics</Title>
+          <ISOAbbreviation>BMC Genomics</ISOAbbreviation>
+        </Journal>
+        <ArticleTitle>Comparison of normalization and differential expression analyses using RNA-Seq data from 726 individual Drosophila melanogaster.</ArticleTitle>
+        <Pagination>
+          <MedlinePgn>28</MedlinePgn>
+        </Pagination>
+        <ELocationID EIdType="doi" ValidYN="Y">10.1186/s12864-015-2353-z</ELocationID>
+        <Abstract>
+          <AbstractText Label="BACKGROUND" NlmCategory="BACKGROUND">A generally accepted approach to the analysis of RNA-Seq read count data does not yet exist. We sequenced the mRNA of 726 individuals from the Drosophila Genetic Reference Panel in order to quantify differences in gene expression among single flies. One of our experimental goals was to identify the optimal analysis approach for the detection of differential gene expression among the factors we varied in the experiment: genotype, environment, sex, and their interactions. Here we evaluate three different filtering strategies, eight normalization methods, and two statistical approaches using our data set. We assessed differential gene expression among factors and performed a statistical power analysis using the eight biological replicates per genotype, environment, and sex in our data set.</AbstractText>
+          <AbstractText Label="RESULTS" NlmCategory="RESULTS">We found that the most critical considerations for the analysis of RNA-Seq read count data were the normalization method, underlying data distribution assumption, and numbers of biological replicates, an observation consistent with previous RNA-Seq and microarray analysis comparisons. Some common normalization methods, such as Total Count, Quantile, and RPKM normalization, did not align the data across samples. Furthermore, analyses using the Median, Quantile, and Trimmed Mean of M-values normalization methods were sensitive to the removal of low-expressed genes from the data set. Although it is robust in many types of analysis, the normal data distribution assumption produced results vastly different than the negative binomial distribution. In addition, at least three biological replicates per condition were required in order to have sufficient statistical power to detect expression differences among the three-way interaction of genotype, environment, and sex.</AbstractText>
+          <AbstractText Label="CONCLUSIONS" NlmCategory="CONCLUSIONS">The best analysis approach to our data was to normalize the read counts using the DESeq method and apply a generalized linear model assuming a negative binomial distribution using either edgeR or DESeq software. Genes having very low read counts were removed after normalizing the data and fitting it to the negative binomial distribution. We describe the results of this evaluation and include recommended analysis strategies for RNA-Seq read count data.</AbstractText>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y">
+            <LastName>Lin</LastName>
+            <ForeName>Yanzhu</ForeName>
+            <Initials>Y</Initials>
+            <AffiliationInfo>
+              <Affiliation>Laboratory of Systems Genetics, Center for Systems Biology, National Heart Lung and Blood Institute, 10 Center Drive, MSC 1640, Bethesda, MD, 20892, USA. yanzhu.lin@nih.gov.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Golovnina</LastName>
+            <ForeName>Kseniya</ForeName>
+            <Initials>K</Initials>
+            <AffiliationInfo>
+              <Affiliation>Developmental Genomics Section, Laboratory of Cellular and Developmental Biology, National Institute of Diabetes and Digestive and Kidney Diseases, Bethesda, MD, USA. kseniya.golovnina@nih.gov.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Chen</LastName>
+            <ForeName>Zhen-Xia</ForeName>
+            <Initials>ZX</Initials>
+            <AffiliationInfo>
+              <Affiliation>Developmental Genomics Section, Laboratory of Cellular and Developmental Biology, National Institute of Diabetes and Digestive and Kidney Diseases, Bethesda, MD, USA. zhen-xia.chen@nih.gov.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Lee</LastName>
+            <ForeName>Hang Noh</ForeName>
+            <Initials>HN</Initials>
+            <AffiliationInfo>
+              <Affiliation>Developmental Genomics Section, Laboratory of Cellular and Developmental Biology, National Institute of Diabetes and Digestive and Kidney Diseases, Bethesda, MD, USA. hangnoh.lee@nih.gov.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Negron</LastName>
+            <ForeName>Yazmin L Serrano</ForeName>
+            <Initials>YL</Initials>
+            <AffiliationInfo>
+              <Affiliation>Laboratory of Systems Genetics, Center for Systems Biology, National Heart Lung and Blood Institute, 10 Center Drive, MSC 1640, Bethesda, MD, 20892, USA. yazmin.serranonegron@nih.gov.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Sultana</LastName>
+            <ForeName>Hina</ForeName>
+            <Initials>H</Initials>
+            <AffiliationInfo>
+              <Affiliation>Developmental Genomics Section, Laboratory of Cellular and Developmental Biology, National Institute of Diabetes and Digestive and Kidney Diseases, Bethesda, MD, USA. hina.sultana@nih.gov.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Oliver</LastName>
+            <ForeName>Brian</ForeName>
+            <Initials>B</Initials>
+            <AffiliationInfo>
+              <Affiliation>Developmental Genomics Section, Laboratory of Cellular and Developmental Biology, National Institute of Diabetes and Digestive and Kidney Diseases, Bethesda, MD, USA. briano@helix.nih.gov.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Harbison</LastName>
+            <ForeName>Susan T</ForeName>
+            <Initials>ST</Initials>
+            <AffiliationInfo>
+              <Affiliation>Laboratory of Systems Genetics, Center for Systems Biology, National Heart Lung and Blood Institute, 10 Center Drive, MSC 1640, Bethesda, MD, 20892, USA. susan.harbison@nih.gov.</Affiliation>
+            </AffiliationInfo>
+          </Author>
+        </AuthorList>
+        <Language>eng</Language>
+        <GrantList CompleteYN="Y">
+          <Grant>
+            <Agency>Intramural NIH HHS</Agency>
+            <Country>United States</Country>
+          </Grant>
+        </GrantList>
+        <PublicationTypeList>
+          <PublicationType UI="D016428">Journal Article</PublicationType>
+          <PublicationType UI="D052060">Research Support, N.I.H., Intramural</PublicationType>
+        </PublicationTypeList>
+        <ArticleDate DateType="Electronic">
+          <Year>2016</Year>
+          <Month>01</Month>
+          <Day>05</Day>
+        </ArticleDate>
+      </Article>
+      <MedlineJournalInfo>
+        <Country>England</Country>
+        <MedlineTA>BMC Genomics</MedlineTA>
+        <NlmUniqueID>100965258</NlmUniqueID>
+        <ISSNLinking>1471-2164</ISSNLinking>
+      </MedlineJournalInfo>
+      <ChemicalList>
+        <Chemical>
+          <RegistryNumber>0</RegistryNumber>
+          <NameOfSubstance UI="D012333">RNA, Messenger</NameOfSubstance>
+        </Chemical>
+      </ChemicalList>
+      <CitationSubset>IM</CitationSubset>
+      <CommentsCorrectionsList>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nat Methods. 2005 May;2(5):345-50</RefSource>
+          <PMID Version="1">15846361</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>BMC Biol. 2011;9:34</RefSource>
+          <PMID Version="1">21627854</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nat Biotechnol. 2006 Sep;24(9):1151-61</RefSource>
+          <PMID Version="1">16964229</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nature. 2007 Nov 8;450(7167):233-7</RefSource>
+          <PMID Version="1">17994089</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Bioinformatics. 2007 Nov 1;23(21):2881-7</RefSource>
+          <PMID Version="1">17881408</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nat Methods. 2008 Jul;5(7):621-8</RefSource>
+          <PMID Version="1">18516045</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nat Methods. 2008 Jul;5(7):613-9</RefSource>
+          <PMID Version="1">18516046</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Res. 2008 Sep;18(9):1509-17</RefSource>
+          <PMID Version="1">18550803</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nucleic Acids Res. 2008 Sep;36(16):e105</RefSource>
+          <PMID Version="1">18660515</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nat Genet. 2009 Mar;41(3):299-307</RefSource>
+          <PMID Version="1">19234471</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>BMC Genomics. 2009;10:221</RefSource>
+          <PMID Version="1">19435513</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Bioinformatics. 2009 Aug 15;25(16):2078-9</RefSource>
+          <PMID Version="1">19505943</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Bioinformatics. 2010 Jan 1;26(1):139-40</RefSource>
+          <PMID Version="1">19910308</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>PLoS Biol. 2010 Feb;8(2):e1000320</RefSource>
+          <PMID Version="1">20186269</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>BMC Bioinformatics. 2010;11:94</RefSource>
+          <PMID Version="1">20167110</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Biol. 2010;11(3):R25</RefSource>
+          <PMID Version="1">20196867</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Proc Natl Acad Sci U S A. 2010 May 25;107(21):9546-51</RefSource>
+          <PMID Version="1">20460310</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>BMC Genomics. 2011;12:293</RefSource>
+          <PMID Version="1">21645359</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Res. 2011 Sep;21(9):1543-51</RefSource>
+          <PMID Version="1">21816910</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>PLoS One. 2011;6(10):e26426</RefSource>
+          <PMID Version="1">22039485</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nature. 2012 Feb 9;482(7384):173-8</RefSource>
+          <PMID Version="1">22318601</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Brief Funct Genomics. 2012 Jan;11(1):57-62</RefSource>
+          <PMID Version="1">22210853</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nucleic Acids Res. 2012 May;40(10):4288-97</RefSource>
+          <PMID Version="1">22287627</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Cell. 2012 Oct 26;151(3):476-82</RefSource>
+          <PMID Version="1">23101621</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>BMC Bioinformatics. 2013;14:91</RefSource>
+          <PMID Version="1">23497356</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Brief Bioinform. 2013 Nov;14(6):671-83</RefSource>
+          <PMID Version="1">22988256</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nucleic Acids Res. 2014 Jan;42(Database issue):D780-8</RefSource>
+          <PMID Version="1">24234449</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Bioinformatics. 2014 Feb 1;30(3):301-4</RefSource>
+          <PMID Version="1">24319002</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Biol. 2013;14(9):R95</RefSource>
+          <PMID Version="1">24020486</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Res. 2014 Jul;24(7):1193-208</RefSource>
+          <PMID Version="1">24714809</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nat Biotechnol. 2014 Sep;32(9):896-902</RefSource>
+          <PMID Version="1">25150836</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>G3 (Bethesda). 2014 Dec;4(12):2307-15</RefSource>
+          <PMID Version="1">25246242</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Bioinformatics. 2015 Jan 15;31(2):233-41</RefSource>
+          <PMID Version="1">25273110</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Biol. 2014;15(12):550</RefSource>
+          <PMID Version="1">25516281</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nat Genet. 2001 Dec;29(4):389-95</RefSource>
+          <PMID Version="1">11726925</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Science. 2002 Sep 27;297(5590):2270-5</RefSource>
+          <PMID Version="1">12351791</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Bioinformatics. 2003 Jan 22;19(2):185-93</RefSource>
+          <PMID Version="1">12538238</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Science. 2003 Jan 31;299(5607):697-700</RefSource>
+          <PMID Version="1">12511656</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Science. 2003 Jun 13;300(5626):1742-5</RefSource>
+          <PMID Version="1">12805547</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Science. 2006 Sep 22;313(5794):1775-81</RefSource>
+          <PMID Version="1">16990546</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>BMC Bioinformatics. 2010;11:285</RefSource>
+          <PMID Version="1">20507584</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Nat Biotechnol. 2010 Aug;28(8):827-38</RefSource>
+          <PMID Version="1">20676074</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Biol. 2010;11(8):R83</RefSource>
+          <PMID Version="1">20701754</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Biol. 2010;11(10):R106</RefSource>
+          <PMID Version="1">20979621</PMID>
+        </CommentsCorrections>
+        <CommentsCorrections RefType="Cites">
+          <RefSource>Genome Biol. 2005;6(4):R36</RefSource>
+          <PMID Version="1">15833123</PMID>
+        </CommentsCorrections>
+      </CommentsCorrectionsList>
+      <MeshHeadingList>
+        <MeshHeading>
+          <DescriptorName UI="D000818" MajorTopicYN="N">Animals</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D001483" MajorTopicYN="N">Base Sequence</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D030541" MajorTopicYN="N">Databases, Genetic</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D004331" MajorTopicYN="N">Drosophila melanogaster</DescriptorName>
+          <QualifierName UI="Q000235" MajorTopicYN="Y">genetics</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D005786" MajorTopicYN="Y">Gene Expression Regulation</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D059647" MajorTopicYN="N">Gene-Environment Interaction</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D005838" MajorTopicYN="N">Genotype</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D059014" MajorTopicYN="Y">High-Throughput Nucleotide Sequencing</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D046228" MajorTopicYN="N">Microarray Analysis</DescriptorName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D012333" MajorTopicYN="N">RNA, Messenger</DescriptorName>
+          <QualifierName UI="Q000235" MajorTopicYN="Y">genetics</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D017423" MajorTopicYN="N">Sequence Analysis, RNA</DescriptorName>
+          <QualifierName UI="Q000379" MajorTopicYN="N">methods</QualifierName>
+        </MeshHeading>
+        <MeshHeading>
+          <DescriptorName UI="D012984" MajorTopicYN="N">Software</DescriptorName>
+        </MeshHeading>
+      </MeshHeadingList>
+      <OtherID Source="NLM">PMC4702322</OtherID>
+    </MedlineCitation>
+    <PubmedData>
+      <History>
+        <PubMedPubDate PubStatus="received">
+          <Year>2015</Year>
+          <Month>04</Month>
+          <Day>28</Day>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="accepted">
+          <Year>2015</Year>
+          <Month>12</Month>
+          <Day>21</Day>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="entrez">
+          <Year>2016</Year>
+          <Month>1</Month>
+          <Day>7</Day>
+          <Hour>6</Hour>
+          <Minute>0</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="pubmed">
+          <Year>2016</Year>
+          <Month>1</Month>
+          <Day>7</Day>
+          <Hour>6</Hour>
+          <Minute>0</Minute>
+        </PubMedPubDate>
+        <PubMedPubDate PubStatus="medline">
+          <Year>2016</Year>
+          <Month>9</Month>
+          <Day>30</Day>
+          <Hour>6</Hour>
+          <Minute>0</Minute>
+        </PubMedPubDate>
+      </History>
+      <PublicationStatus>epublish</PublicationStatus>
+      <ArticleIdList>
+        <ArticleId IdType="pubmed">26732976</ArticleId>
+        <ArticleId IdType="doi">10.1186/s12864-015-2353-z</ArticleId>
+        <ArticleId IdType="pii">10.1186/s12864-015-2353-z</ArticleId>
+        <ArticleId IdType="pmc">PMC4702322</ArticleId>
+      </ArticleIdList>
+    </PubmedData>
+  </PubmedArticle>
+</PubmedArticleSet>
