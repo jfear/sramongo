@@ -10,7 +10,7 @@ class TestPRJNA258012:
     @pytest.fixture(scope='class')
     def bio_etree(self):
         """ Element tree of single biosample. """
-        fname = 'data/bioproject_PRJNA258012.xml'
+        fname = 'tests/data/bioproject_PRJNA258012.xml'
         tree = ElementTree.parse(fname)
         root = tree.getroot()
         return root.find('DocumentSummary')

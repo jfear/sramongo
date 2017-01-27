@@ -51,17 +51,30 @@ class BioProject(object):
             del self.bioproject[k]
 
     def _clean_dates(self):
-        """Cleans up bioproject dates."""
+        """Cleans up bioproject dates.
+
+        Somtimes dataes are stored as 'YYYY-MM-DDTHH:MM:SSZ', strip out the
+        time information if it is there.
+        """
         regex = r'(\d+\-\d+\-\d+)T.*'
 
-        self.bioproject['publication_date'] = re.match(
-            regex, self.bioproject['publication_date']).groups()[0]
+        try:
+            self.bioproject['publication_date'] = re.match(
+                regex, self.bioproject['publication_date']).groups()[0]
+        except AttributeError:
+            pass
 
-        self.bioproject['last_update'] = re.match(
-            regex, self.bioproject['last_update']).groups()[0]
+        try:
+            self.bioproject['last_update'] = re.match(
+                regex, self.bioproject['last_update']).groups()[0]
+        except AttributeError:
+            pass
 
-        self.bioproject['submission_date'] = re.match(
-            regex, self.bioproject['submission_date']).groups()[0]
+        try:
+            self.bioproject['submission_date'] = re.match(
+                regex, self.bioproject['submission_date']).groups()[0]
+        except AttributeError:
+            pass
 
     @valid_path(rettype=list)
     def _parse_links(self, node):

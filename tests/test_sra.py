@@ -10,7 +10,7 @@ class TestSRR3001915:
     @pytest.fixture(scope='class')
     def sra_etree(self):
         """ Element tree of single sra experiment. """
-        fname = 'data/sra_SRR3001915.xml'
+        fname = 'tests/data/sra_SRR3001915.xml'
         tree = ElementTree.parse(fname)
         root = tree.getroot()
         return root.find('EXPERIMENT_PACKAGE')
@@ -20,7 +20,7 @@ class TestSRR3001915:
         return SraExperiment(sra_etree)
 
     def test_parse_organization(self, sraTree):
-        assert sraTree.organization['type'] == 'center'
+        assert sraTree.organization['organization_type'] == 'center'
         assert sraTree.organization['abbreviation'] == 'GEO'
         assert sraTree.organization['name'] == 'NCBI'
         assert sraTree.organization['email'] == 'geo-group@ncbi.nlm.nih.gov'
@@ -37,7 +37,7 @@ class TestSRR3001915:
         assert sraTree.study['GEO'] == 'GSE60314'
         assert sraTree.study['title'].strip().split(' ')[0] == 'mRNA'
         assert sraTree.study['title'].strip().split(' ')[-1] == 'environments'
-        assert sraTree.study['type'] == 'Transcriptome Analysis'
+        assert sraTree.study['study_type'] == 'Transcriptome Analysis'
         assert sraTree.study['abstract'].strip().split(' ')[0] == 'Our'
         assert sraTree.study['abstract'].strip().split(' ')[-1] == 'level.'
         assert sraTree.study['center_project_name'] == 'GSE60314'
@@ -82,8 +82,8 @@ class TestSRR3001915:
         assert sraTree.run[0]['nspots'] == 2001211
         assert sraTree.run[0]['nbases'] == 152092036
         assert sraTree.run[0]['nreads'] == 1
-        assert sraTree.run[0]['read_count'] == 2001211.0
-        assert sraTree.run[0]['read_len'] == 76.0
+        assert sraTree.run[0]['read_count_r1'] == 2001211.0
+        assert sraTree.run[0]['read_len_r1'] == 76.0
         assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['parent'] == 'Pterygota'
         assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['self_count'] == 95
         assert sraTree.run[0]['tax_analysis']['tax_counts']['Neoptera']['total_count'] == 360608
@@ -95,7 +95,7 @@ class TestSRR5100239:
     @pytest.fixture(scope='class')
     def sra_etree(self):
         """ Element tree of single sra experiment. """
-        fname = 'data/sra_SRR5100239.xml'
+        fname = 'tests/data/sra_SRR5100239.xml'
         tree = ElementTree.parse(fname)
         root = tree.getroot()
         return root.find('EXPERIMENT_PACKAGE')
@@ -105,7 +105,7 @@ class TestSRR5100239:
         return SraExperiment(sra_etree)
 
     def test_parse_organization(self, sraTree):
-        assert sraTree.organization['type'] == 'center'
+        assert sraTree.organization['organization_type'] == 'center'
         assert sraTree.organization['abbreviation'] == 'GEO'
         assert sraTree.organization['name'] == 'NCBI'
         assert sraTree.organization['email'] == 'geo-group@ncbi.nlm.nih.gov'
@@ -122,7 +122,7 @@ class TestSRR5100239:
         assert sraTree.study['GEO'] == 'GSE92305'
         assert sraTree.study['title'].strip().split(' ')[0] == 'Characterization'
         assert sraTree.study['title'].strip().split(' ')[-1] == 'gametogenesis'
-        assert sraTree.study['type'] == 'Transcriptome Analysis'
+        assert sraTree.study['study_type'] == 'Transcriptome Analysis'
         assert sraTree.study['abstract'].strip().split(' ')[0] == 'Total'
         assert sraTree.study['abstract'].strip().split(' ')[-1] == 'testes'
         assert sraTree.study['center_project_name'] == 'GSE92305'

@@ -75,16 +75,17 @@ def test_Submission_str_complete():
             db: test3, id: 1033
         secondary_id: None
         submitter_id:
-            db: test, id: test submitter""")
+            db: test, id: test submitter
+        uuid: None""")
 
 
 def test_Organization_str_complete():
     organization = Organization(
-        type='center', abbreviation='GEO', name='NCBI',
+        organization_type='center', abbreviation='GEO', name='NCBI',
         email='geo@nih.gov', first_name='GEO', last_name='Curators')
 
     assert str(organization) == dedent("""\
-        type: center
+        organization_type: center
         abbreviation: GEO
         name: NCBI
         email: geo@nih.gov
@@ -105,8 +106,9 @@ external_id:
 secondary_id: None
 submitter_id:
     db: test, id: test submitter
+uuid: None
 title: Test title
-type: Test type
+study_type: Test type
 abstract: A very long abstract with more than 80 characters per line. A very long
           abstract with more than 80 characters per line. A very long abstract with
           more than 80 characters per line. A very long abstract with more than 80
@@ -123,7 +125,7 @@ ddbj_links: None
 ena_links: None
 submission: None
 organization:
-    type: center
+    organization_type: center
     abbreviation: GEO
     name: NCBI
     email: geo@nih.gov
@@ -141,7 +143,7 @@ def test_Study_str_partial():
 
     study = Study(
         study_id='SRA12345', GEO='GSE12345', BioProject='PRJN1234',
-        pubmed='123456', title='Test title', type='Test type',
+        pubmed='123456', title='Test title', study_type='Test type',
         abstract=abstract, center_project_name='Test center')
 
     study.external_id.append(Xref(**{'db': 'test', 'id': '1030'}))
@@ -152,7 +154,7 @@ def test_Study_str_partial():
     study.url_links.append(URLLink(**{'label': 'test', 'url': 'http://test.com'}))
 
     study.organization = Organization(
-        type='center', abbreviation='GEO', name='NCBI',
+        organization_type='center', abbreviation='GEO', name='NCBI',
         email='geo@nih.gov', first_name='GEO', last_name='Curators')
 
     assert str(study) == STUDY
