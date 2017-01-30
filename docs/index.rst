@@ -28,7 +28,9 @@ utilities to query the SRA and download the resulting XML.
    :caption: Contents:
 
    quickStart
+   sramongoODM
    flags
+   sraConstants
 
 
 

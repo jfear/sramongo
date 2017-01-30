@@ -28,7 +28,7 @@ sra2mongo Usage
 ---------------
 
 `sra2mongo` is the command line tool provided by sramongo. To get a full set
-options run `sra2mongo -h`. A simple query would look like:
+options run ``sra2mongo -h``. A simple query would look like:
 
 .. code:: bash
 
@@ -39,7 +39,7 @@ options run `sra2mongo -h`. A simple query would look like:
        --db sra \
        --query '"Drosophila melanogaster[orgn]"'
 
-The `\ ` allows for breaking the command on multiple lines. This command will
+The ``\`` allows for breaking the command on multiple lines. This command will
 query the SRA for `"Drosophial melanogaster[orgn]"`, download the XML for all of
 the runs, and parse the XML into a database named 'sra' that is stored in the
 users home folder. If the mongo database was running then the script will
@@ -71,7 +71,8 @@ subclass the ODMs and add fields to them.
 For example, lets imagine that you have a workflow that runs fastq screen on
 each run and you want to store a list of potential contaminates in the database.
 We would start by subclass the `Run` ODM and then add a field to store these
-contaminants. My base ODM class uses mongoengine_ so you must use its syntax.
+contaminants. My base ODM class uses mongoengine_ so you must use the
+mongoengine_ syntax.
 
 .. code:: python
 
@@ -96,6 +97,7 @@ contaminants. My base ODM class uses mongoengine_ so you must use its syntax.
         client = connect('sra')
         client.sra.run.update_many({}, {'$set': {'_cls': 'Run.myRun'}})
 
+    Similarly if you subclass `Experiment`, `Study`, or `Sample`.
 
 .. _mongoengine: http://mongoengine.org
 

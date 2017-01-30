@@ -1,4 +1,4 @@
-.. _database flags:
+.. _database_flags:
 
 ============================================================
 Database Flags
