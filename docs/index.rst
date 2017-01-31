@@ -8,12 +8,12 @@ popular document based database, which stores information as ``key:value``
 pairs; unlike a typical relational database (e.g., SQL) which stores data as
 rows in multiple related tables. One major advantage of a document based
 database to a relation database is that there is no need a defined schema;
-meaning attributes can be arbitrarily added or removed and don't need to be the
+attributes can be arbitrarily added or removed and don't need to be the
 same across records. What this means is that you can run sra2mongo to query and
 populate your database, then freely modify or add new fields/documents as part
 of a processing pipeline.
 
-Roughly speak sramongo is made up of 3 parts. The first is a parser for SRA XML,
+Roughly speaking sramongo is made up of 3 parts. The first is a parser for SRA XML,
 the second is an object relational mapper to allow easy interface with mongo,
 and the third is a command line utility which uses Biopython and Entrez
 utilities to query the SRA and download the resulting XML.

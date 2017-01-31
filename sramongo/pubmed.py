@@ -21,7 +21,7 @@ class Pubmed(object):
         self._drop_empty()
 
     def _drop_empty(self):
-        """Scans through a dictionary and removes empy lists or None elements."""
+        """Scans through a dictionary and removes empty lists or None elements."""
 
         drop_keys = []
         for k, v in self.pubmed.items():

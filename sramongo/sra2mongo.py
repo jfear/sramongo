@@ -90,7 +90,7 @@ def arguments():
                         help="Folder containing mongo database.")
 
     parser.add_argument("--logDir", dest="logDir", action='store', required=False, default=None,
-                        help="Folder containing mongo database.")
+                        help="Folder in which to store log.")
 
     parser.add_argument("--port", dest="port", action='store', type=int, required=False, default=27017,
                         help="Mongo database port.")

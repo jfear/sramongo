@@ -35,7 +35,7 @@ class DocumentString(object):
         """Represents mongo Document as string.
 
         This is a helper class to make a string representation of a mongo
-        document. In other words allows prettry printing of documents.
+        document. In other words allows pretty printing of documents.
 
         Parameters
         ----------
@@ -50,7 +50,7 @@ class DocumentString(object):
         """Dictionary string representation.
 
         Iterates over a dictionary and builds key: value string
-        representations. Carries indention level through other methods so that
+        representations. Carries indentation level through other methods so that
         hierarchy is visually maintained.
 
         Parameters

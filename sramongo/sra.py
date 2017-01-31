@@ -40,7 +40,7 @@ class SraExperiment(object):
         """Some xrefs are more imporant and I want to pull them out.
 
         xrefs to specific databases I am interested in should be pulled out and
-        stored separately. Go ahead and normalized database names and values a
+        stored separately. Go ahead and normalize database names and values a
         bit.
 
         Parameters
