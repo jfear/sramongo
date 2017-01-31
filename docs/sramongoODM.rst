@@ -35,12 +35,15 @@ Run
 BioSample
 ---------
 
+.. autoclass:: sramongo.mongo_schema.BioSample
 
 BioProject
 ----------
 
+.. autoclass:: sramongo.mongo_schema.BioProject
 
 Pubmed
 ------
 
+.. autoclass:: sramongo.mongo_schema.Pubmed
 

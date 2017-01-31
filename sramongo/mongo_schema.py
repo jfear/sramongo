@@ -846,8 +846,9 @@ class TaxAnalysis(EmbeddedDocument):
 class Run(Document):
     """Run Document.
 
-    A run must have a run id (SRR/ERR/DRR). Additional metadata
-    may be present about the submitter and external links to other databases.
+    A Run describes a dataset generated from an Experiment. For example if a
+    Experiment is sequenced on multiple lanes of a Illumina flowcell then data
+    from each lane are considered a Run.
 
     Attributes
     ----------
@@ -868,46 +869,69 @@ class Run(Document):
         List of uuids.
 
     experiment_id: mongoengine.StringField
+        The ID of the corresponding experiment.
 
     samples: mongoengine.ListField
+        A list of sample IDs.
 
     nspots: mongoengine.IntField
+        The total number of spots on a Illumina flowcell.
 
     nbases: mongoengine.IntField
+        The number of bases.
 
     tax_analysis = EmbeddedDocumentField(TaxAnalysis)
+        A dictionary containing results from a taxonomic analysis. Some Runs are
+        analyzed and the number of reads that align to different taxa are
+        recorded. The taxanomic analysis is stored in the SRA as a hierarchy,
+        but it is stored here as a flat dictionary for easier access to
+        different classes.
 
     nreads: mongoengine.IntField
-
-    read_count: mongoengine.FloatField
-
-    read_len: mongoengine.FloatField
+        The number of reads.
 
     read_count_r1: mongoengine.FloatField
+        Some Runs have additional information on reads. This is the number of
+        reads from single ended or the first read pair in pair ended data.
 
     read_len_r1: mongoengine.FloatField
+        This is the average length of reads from single ended or the first read
+        pair in pair ended data.
 
     read_count_r2: mongoengine.FloatField
+        This is the number of reads from the second read pair in pair ended
+        data.
 
     read_len_r2: mongoengine.FloatField
+        This is the avearge length of reads from the second read pair in pair
+        ended data.
 
     experiment: mongoengine.ReferenceField
-        Experiment
+        This is an embedded reference to the corresponding experiment.
 
     release_date: mongoengine.StringField
+        Release date of the Run.
 
     load_date: mongoengine.StringField
+        Date the Run was uploaded.
 
     size_MB: mongoengine.IntField
+        Size of the Run file.
 
     download_path: mongoengine.StringField
+        Download path of the Run file.
 
     db_flags: mongoengine.ListField
-        List of :ref:`database_flags`.
+        These are custom flags that I add. I have created these flags by
+        interpreting specific information from data provided by the SRA. A list
+        of :ref:`database_flags` and their descriptions.
 
     db_created: mongoengine.DateTimeField
+        The date this document was added to the mongo database. In other words
+        when you downloaded the data.
 
     db_modified: mongoengine.DateTimeField
+        This is the date the document was last modified in the mongo database.
 
     """
     # SRR/DRR/ERR
@@ -927,11 +951,7 @@ class Run(Document):
     tax_analysis = EmbeddedDocumentField(TaxAnalysis)
     nreads = IntField()
 
-    # if single ended
-    read_count = FloatField()
-    read_len = FloatField()
-
-    # if paired ended
+    # if single ended then just use _r1
     read_count_r1 = FloatField()
     read_len_r1 = FloatField()
 
@@ -1038,9 +1058,69 @@ class Contacts(EmbeddedDocument):
 
 # BioSample
 class BioSample(Document):
-    """BioSample Document.
+    """The contents of a BioSample.
 
-    A BioSample must have a run id (SAMN). Additional metadata may be present.
+    BioSample is another database housed at NCBI which records sample metadata.
+    This information should already be present in the SRA.Sample information,
+    but to be safe we can pull into the BioSample for additional metadata.
+
+    Attributes
+    ----------
+
+    biosample_id: mongoengine.StringField
+        The primary identifier for a BioSample. These are the accession number
+        which begin with SAM.
+
+    biosample_secondary: mongoengine.StringField
+        A secondary identifier for a BioSample. Identifiers begin with
+        SAM.
+
+    db_id: mongoengine.StringField
+        This is BioSample's unique ID number.
+
+    sample_id: mongoengine.StringField
+        Unique id of the sample provided by the submitter.
+
+    GEO: mongoengine.StringField
+        GEO sample ID (GSM).
+
+    title: mongoengine.StringField
+        A free text description of the sample.
+
+    tax_id: mongoengine.StringField
+        The tax_id that the sample belongs.
+
+    tax_name: mongoengine.StringField
+        Scientific name of the organism that sample is from.
+
+    organism_name: mongoengine.StringField
+        Scientific name of the organism that sample is from.
+
+    institute: mongoengine.StringField
+        Name of the submitting institute.
+
+    access: mongoengine.StringField
+        Type of access, typically "public".
+
+    publication_date: mongoengine.StringField
+        Date the sample was published.
+
+    last_update: mongoengine.StringField
+        Last time BioSample updated sample information.
+
+    submission_date: mongoengine.StringField
+        Date the sample was submitted
+
+    contacts: mongoengine.EmbeddedDocumentField
+        Dictionary of contact information.
+
+    models: mongoengine.ListField
+        List of model information.
+
+    attributes: mongoengine.DictField
+        A set of key:value pairs describing the sample. For example tissue:ovary
+        or sex:female.
+
     """
     biosample_id = StringField(primary_key=True)
     biosample_secondary = StringField()
@@ -1112,9 +1192,46 @@ class BioSample(Document):
 
 # BioProject
 class BioProject(Document):
-    """BioProject Document.
+    """The contents of a BioProject.
 
-    A BioProject must have a run id (PRJ). Additional metadata may be present.
+    BioProject is another database housed at NCBI which records project
+    metadata.  This information should already be present in the SRA
+    information, but to be safe we can pull into the BioProject for additional
+    metadata.
+
+    Attributes
+    ----------
+    bioproject_id: mongoengine.StringField
+        The primary identifier for a BioProject. These are the accession number
+        which begin with PRJ.
+
+    name: mongoengine.StringField
+        A brief name of the project.
+
+    title: mongoengine.StringField
+        The title of the project.
+
+    description: mongoengine.StringField
+        A short description of the project.
+
+    publication: mongoengine.StringField
+        Publication information.
+
+    publication_date: mongoengine.StringField
+        Date of publication.
+
+    submission_id: mongoengine.StringField
+        Identifier for the submission.
+
+    last_date: mongoengine.DateTimeField
+        Last date the BioProject was updated.
+
+    submission_date: mongoengine.DateTimeField
+        Date the BioProject was submitted.
+
+    external_id: mongoengine.ListField
+        List of additional external ids.
+
     """
     bioproject_id = StringField(primary_key=True)
     name = StringField()
@@ -1170,9 +1287,37 @@ class BioProject(Document):
 
 # Pubmed
 class Pubmed(Document):
-    """Pubmed Document.
+    """The contents of a Pubmed document.
 
-    A Pubmed must have a pubmed id (PMID). Additional metadata may be present.
+    This document contains specific information about publications.
+
+    Attributes
+    ----------
+    pubmed_id: mongoengine.StringField
+        The primary identifier for Pubmed. These are the accession number
+        which begin with PMID.
+
+    title: mongoengine.StringField
+        Title of the paper.
+
+    abstract: mongoengine.StringField
+        Paper abstract.
+
+    authors: mongoengine.ListField
+        List of authors.
+
+    citation: mongoengine.StringField
+        Citation information for the paper.
+
+    date_created: mongoengine.DateTimeField
+        Date the pubmed entry was created.
+
+    date_completed: mongoengine.DateTimeField
+        Date the pubmed entry was completed.
+
+    date_revised: mongoengine.DateTimeField
+        Date the pubmed entry was last updated.
+
     """
     pubmed_id = StringField(primary_key=True)
     title = StringField()
