@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/jfear/sra2mongo.svg?branch=master
-    :target: https://travis-ci.org/jfear/sra2mongo
+.. image:: https://travis-ci.org/jfear/sramongo.svg?branch=master
+    :target: https://travis-ci.org/jfear/sramongo
 
 sramongo
 ========
