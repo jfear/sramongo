@@ -27,7 +27,7 @@ run:
 sra2mongo Usage
 ---------------
 
-`sra2mongo` is the command line tool provided by sramongo. To get a full set
+``sra2mongo`` is the command line tool provided by sramongo. To get a full set
 options run ``sra2mongo -h``. A simple query would look like:
 
 .. code:: bash
@@ -40,22 +40,25 @@ options run ``sra2mongo -h``. A simple query would look like:
        --query '"Drosophila melanogaster[orgn]"'
 
 The ``\`` allows for breaking the command on multiple lines. This command will
-query the SRA for `"Drosophial melanogaster[orgn]"`, download the XML for all of
-the runs, and parse the XML into a database named 'sra' that is stored in the
+query the SRA for ``"Drosophial melanogaster[orgn]"``, download the XML for all
+of the runs, and parse the XML into a database named 'sra' that is stored in the
 users home folder. If the mongo database was running then the script will
 connect to the instance, if it is not running the script will startup a mongodb
 instance.
 
-A list of fields created in the database can be found
-
-.. todo::
-    Add a list of database fields.
+A (see :ref:`dbFields`) for a list of databased fields.
 
 .. note::
     The query string is passed directly to SRA, so any query options such as
     [orgn], [pid], or [author] will work. Also queries can include boolean
     operators (i.e., AND, OR).
 
+Querying the Database
+---------------------
+
+.. todo::
+    Add section about querying the database using mongoengine. Until then follow
+    `mongoengines docs <http://docs.mongoengine.org/guide/querying.html>`__
 
 Extending Database
 ------------------
@@ -70,9 +73,9 @@ subclass the ODMs and add fields to them.
 
 For example, lets imagine that you have a workflow that runs fastq screen on
 each run and you want to store a list of potential contaminates in the database.
-We would start by subclass the `Run` ODM and then add a field to store these
+We would start by subclass the ``Run`` ODM and then add a field to store these
 contaminants. My base ODM class uses mongoengine_ so you must use the
-mongoengine_ syntax.
+`mongoengine syntax <http://docs.mongoengine.org/guide/defining-documents.html>`__.
 
 .. code:: python
 
@@ -81,14 +84,14 @@ mongoengine_ syntax.
 
    class myRun(mongo_schema.Run):
        """My custom Run ODM."""
-       fastq_screen = ListField(StrinField, default=list)
+       fastq_screen = ListField(StrinField(), default=list)
 
 .. note::
     When using mongoengine it stores a hidden variable in each document
     describing the mongoengine class used to create the document. For example,
-    if you used sra2mongo to build the database the `Run` document would have
-    `_cls = Run`. **If you subclass Run you must change this value to add your
-    subclass name.**
+    if you used sra2mongo to build the database the ``Run`` document would have
+    ``_cls = Run``. **If you subclass Run you must change this value to add your
+    subclass name.** Given our example above:
 
     .. code:: python
 
