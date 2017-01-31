@@ -1,10 +1,12 @@
-.. _database flags:
+.. _database_flags:
 
 ============================================================
 Database Flags
 ============================================================
 
-These flags are added based on values given by the SRA database.
+``sra2mongo`` adds several flags based on data found in the SRA metadata.  These
+flags are created to make querying specific metadata easier. Flags can be at
+either the `Experiment`_ level or the `Run`_ level.
 
 Experiment
 ==========
@@ -16,7 +18,7 @@ PE
     Paired-end reads according to the SRA ``library_layout``.
 
 RNASeq
-    SRA gives evidence that the experiment should be RNA-seq. The flat is added
+    SRA gives evidence that the experiment should be RNA-seq. The flag is added
     if ``library_source`` is ``TRANSCRIPTOMIC`` or if ``library_strategy`` is
     ``RNA-Seq``.
 
@@ -37,19 +39,5 @@ pe_reads_not_equal_len
     Read 1 and read 2 lengths are more than 5bp different according to the SRA.
 
 pe_reads_not_equal_count
-    Read 1 and read 2 counts are more than 10 reads different according to the SRA.
-
-.. _pipeline flags:
-
-============================================================
-Pipeline Flags
-============================================================
-
-These flags are added based on results from the `Prealignment Workflow`.
-
-Experiment
-==========
-
-Run
-===
-
+    Read 1 and read 2 counts are more than 10 reads different according to the
+    SRA.

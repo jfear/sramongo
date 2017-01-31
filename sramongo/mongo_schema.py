@@ -290,12 +290,91 @@ class RelatedStudy(XrefLink):
 
 
 class Study(Document):
-    """Study Document
+    """The contents of a SRA study.
 
-    A study must have a study id (SRP/ERP/DRP). Additional metadata
-    may be present. Studies embed submission and organization information.
+    A study consists of a set of experiments designed with an overall goal in
+    mind. For example, this could include a control experiment and a treatment
+    experiment with the goal being to identify expression differences resulting
+    from the treatment. The SRA study is the top level of the submission
+    hierarchy.
+
+    Attributes
+    ----------
+    study_id: mongoengine.StringField
+        The primary identifier for a study. Identifiers begin with
+        SRP/ERP/DRP depending on which database they originate from.
+
+    GEO: mongoengine.StringField
+        An identifier relating a study to the GEO database.
+
+    GEO_Dataset: mongoengine.StringField
+        An identifier relating to a study to the corresponding GEO datasets
+        database.
+
+    BioProject: mongoengine.StringField
+        An identifier relating a study to the BioProject.
+
+    pubmed: mongoengine.StringField
+        An identifier relating a study to any published papers that used this
+        study.
+
+    external_id: mongoengine.ListField
+        List of additional external ids.
+
+    secondary_id: mongoengine.ListField
+        List of secondary ids.
+
+    submitter_id: mongoengine.ListField
+        List of submitter ids.
+
+    uuid: mongoengine.ListField
+        List of uuids.
+
+    title: mongoengine.StringField
+        The title of the study.
+
+    study_type: mongoengine.StringField
+        The value is one of :ref:`studyTypes`
+
+    abstract: mongoengine.StringField
+        Abstract of the study.
+
+    center_name: mongoengine.StringField
+        Name of the submitting center.
+
+    center_project_name: mongoengine.StringField
+        Center specific identifier for the study.
+
+    description: mongoengine.StringField
+        Additional text describing the study.
+
+    related_studies: mongoengine.ListField
+        List of related studies.
+
+    url_links: mongoengine.ListField
+        List of url links
+
+    xref_links: mongoengine.ListField
+        List of external database cross references.
+
+    entrez_links: mongoengine.ListField
+        List of NCBI Entrez links.
+
+    ddbj_links: mongoengine.ListField
+        List of Japan's ddbj links.
+
+    ena_links: mongoengine.ListField
+        List of Europe's ena links.
+
+    submission: mongoengine.EmbeddedDocumentField
+        A dictionary describing attributes about the Submission.
+
+    organization = mongoengine.EmbeddedDocumentField
+        A dictionary describing attributes about the Organization.
+
+    experiments: mongoengine.ListField
+        List of experiment_ids that are in this study.
     """
-    # SRA/DRA/ERA
     study_id = StringField(primary_key=True)
 
     # Look through the external/secondary/submitter for these database xrefs
@@ -374,13 +453,83 @@ class Study(Document):
             raise err
 
 
-
 # Samples
 class Sample(Document):
-    """Sample Document.
+    """The contents of a SRA sample.
 
-    A sample must have a sample id (SRS/ERS/DRS). Additional metadata
-    may be present along with external links to other databases.
+    A sample is the biological unit. An individual sample or a pool of samples
+    can be use in the SRA Experiment. This document contains information
+    describing the sample ranging from species information to detailed
+    descriptions of what and how material was collected.
+
+    Attributes
+    ----------
+    sample_id: mongoengine.StringField
+        The primary identifier for a sample. Identifiers begin with
+        SRS/ERS/DRS depending on which database they originate from.
+
+    GEO: mongoengine.StringField
+        An identifier relating a sample to the GEO database.
+
+    BioSample: mongoengine.ReferenceField
+        References the corresponding BioSample.
+
+    BioProject: mongoengine.StringField
+        An identifier relating a sample to the BioProject.
+
+    pubmed: mongoengine.StringField
+        An identifier relating a study to any published papers that use this
+        sample.
+
+    external_id: mongoengine.ListField
+        List of additional external ids.
+
+    secondary_id: mongoengine.ListField
+        List of secondary ids.
+
+    submitter_id: mongoengine.ListField
+        List of submitter ids.
+
+    uuid: mongoengine.ListField
+        List of uuids.
+
+    title: mongoengine.StringField
+        The title of the sample.
+
+    taxon_id: mongoengine.StringField
+        The NCBI taxon id.
+
+    scientific_name: mongoengine.StringField
+        The scientific name.
+
+    common_name: mongoengine.StringField
+        The common name.
+
+    individual_name: mongoengine.StringField
+        The sample name.
+
+    description: mongoengine.StringField
+        Additional text describing the sample.
+
+    attributes: mongoengine.DictField
+        A set of key:value pairs describing the sample. For example tissue:ovary
+        or sex:female.
+
+    url_links: mongoengine.ListField
+        List of url links
+
+    xref_links: mongoengine.ListField
+        List of external database cross references.
+
+    entrez_links: mongoengine.ListField
+        List of NCBI Entrez links.
+
+    ddbj_links: mongoengine.ListField
+        List of Japan's ddbj links.
+
+    ena_links: mongoengine.ListField
+        List of Europe's ena links.
+
     """
     # SRS/DRS/ERS
     sample_id = StringField(primary_key=True)
@@ -461,8 +610,114 @@ class Sample(Document):
 class Experiment(Document):
     """Experiment Document.
 
-    A experiment must have a experiment id (SRX/ERX/DRX). Additional metadata
-    may be present along with external links to other databases.
+    An experiment describes an individual library. This library is made from a
+    biological sample. Multiple experiments (or libraries) make up a study. An
+    experiment can be sequenced on multiple lanes making up different Runs.
+
+    Attributes
+    ----------
+    experiment_id: mongoengine.StringField
+        The primary identifier for an experiment. Identifiers begin with
+        SRX/ERX/DRX depending on which database they originate from.
+
+    GEO: mongoengine.StringField
+        An identifier relating an experiment to the GEO database.
+
+    GEO_Dataset: mongoengine.StringField
+        An identifier relating to an experiment to the corresponding GEO
+        datasets database.
+
+    pubmed: mongoengine.StringField
+        An identifier relating an experiment to any published papers.
+
+    external_id: mongoengine.ListField
+        List of additional external ids.
+
+    secondary_id: mongoengine.ListField
+        List of secondary ids.
+
+    submitter_id: mongoengine.ListField
+        List of submitter ids.
+
+    uuid: mongoengine.ListField
+        List of uuids.
+
+    title: mongoengine.StringField
+        The title of the experiment.
+
+    study_id: mongoengine.StringField
+        The id for the corresponding study.
+
+    design: mongoengine.StringField
+        Free text description of the design of the experiment. Really anything
+        could be in this field.
+
+    library_name: mongoengine.StringField
+        A identifier for this experiment.
+
+    library_strategy: mongoengine.StringField
+        The type of library constructed, one of :ref:`libraryStrategy`.
+
+    library_source: mongoengine.StringField
+        The source of library, one of :ref:`librarySource`.
+
+    library_selection: mongoengine.StringField
+        The selection method of library, one of :ref:`librarySelection`.
+
+    library_layout: mongoengine.StringField
+        The layout of the library, paired or single ended.
+        :ref:`libraryLayout`.
+
+    library_layout_orientation: mongoengine.StringField
+
+    library_layout_length: mongoengine.StringField
+        The average length of reads in this library.
+
+    library_layout_sdev: mongoengine.StringField
+        The standard deviation of length of reads in this library.
+
+    pooling_strategey: mongoengine.StringField
+        A description of how samples were pooled.
+
+    library_construction_protocol: mongoengine.StringField
+        A free text description of how the libraries were constructed.
+
+    platform: mongoengine.StringField
+        The platform used for sequencing, one of :ref:`platforms`.
+
+    instrument_model: mongoengine.StringField
+        The instrument model, one of :ref:`instrumentModels`.
+
+    attributes: mongoengine.DictField
+        A set of key:value pairs describing the experiment.
+
+    url_links: mongoengine.ListField
+        List of url links
+
+    xref_links: mongoengine.ListField
+        List of external database cross references.
+
+    entrez_links: mongoengine.ListField
+        List of NCBI Entrez links.
+
+    ddbj_links: mongoengine.ListField
+        List of Japan's ddbj links.
+
+    ena_links: mongoengine.ListField
+        List of Europe's ena links.
+
+    study: mongoengine.ReferenceField
+        References the corresponding Study.
+
+    samples: mongoengine.ListField
+        List of references to corresponding samples.
+
+    runs: mongoengine.ListField
+        List of run_ids
+
+    db_flags: mongoengine.ListField
+        List of :ref:`database_flags`.
+
     """
     # SRX/DRX/ERX
     experiment_id = StringField(primary_key=True)
@@ -591,8 +846,93 @@ class TaxAnalysis(EmbeddedDocument):
 class Run(Document):
     """Run Document.
 
-    A run must have a run id (SRR/ERR/DRR). Additional metadata
-    may be present about the submitter and external links to other databases.
+    A Run describes a dataset generated from an Experiment. For example if a
+    Experiment is sequenced on multiple lanes of a Illumina flowcell then data
+    from each lane are considered a Run.
+
+    Attributes
+    ----------
+    run_id: mongoengine.StringField
+        The primary identifier for a run. Identifiers begin with
+        SRR/ERR/DRR depending on which database they originate from.
+
+    external_id: mongoengine.ListField
+        List of additional external ids.
+
+    secondary_id: mongoengine.ListField
+        List of secondary ids.
+
+    submitter_id: mongoengine.ListField
+        List of submitter ids.
+
+    uuid: mongoengine.ListField
+        List of uuids.
+
+    experiment_id: mongoengine.StringField
+        The ID of the corresponding experiment.
+
+    samples: mongoengine.ListField
+        A list of sample IDs.
+
+    nspots: mongoengine.IntField
+        The total number of spots on a Illumina flowcell.
+
+    nbases: mongoengine.IntField
+        The number of bases.
+
+    tax_analysis = EmbeddedDocumentField(TaxAnalysis)
+        A dictionary containing results from a taxonomic analysis. Some Runs are
+        analyzed and the number of reads that align to different taxa are
+        recorded. The taxanomic analysis is stored in the SRA as a hierarchy,
+        but it is stored here as a flat dictionary for easier access to
+        different classes.
+
+    nreads: mongoengine.IntField
+        The number of reads.
+
+    read_count_r1: mongoengine.FloatField
+        Some Runs have additional information on reads. This is the number of
+        reads from single ended or the first read pair in pair ended data.
+
+    read_len_r1: mongoengine.FloatField
+        This is the average length of reads from single ended or the first read
+        pair in pair ended data.
+
+    read_count_r2: mongoengine.FloatField
+        This is the number of reads from the second read pair in pair ended
+        data.
+
+    read_len_r2: mongoengine.FloatField
+        This is the avearge length of reads from the second read pair in pair
+        ended data.
+
+    experiment: mongoengine.ReferenceField
+        This is an embedded reference to the corresponding experiment.
+
+    release_date: mongoengine.StringField
+        Release date of the Run.
+
+    load_date: mongoengine.StringField
+        Date the Run was uploaded.
+
+    size_MB: mongoengine.IntField
+        Size of the Run file.
+
+    download_path: mongoengine.StringField
+        Download path of the Run file.
+
+    db_flags: mongoengine.ListField
+        These are custom flags that I add. I have created these flags by
+        interpreting specific information from data provided by the SRA. A list
+        of :ref:`database_flags` and their descriptions.
+
+    db_created: mongoengine.DateTimeField
+        The date this document was added to the mongo database. In other words
+        when you downloaded the data.
+
+    db_modified: mongoengine.DateTimeField
+        This is the date the document was last modified in the mongo database.
+
     """
     # SRR/DRR/ERR
     run_id = StringField(primary_key=True)
@@ -611,11 +951,7 @@ class Run(Document):
     tax_analysis = EmbeddedDocumentField(TaxAnalysis)
     nreads = IntField()
 
-    # if single ended
-    read_count = FloatField()
-    read_len = FloatField()
-
-    # if paired ended
+    # if single ended then just use _r1
     read_count_r1 = FloatField()
     read_len_r1 = FloatField()
 
@@ -722,9 +1058,69 @@ class Contacts(EmbeddedDocument):
 
 # BioSample
 class BioSample(Document):
-    """BioSample Document.
+    """The contents of a BioSample.
 
-    A BioSample must have a run id (SAMN). Additional metadata may be present.
+    BioSample is another database housed at NCBI which records sample metadata.
+    This information should already be present in the SRA.Sample information,
+    but to be safe we can pull into the BioSample for additional metadata.
+
+    Attributes
+    ----------
+
+    biosample_id: mongoengine.StringField
+        The primary identifier for a BioSample. These are the accession number
+        which begin with SAM.
+
+    biosample_secondary: mongoengine.StringField
+        A secondary identifier for a BioSample. Identifiers begin with
+        SAM.
+
+    db_id: mongoengine.StringField
+        This is BioSample's unique ID number.
+
+    sample_id: mongoengine.StringField
+        Unique id of the sample provided by the submitter.
+
+    GEO: mongoengine.StringField
+        GEO sample ID (GSM).
+
+    title: mongoengine.StringField
+        A free text description of the sample.
+
+    tax_id: mongoengine.StringField
+        The tax_id that the sample belongs.
+
+    tax_name: mongoengine.StringField
+        Scientific name of the organism that sample is from.
+
+    organism_name: mongoengine.StringField
+        Scientific name of the organism that sample is from.
+
+    institute: mongoengine.StringField
+        Name of the submitting institute.
+
+    access: mongoengine.StringField
+        Type of access, typically "public".
+
+    publication_date: mongoengine.StringField
+        Date the sample was published.
+
+    last_update: mongoengine.StringField
+        Last time BioSample updated sample information.
+
+    submission_date: mongoengine.StringField
+        Date the sample was submitted
+
+    contacts: mongoengine.EmbeddedDocumentField
+        Dictionary of contact information.
+
+    models: mongoengine.ListField
+        List of model information.
+
+    attributes: mongoengine.DictField
+        A set of key:value pairs describing the sample. For example tissue:ovary
+        or sex:female.
+
     """
     biosample_id = StringField(primary_key=True)
     biosample_secondary = StringField()
@@ -796,9 +1192,46 @@ class BioSample(Document):
 
 # BioProject
 class BioProject(Document):
-    """BioProject Document.
+    """The contents of a BioProject.
 
-    A BioProject must have a run id (PRJ). Additional metadata may be present.
+    BioProject is another database housed at NCBI which records project
+    metadata.  This information should already be present in the SRA
+    information, but to be safe we can pull into the BioProject for additional
+    metadata.
+
+    Attributes
+    ----------
+    bioproject_id: mongoengine.StringField
+        The primary identifier for a BioProject. These are the accession number
+        which begin with PRJ.
+
+    name: mongoengine.StringField
+        A brief name of the project.
+
+    title: mongoengine.StringField
+        The title of the project.
+
+    description: mongoengine.StringField
+        A short description of the project.
+
+    publication: mongoengine.StringField
+        Publication information.
+
+    publication_date: mongoengine.StringField
+        Date of publication.
+
+    submission_id: mongoengine.StringField
+        Identifier for the submission.
+
+    last_date: mongoengine.DateTimeField
+        Last date the BioProject was updated.
+
+    submission_date: mongoengine.DateTimeField
+        Date the BioProject was submitted.
+
+    external_id: mongoengine.ListField
+        List of additional external ids.
+
     """
     bioproject_id = StringField(primary_key=True)
     name = StringField()
@@ -854,9 +1287,37 @@ class BioProject(Document):
 
 # Pubmed
 class Pubmed(Document):
-    """Pubmed Document.
+    """The contents of a Pubmed document.
 
-    A Pubmed must have a pubmed id (PMID). Additional metadata may be present.
+    This document contains specific information about publications.
+
+    Attributes
+    ----------
+    pubmed_id: mongoengine.StringField
+        The primary identifier for Pubmed. These are the accession number
+        which begin with PMID.
+
+    title: mongoengine.StringField
+        Title of the paper.
+
+    abstract: mongoengine.StringField
+        Paper abstract.
+
+    authors: mongoengine.ListField
+        List of authors.
+
+    citation: mongoengine.StringField
+        Citation information for the paper.
+
+    date_created: mongoengine.DateTimeField
+        Date the pubmed entry was created.
+
+    date_completed: mongoengine.DateTimeField
+        Date the pubmed entry was completed.
+
+    date_revised: mongoengine.DateTimeField
+        Date the pubmed entry was last updated.
+
     """
     pubmed_id = StringField(primary_key=True)
     title = StringField()
