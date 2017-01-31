@@ -35,7 +35,7 @@ def parse_tree_from_dict(node, locs):
         current node. The second element given a processing hint. Possible
         values are:
 
-            * 'text': assumes the wanted is the text element of the path.
+            * 'text': assumes the text element of the path is wanted.
             * 'child': assumes that the child of the given path is wanted.
             * str: Any other string will be treated as an attribute lookup
                    of the path.
@@ -43,8 +43,8 @@ def parse_tree_from_dict(node, locs):
         If 'child' is given, then a third element needs to be given
         indicating the type of processing. Possible values are:
 
-            * 'text': assumes the wanted is the text element of the path.
-            * 'tag': assumes the wanted is the class tag of the path.
+            * 'text': assumes the text element of the path is wanted.
+            * 'tag': assumes the class tag of the path is wanted.
             * str: Any other string will be treated as an attribute lookup
                    of the path.
     """

@@ -53,7 +53,7 @@ class BioProject(object):
     def _clean_dates(self):
         """Cleans up bioproject dates.
 
-        Somtimes dataes are stored as 'YYYY-MM-DDTHH:MM:SSZ', strip out the
+        Sometimes dates are stored as 'YYYY-MM-DDTHH:MM:SSZ', strip out the
         time information if it is there.
         """
         regex = r'(\d+\-\d+\-\d+)T.*'
