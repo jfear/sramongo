@@ -3,18 +3,15 @@
 
 from setuptools import setup, find_packages
 
-with open('README.md') as readme_file:
-    readme = readme_file.read()
-
 requirements = [i.strip() for i in open('requirements.txt').readlines()]
 
 setup(
     name='sramongo',
     version='0.0.1',
     description="A package to download metadata from SRA/Biosample/Geo and dump into a mongo database.",
-    author="Justin Fear",
-    author_email='justin.fear@nih.gov',
-    url='https://github.com/jfear/sra2mongo',
+    author="Justin M Fear",
+    author_email='justin.m.fear@gmail.com',
+    url='https://github.com/jfear/sramongo',
     packages=find_packages(),
     include_package_data=True,
     install_requires=requirements,
