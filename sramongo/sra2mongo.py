@@ -104,6 +104,8 @@ def arguments():
     parser.add_argument("--force", dest="force", action='store_true', required=False,
                         help="Forces clearing the cache.")
 
+    # TODO add argument to connect to remote server
+
     return parser.parse_args()
 
 
@@ -275,29 +277,30 @@ def main():
     # biopython.
     Entrez.email = args.email
 
+    # TODO add test to see if a server is running.
     logger.info('Starting MongoDB')
     with MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port):
         logger.info('Connecting to: {}'.format(args.db))
         connect(args.db)
 
-#         logger.info('Querying SRA: {}'.format(args.query))
-#         sra_query = ncbi_query(args.query)
-#
-#         logger.info('Downloading documents')
-#         logger.info('Saving to cache: {}'.format(cache.cachedir))
-#         fetch_sra(sra_query, cache)
-#
-#         logger.info('Adding documents to database')
-#         for xml, runinfo in cache:
-#             logger.debug('Parsing: {}'.format(xml))
-#             tree = ElementTree.parse(xml)
-#             ri = pd.read_csv(runinfo, index_col='Run')
-#             for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
-#                 add_sra_to_database(exp_pkg, ri)
-#
-#         logger.info('{:,} Studies'.format(Study.objects.count()))
-#         logger.info('{:,} Experiments'.format(Experiment.objects.count()))
-#         logger.info('{:,} Runs'.format(Run.objects.count()))
+        logger.info('Querying SRA: {}'.format(args.query))
+        sra_query = ncbi_query(args.query)
+
+        logger.info('Downloading documents')
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_sra(sra_query, cache)
+
+        logger.info('Adding documents to database')
+        for xml, runinfo in cache:
+            logger.debug('Parsing: {}'.format(xml))
+            tree = ElementTree.parse(xml)
+            ri = pd.read_csv(runinfo, index_col='Run')
+            for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
+                add_sra_to_database(exp_pkg, ri)
+
+        logger.info('{:,} Studies'.format(Study.objects.count()))
+        logger.info('{:,} Experiments'.format(Experiment.objects.count()))
+        logger.info('{:,} Runs'.format(Run.objects.count()))
 
         # Query BioSample
         bs_cache = Cache(directory='.cache/sra2mongo/biosample')
