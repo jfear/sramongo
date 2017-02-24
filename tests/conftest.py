@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 
 import pytest
 
-from sramongo.mongo import start_mongo
+from sramongo.mongo import start_mongo, stop_mongo
 from sramongo.sra import SraExperiment
 from sramongo.biosample import BioSampleParse
 
@@ -26,6 +26,4 @@ def mongoDB(mongo_folders):
     mongoDB = start_mongo(dbDir=mongo_folders[0], logDir=mongo_folders[1])
     yield mongoDB
     print('Shutting down mongoDB.')
-    mongoDB.kill()
-
-
+    stop_mongo(dbDir=mongo_folders[0])
