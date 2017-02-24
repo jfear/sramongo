@@ -4,6 +4,7 @@ import pytest
 from textwrap import dedent
 from sramongo.sra import SraExperiment
 from sramongo.biosample import BioSampleParse
+from sramongo.bioproject import BioProjectParse
 from sramongo.mongo_schema import URLLink, Xref, XrefLink, \
     EntrezLink, DDBJLink, ENALink, Submission, Organization, \
     Study, Sample, Experiment, Run, BioSample, Ncbi
@@ -167,8 +168,16 @@ class TestSRR3001915:
         return BioSampleParse(root.find('BioSample'))
 
     @pytest.fixture(scope='class')
-    def Ncbi(self, sraExperiment, bioSample):
-        return Ncbi(srx=sraExperiment.srx, sra=sraExperiment.sra, biosample=[bioSample.biosample,])
+    def bioProject(self):
+        fname = 'tests/data/bioproject_PRJNA258012.xml'
+        tree = ElementTree.parse(fname)
+        root = tree.getroot()
+        return BioProjectParse(root.find('DocumentSummary'))
+
+    @pytest.fixture(scope='class')
+    def Ncbi(self, sraExperiment, bioSample, bioProject):
+        return Ncbi(srx=sraExperiment.srx, sra=sraExperiment.sra,
+                    biosample=[bioSample.biosample,], bioproject=bioProject.bioproject)
 
     def test_organization(self, Ncbi):
         assert Ncbi.sra.organization.name == 'NCBI'
@@ -277,3 +286,16 @@ class TestSRR3001915:
                 }
         for attribute in Ncbi.biosample[0].attributes:
             assert attribute['value'] == attr[attribute['name']]
+
+    def test_bioproject(self, Ncbi):
+        assert Ncbi.bioproject['bioproject_id'] == 'PRJNA258012'
+        assert Ncbi.bioproject['name'].strip().split(' ')[0] == 'mRNA'
+        assert Ncbi.bioproject['name'].strip().split(' ')[-1] == 'environments'
+        assert Ncbi.bioproject['title'].strip().split(' ')[0] == 'mRNA'
+        assert Ncbi.bioproject['title'].strip().split(' ')[-1] == 'environments'
+        assert Ncbi.bioproject['description'].strip().split(' ')[0] == 'Our'
+        assert Ncbi.bioproject['description'].strip().split(' ')[-1] == 'level.'
+        assert Ncbi.bioproject['publication'] == '26732976'
+        assert Ncbi.bioproject['submission_id'] == 'SUB1475494'
+        assert Ncbi.bioproject['submission_date'] == '2014-08-11'
+        assert Ncbi.bioproject['last_update'] == '2016-04-20'

@@ -1239,7 +1239,7 @@ class BioProject(EmbeddedDocument):
     publication = StringField()
     publication_date = DateTimeField()
     submission_id = StringField()
-    last_date = DateTimeField()
+    last_update = DateTimeField()
     submission_date = DateTimeField()
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
@@ -1375,9 +1375,7 @@ class Geo(EmbeddedDocument):
 
 # Main Document class
 class Ncbi(Document):
-    """Document class that contains data from various NCBI databases.
-
-    """
+    """Document class that contains data from various NCBI databases."""
     srx = StringField(primary_key=True)
     sra = EmbeddedDocumentField(Sra)
     biosample = ListField(EmbeddedDocumentField(BioSample))
