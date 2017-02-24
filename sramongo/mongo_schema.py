@@ -748,7 +748,7 @@ class Experiment(EmbeddedDocument):
     library_construction_protocol = StringField()
     platform = StringField()
     instrument_model = StringField()
-    attributes = ListField(EmbeddedDocument(Attribute), default=list)
+    attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
 
     # External links
     url_links = ListField(EmbeddedDocumentField(URLLink), default=list)
@@ -815,7 +815,7 @@ class TaxRecord(EmbeddedDocument):
     total_count = IntField()
     self_count = IntField()
     tax_id = StringField()
-    rank = StringField()
+    name = StringField()
 
     def __str__(self):
         return DocumentString(self).string
@@ -825,7 +825,7 @@ class TaxAnalysis(EmbeddedDocument):
     nspot_analyze = IntField()
     total_spots = IntField()
     mapped_spots = IntField()
-    tax_counts = MapField(EmbeddedDocumentField(TaxRecord))
+    tax_counts = MapField(ListField(EmbeddedDocumentField(TaxRecord), default=list))
 
     def __str__(self):
         return DocumentString(self).string
@@ -946,6 +946,9 @@ class Run(EmbeddedDocument):
     read_count_r2 = FloatField()
     read_len_r2 = FloatField()
 
+    # NOTE: This field is added by me to summarize
+    run_flags = ListField(StringField(), default=list)
+
     # NOTE: Additional Fields not in the SRA XML but in summary table
     release_date = StringField()
     load_date = StringField()
@@ -1037,7 +1040,7 @@ class Sra(EmbeddedDocument):
     study = EmbeddedDocumentField(Study)
     sample = EmbeddedDocumentField(Sample)
     experiment = EmbeddedDocumentField(Experiment)
-    run = EmbeddedDocumentField(Run)
+    run = ListField(EmbeddedDocumentField(Run), default=list)
     pool = ListField(DictField(), default=list)
     db_flags = ListField(StringField(), default=list)
     db_imported = DateTimeField(default=datetime.datetime.now)
@@ -1383,3 +1386,6 @@ class Ncbi(Document):
     pubmed = ListField(EmbeddedDocumentField(Pubmed), default=list)
 
     meta = {'allow_inheritance': True}
+
+    def __str__(self):
+        return DocumentString(self).string

@@ -39,6 +39,7 @@ class SraExperiment(object):
                 'db_flags': set(),
                 'db_imported': datetime.datetime.now,
                 }
+        self.srx = self.sra['experiment']['experiment_id']
 
         # Add db flags
         if (self.sra['experiment']['library_source'] == 'TRANSCRIPTOMIC') | (self.sra['experiment']['library_strategy'] == 'RNA-Seq'):
@@ -468,7 +469,7 @@ class SraExperiment(object):
     def _parse_run_reads(self, node, run_id):
         """Parse reads from runs."""
         d = dict()
-        d['db_flags'] = set()
+        d['run_flags'] = set()
 
         nreads = node.get('nreads')
         try:
@@ -479,14 +480,14 @@ class SraExperiment(object):
             # provided. I set these values to -1.
             if d['nreads'] == 'varaible':
                 d['nreads'] = -1
-                d['db_flags'].add('no_read_information')
+                d['run_flags'].add('no_read_information')
             else:
                 raise ValueError('nreads is "{}", this value is not expected. '
                                  'Please adjust "sra.py" to account for this.'.format(d['nreads']))
 
         if d['nreads'] == 1:
             # Single-ended Reads
-            d['db_flags'].add('SE')
+            d['run_flags'].add('SE')
             read = node.find('Read')
             d['read_count_r1'] = float(read.get('count'))
             d['read_len_r1'] = float(read.get('average'))
@@ -507,16 +508,16 @@ class SraExperiment(object):
             # Sometime nreads will be 2, but read len/count will be 0 for one
             # of the reads. Check for this and make SE if they are 0's
             if (d['read_len_r1'] != 0) & (d['read_len_r2'] != 0) & (d['read_count_r1'] != 0) & (d['read_count_r2'] != 0):
-                d['db_flags'].add('PE')
+                d['run_flags'].add('PE')
 
                 # Flag if read count or len are different
                 if abs(d['read_len_r1'] - d['read_len_r2']) > 5:
-                    d['db_flags'].add('pe_reads_not_equal_len')
+                    d['run_flags'].add('pe_reads_not_equal_len')
 
                 if abs(d['read_count_r1'] - d['read_count_r2']) > 10:
-                    d['db_flags'].add('pe_reads_not_equal_count')
+                    d['run_flags'].add('pe_reads_not_equal_count')
             else:
-                d['db_flags'].add('SE')
+                d['run_flags'].add('SE')
 
                 # Set which ever read has information to R1 and delete R2.
                 if (d['read_len_r1'] == 0) | (d['read_count_r1'] == 0):

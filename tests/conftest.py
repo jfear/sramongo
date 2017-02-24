@@ -30,14 +30,6 @@ def mongoDB(mongo_folders):
 
 
 @pytest.fixture(scope='session')
-def sraExperiment():
-    fname = 'tests/data/sra_SRR3001915.xml'
-    tree = ElementTree.parse(fname)
-    root = tree.getroot()
-    return SraExperiment(root.find('EXPERIMENT_PACKAGE'))
-
-
-@pytest.fixture(scope='session')
 def bioSample():
     fname = 'tests/data/biosample_SAMN02981965.xml'
     tree = ElementTree.parse(fname)
