@@ -281,7 +281,7 @@ class SraExperiment(object):
         d = self._drop_empty(d)
         return d
 
-    @valid_path
+    @valid_path(rettype=list)
     def _parse_attributes(self, node):
         """Parse various attributes as tag:value pairs.
 
@@ -290,20 +290,11 @@ class SraExperiment(object):
         node: xml.etree.ElementTree.ElementTree.Element
             Node where the root is 'EXPERIMENT_ATTRIBUTES'.
         """
-        d = defaultdict(dict)
+        attributes
         for attribute in node.getchildren():
-            try:
-                key_norm = attribute.find('TAG').text.lower()
-                value_norm = attribute.find('VALUE').text.lower()
-
-                if re.match('\w+\d+', value_norm):
-                    value_norm = value_norm.upper()
-
-                d['attributes'][key_norm] = value_norm
-            except:
-                logger.debug('Malformed attribute: "%s: %s"',
-                             attribute.find('TAG').text, attribute.find('VALUE').text)
-        return d
+            attributes.append({'name': attribute.find('TAG').text,
+                      'value': attribute.find('VALUE').text})
+        return attributes
 
     # Sample
     @valid_path
@@ -313,7 +304,7 @@ class SraExperiment(object):
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'sample'))
         d.update(self._parse_links(node.find('SAMPLE_LINKS')))
-        d.update(self._parse_attributes(node.find('SAMPLE_ATTRIBUTES')))
+        d['attributes'] = self._parse_attributes(node.find('SAMPLE_ATTRIBUTES'))
 
         locs = {
             'title': ('TITLE', 'text'),
@@ -346,7 +337,7 @@ class SraExperiment(object):
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'experiment'))
         d.update(self._parse_links(node.find('EXPERIMENT_LINKS')))
-        d.update(self._parse_attributes(node.find('EXPERIMENT_ATTRIBUTES')))
+        d['attributes'] = self._parse_attributes(node.find('EXPERIMENT_ATTRIBUTES'))
 
         locs = {
             'title': ('TITLE', 'text'),
