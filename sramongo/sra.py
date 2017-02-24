@@ -28,13 +28,16 @@ class SraExperiment(object):
             Experiment level node as an ElemenTree element.
         """
         # parse different sections for SRA xml
-        self.organization = self._parse_organization(node.find('Organization'))
-        self.submission = self._parse_submission(node.find('SUBMISSION'))
-        self.study = self._parse_study(node.find('STUDY'))
-        self.experiment = self._parse_experiment(node.find('EXPERIMENT'))
-        self.sample = self._parse_sample(node.find('SAMPLE'))
+        self.sra = {
+                'organization': self._parse_organization(node.find('Organization')),
+                'submission': self._parse_submission(node.find('SUBMISSION')),
+                'study': self._parse_study(node.find('STUDY')),
+                'experiment': self._parse_experiment(node.find('EXPERIMENT')),
+                'run': self._parse_run(node.find('RUN_SET')),
+                'sample': self._parse_sample(node.find('SAMPLE'))
+                }
+        #TODO: What needs done with samples
         self.samples = self._parse_pool(node.find('Pool'))
-        self.run = self._parse_run(node.find('RUN_SET'))
 
     def _raise_xref_status(self, xref):
         """Some xrefs are more imporant and I want to pull them out.
@@ -185,16 +188,6 @@ class SraExperiment(object):
                     d[_id.tag.lower()].append(xref)
         return d
 
-    # Submission
-    @valid_path
-    def _parse_submission(self, node):
-        """Parses submission section."""
-        d = dict()
-        d.update(self._parse_ids(node.find('IDENTIFIERS'), 'submission'))
-        d.update(parse_tree_from_dict(node, {'broker': ('.', 'broker_name')}))
-        d = self._drop_empty(d)
-        return d
-
     # Organization
     @valid_path
     def _parse_organization(self, node):
@@ -209,6 +202,16 @@ class SraExperiment(object):
             'last_name': ('Contact/Name/Last', 'text'),
         }
         d.update(parse_tree_from_dict(node, locs))
+        d = self._drop_empty(d)
+        return d
+
+    # Submission
+    @valid_path
+    def _parse_submission(self, node):
+        """Parses submission section."""
+        d = dict()
+        d.update(self._parse_ids(node.find('IDENTIFIERS'), 'submission'))
+        d.update(parse_tree_from_dict(node, {'broker': ('.', 'broker_name')}))
         d = self._drop_empty(d)
         return d
 
