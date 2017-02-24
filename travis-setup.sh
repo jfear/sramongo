@@ -18,6 +18,7 @@ conda config --add channels r
 conda config --add channels bioconda
 conda config --add channels jfear
 
+conda install python=3.5
 conda install -y --file requirements.txt
 
 ~/anaconda/bin/python setup.py install
