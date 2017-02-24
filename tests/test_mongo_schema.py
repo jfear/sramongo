@@ -3,6 +3,7 @@ from xml.etree import ElementTree
 import pytest
 from textwrap import dedent
 from sramongo.sra import SraExperiment
+from sramongo.biosample import BioSampleParse
 from sramongo.mongo_schema import URLLink, Xref, XrefLink, \
     EntrezLink, DDBJLink, ENALink, Submission, Organization, \
     Study, Sample, Experiment, Run, BioSample, Ncbi
@@ -159,8 +160,15 @@ class TestSRR3001915:
         return SraExperiment(root.find('EXPERIMENT_PACKAGE'))
 
     @pytest.fixture(scope='class')
-    def Ncbi(self, sraExperiment):
-        return Ncbi(srx=sraExperiment.srx, sra=sraExperiment.sra)
+    def bioSample(self):
+        fname = 'tests/data/biosample_SAMN02981965.xml'
+        tree = ElementTree.parse(fname)
+        root = tree.getroot()
+        return BioSampleParse(root.find('BioSample'))
+
+    @pytest.fixture(scope='class')
+    def Ncbi(self, sraExperiment, bioSample):
+        return Ncbi(srx=sraExperiment.srx, sra=sraExperiment.sra, biosample=[bioSample.biosample,])
 
     def test_organization(self, Ncbi):
         assert Ncbi.sra.organization.name == 'NCBI'
@@ -243,15 +251,29 @@ class TestSRR3001915:
         assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['tax_id'] == '33340'
         assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['name'] == 'Neoptera'
 
-# def test_biosample_w_db(mongoDB, bioSample):
-#     client = connect('test_sra')
-#     try:
-#         biosample = BioSample(**bioSample.biosample)
-#         biosample.save()
-#         bs = BioSample.objects(biosample_id=biosample.id).first()
-#         assert bs.sample_id == 'SRS679015'
-#         assert bs.title == 'DGRP563 M_E3_2_L3'
-#     except:
-#         raise
-#     finally:
-#         client.drop_database('test_sra')
+    def test_biosample(self, Ncbi):
+        assert Ncbi.biosample[0].biosample_id == 'SAMN02981965'
+        assert Ncbi.biosample[0].sample_id == 'SRS679015'
+        assert Ncbi.biosample[0].GEO == 'GSM1471477'
+        assert Ncbi.biosample[0].title == 'DGRP563 M_E3_2_L3'
+        assert Ncbi.biosample[0].tax_id == '7227'
+        assert Ncbi.biosample[0].tax_name == 'Drosophila melanogaster'
+        assert Ncbi.biosample[0].organism_name == 'Drosophila melanogaster'
+        assert Ncbi.biosample[0].institute == 'Developmental Genomics, LCDB, NIDDK, NIH'
+        assert Ncbi.biosample[0].access == 'public'
+        assert Ncbi.biosample[0].publication_date == '2015-12-22'
+        assert Ncbi.biosample[0].last_update == '2015-12-22'
+        assert Ncbi.biosample[0].submission_date == '2014-08-11'
+        assert Ncbi.biosample[0].contacts[0]['email'] == 'briano@helix.nih.gov'
+        assert Ncbi.biosample[0].contacts[0]['first_name'] == 'Brian'
+        assert Ncbi.biosample[0].contacts[0]['last_name'] == 'Oliver'
+        assert Ncbi.biosample[0].models[0] == 'Generic'
+        attr = {
+                'source_name': 'Whole body',
+                'strain': 'DGRP-563',
+                'dev_stage': 'Adult',
+                'sex': 'male',
+                'tissue': 'Whole body',
+                }
+        for attribute in Ncbi.biosample[0].attributes:
+            assert attribute['value'] == attr[attribute['name']]

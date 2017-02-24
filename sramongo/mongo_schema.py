@@ -1137,7 +1137,7 @@ class BioSample(EmbeddedDocument):
     submission_date = StringField()
     contacts = ListField(EmbeddedDocumentField(Contacts), default=list)
     models = ListField(StringField())
-    attributes = DictField()
+    attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
 
     def __str__(self):
         return DocumentString(self).string

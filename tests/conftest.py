@@ -29,9 +29,3 @@ def mongoDB(mongo_folders):
     mongoDB.kill()
 
 
-@pytest.fixture(scope='session')
-def bioSample():
-    fname = 'tests/data/biosample_SAMN02981965.xml'
-    tree = ElementTree.parse(fname)
-    root = tree.getroot()
-    return BioSampleParse(root.find('BioSample'))
