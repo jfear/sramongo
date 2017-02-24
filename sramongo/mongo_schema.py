@@ -255,36 +255,6 @@ class Submission(EmbeddedDocument):
     def __str__(self):
         return DocumentString(self).string
 
-    @classmethod
-    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        """Builds submission from an sramongo.SraExperiment.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no submission_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        sraExperiment: sramongo.SraExperiment
-            An sra object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the sraExperiment prior
-            to building.
-        """
-        try:
-            sra = sraExperiment.submission
-            sra.update(kwargs)
-            submission = cls(**sra)
-            return submission
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this submission.' % err)
-            logger.debug(sra)
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(sra)
-            raise err
-
 
 # Study
 class RelatedStudy(XrefLink):
@@ -413,45 +383,11 @@ class Study(EmbeddedDocument):
     def __str__(self):
         return DocumentString(self).string
 
-    @classmethod
-    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        """Builds study from an sramongo.SraExperiment.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no study_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        sraExperiment: sramongo.SraExperiment
-            An sra object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the sraExperiment prior
-            to building.
-        """
-        try:
-            sra = sraExperiment.study
-            sra.update(kwargs)
-            if 'study_id' in sra:
-                return cls.objects(pk=sra['study_id']).modify(upsert=True, new=True, **sra)
-            else:
-                raise ValidationError('No study_id')
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this study.' % err)
-            logger.debug(sra)
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(sra)
-            raise err
-        except Exception as err:
-            logger.error(err)
-            logger.debug(sra)
-            raise err
 
 class Attribute(EmbeddedDocument):
     name = StringField()
     value = StringField()
+
 
 # Sample
 class Sample(EmbeddedDocument):
@@ -565,43 +501,6 @@ class Sample(EmbeddedDocument):
 
     def __str__(self):
         return DocumentString(self).string
-
-    @classmethod
-    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        """Builds sample from an sramongo.SraExperiment.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no sample_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        sraExperiment: sramongo.SraExperiment
-            An sra object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the sraExperiment prior
-            to building.
-        """
-        try:
-            sra = sraExperiment.sample
-            sra.update(kwargs)
-
-            if 'BioSample' in sra:
-                sra['BioSample'] = BioSample.objects(pk=sra['BioSample']).modify(
-                    upsert=True, new=True, biosample_id=sra['BioSample'])
-
-            if 'sample_id' in sra:
-                return cls.objects(pk=sra['sample_id']).modify(upsert=True, new=True, **sra)
-            else:
-                raise ValidationError('No sample_id')
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this sample.' % err)
-            logger.debug(sra)
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(sra)
-            raise err
 
 
 # Experiment
@@ -759,54 +658,6 @@ class Experiment(EmbeddedDocument):
 
     def __str__(self):
         return DocumentString(self).string
-
-    @classmethod
-    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        """Builds experiment from an sramongo.SraExperiment.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no experiment_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        sraExperiment: sramongo.SraExperiment
-            An sra object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the sraExperiment prior
-            to building.
-        """
-        try:
-            sra = sraExperiment.experiment
-            sra.update(kwargs)
-
-            if ('study' in sra) and (isinstance(sra['study'], str)):
-                study = Study.objects(pk=sra['study']).modify(
-                            upsert=True, new=True, pk=sra['study'])
-
-            if 'samples' in sra:
-                ss = []
-                for _s in sra['samples']:
-                    if isinstance(_s, str):
-                        ss.append(Sample.objects(pk=_s).modify(
-                            upsert=True, new=True, pk=_s))
-
-                sra['samples'] = ss
-
-            if 'experiment_id' in sra:
-                return cls.objects(pk=sra['experiment_id']).modify(
-                        upsert=True, new=True, **sra)
-            else:
-                raise ValidationError('No experiment_id')
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this experiment.' % err)
-            logger.debug(sra)
-            raise err
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(sra)
-            raise err
 
 
 # Run

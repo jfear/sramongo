@@ -25,10 +25,16 @@ from sramongo.mongo_schema import Submission, Organization,  Study, \
 _DEBUG = False
 
 class Cache(object):
-    def __init__(self, directory='.cache/sra2mongo/sra'):
+    def __init__(self, directory='', clean=False):
         if not os.path.exists(directory):
             os.makedirs(directory)
+
         self.cachedir = os.path.abspath(directory)
+
+        if clean:
+            logger.info('Clearing cache: {}.'.format(cache.cachedir))
+            self.clear()
+
         self.cached = set([x.replace('.xml', '') for x in os.listdir(path=self.cachedir) if x.endswith('.xml')])
 
     def add_to_cache(self, name, _type, data):
@@ -103,8 +109,6 @@ def arguments():
 
     parser.add_argument("--force", dest="force", action='store_true', required=False,
                         help="Forces clearing the cache.")
-
-    # TODO add argument to connect to remote server
 
     return parser.parse_args()
 
@@ -215,45 +219,35 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
                         sys.exit(1)
 
 
-def add_sra_to_database(pkg, runinfo):
+def parse_sra(cache):
+    for xml, runinfo in cache:
+        logger.debug('Parsing: {}'.format(xml))
+        # Import XML
+        tree = ElementTree.parse(xml)
 
-    sraExperiment = SraExperiment(pkg)
+        # Import runinfo
+        ri = pd.read_csv(runinfo, index_col='Run')
 
-    # Add Experiment Package to database
-    # build subdocs
-    submission = Submission.build_from_SraExperiment(sraExperiment)
-    organization = Organization.build_from_SraExperiment(sraExperiment)
+        # Iterate over experiments and parse
+        for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
+            sraExperiment = SraExperiment(exp_pkg)
+            # Iterate over runs and update missing fields from runinfo
+            for i, run in enumerate(SraExperiment.sra.run):
+                srr = run.run_id
+                try:
+                    rinfo = runinfo.loc[srr].dropna().to_dict()
+                    if 'ReleaseDate' in rinfo:
+                        SraExperiment.sra.run[i]['release_date'] = rinfo['ReleaseDate']
+                    if 'LoadDate' in rinfo:
+                        SraExperiment.sra.run[i]['load_date'] = rinfo['LoadDate']
+                    if 'size_MB' in rinfo:
+                        SraExperiment.sra.run[i]['size_MB'] = rinfo['size_MB']
+                    if 'download_path' in rinfo:
+                        SraExperiment.sra.run[i]['download_path'] = rinfo['download_path']
+                except KeyError:
+                    pass
 
-    # Build study document
-    kwargs = {}
-    if submission is not None:
-        kwargs['submission'] = submission
-
-    if organization is not None:
-        kwargs['organization'] = organization
-
-    study = Study.build_from_SraExperiment(sraExperiment, **kwargs)
-
-    # Build sample document
-    sample = Sample.build_from_SraExperiment(sraExperiment)
-
-    # Build experiment document
-    kwargs = {}
-    if study is not None:
-        kwargs['study'] = study
-
-    experiment = Experiment.build_from_SraExperiment(
-        sraExperiment, samples=sraExperiment.samples, **kwargs)
-
-    # Add experiment id to study
-    if (study is not None) and (experiment is not None):
-        study.modify(push__experiments=experiment.experiment_id)
-
-    # Build run documents
-    runs = Run.build_from_SraExperiment(sraExperiment, runinfo)
-
-    if (experiment is not None) and (len(runs) > 1):
-        experiment.modify(push_all__runs=[run.run_id for run in runs])
+            Ncbi.objects(pk=SraExperiment.srx).modify(upsert=True, sra=SraExperiment.sra)
 
 
 def main():
@@ -268,59 +262,48 @@ def main():
     else:
         logger.setLevel(INFO)
 
-    cache = Cache()
-    if args.force:
-        logger.info('Clearing cache: {}.'.format(cache.cachedir))
-        cache.clear()
-
     # Set email for entrez so they can contact if abbuse. Required by
     # biopython.
     Entrez.email = args.email
 
-    # TODO add test to see if a server is running.
+    # Connect to mongo server
     logger.info('Starting MongoDB')
     with MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port):
         logger.info('Connecting to: {}'.format(args.db))
         connect(args.db)
 
+        # SRA
         logger.info('Querying SRA: {}'.format(args.query))
         sra_query = ncbi_query(args.query)
 
         logger.info('Downloading documents')
+        cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
+
         logger.info('Saving to cache: {}'.format(cache.cachedir))
         fetch_sra(sra_query, cache)
 
-        logger.info('Adding documents to database')
-        for xml, runinfo in cache:
-            logger.debug('Parsing: {}'.format(xml))
-            tree = ElementTree.parse(xml)
-            ri = pd.read_csv(runinfo, index_col='Run')
-            for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
-                add_sra_to_database(exp_pkg, ri)
+        logger.info('Parsing SRA XML')
+        parse_sra(cache)
 
-        logger.info('{:,} Studies'.format(Study.objects.count()))
-        logger.info('{:,} Experiments'.format(Experiment.objects.count()))
-        logger.info('{:,} Runs'.format(Run.objects.count()))
-
-        # Query BioSample
-        bs_cache = Cache(directory='.cache/sra2mongo/biosample')
-        biosample_accn = list(BioSample.objects.distinct('biosample_id'))
-
-        logger.info('Querying BioSample: with {:,} ids'.format(len(biosample_accn)))
-        logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
-        bs_query = ncbi_query(biosample_accn, db='biosample')
-
-        logger.info('Downloading BioSample documents')
-        logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
-        fetch_sra(bs_query, bs_cache, runinfo_retmode=None, db='biosample')
-
-        logger.info('Adding documents to database')
-        for xml in bs_cache:
-            logger.debug('Parsing: {}'.format(xml))
-            tree = ElementTree.parse(xml)
-            for pkg in tree.findall('BioSample'):
-                bs = BioSampleParse(pkg)
-                b = BioSample.build_from_BioSample(bs)
+#         # Query BioSample
+#         bs_cache = Cache(directory='.cache/sra2mongo/biosample')
+#         biosample_accn = list(BioSample.objects.distinct('biosample_id'))
+#
+#         logger.info('Querying BioSample: with {:,} ids'.format(len(biosample_accn)))
+#         logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
+#         bs_query = ncbi_query(biosample_accn, db='biosample')
+#
+#         logger.info('Downloading BioSample documents')
+#         logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
+#         fetch_sra(bs_query, bs_cache, runinfo_retmode=None, db='biosample')
+#
+#         logger.info('Adding documents to database')
+#         for xml in bs_cache:
+#             logger.debug('Parsing: {}'.format(xml))
+#             tree = ElementTree.parse(xml)
+#             for pkg in tree.findall('BioSample'):
+#                 bs = BioSampleParse(pkg)
+#                 b = BioSample.build_from_BioSample(bs)
 
 
 if __name__ == '__main__':
