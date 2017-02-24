@@ -34,8 +34,19 @@ class SraExperiment(object):
                 'study': self._parse_study(node.find('STUDY')),
                 'experiment': self._parse_experiment(node.find('EXPERIMENT')),
                 'run': self._parse_run(node.find('RUN_SET')),
-                'sample': self._parse_sample(node.find('SAMPLE'))
+                'sample': self._parse_sample(node.find('SAMPLE')),
+                'db_flags': set()
                 }
+
+        # Add flags from Experiment
+        if (self.sra['experiment']['library_source'] == 'TRANSCRIPTOMIC') | (self.sra['experiment']['library_strategy'] == 'RNA-Seq'):
+            self.sra['experiment']['db_flags'].add('RNASeq')
+
+        if self.sra['experiment']['library_layout'] == 'SINGLE':
+            self.sra['experiment']['db_flags'].add('SE')
+        elif d['library_layout'] == 'PAIRED':
+            self.sra['experiment']['db_flags'].add('PE')
+
         #TODO: What needs done with samples
         self.samples = self._parse_pool(node.find('Pool'))
 
@@ -333,7 +344,6 @@ class SraExperiment(object):
     def _parse_experiment(self, node):
         """Parses experiment section."""
         d = dict()
-        d['db_flags'] = set()
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'experiment'))
         d.update(self._parse_links(node.find('EXPERIMENT_LINKS')))
@@ -391,9 +401,7 @@ class SraExperiment(object):
                         return {name: c}
             else:
                 logger.error('"{}" not found in {}.'.format(dat[name], name))
-#                 raise XMLSchemaException(name)
                 return {}
-
 
         d.update(_clean_const(d, 'library_strategy'))
         d.update(_clean_const(d, 'library_source'))
@@ -404,18 +412,6 @@ class SraExperiment(object):
         # Update instrument model if depricated
         d['instrument_model'] = INSTRUMENT_MODEL_DEPRICATED.get(d['instrument_model'], d['instrument_model'])
         d.update(_clean_const(d, 'instrument_model'))
-
-        # Add flags
-        d['db_flags'] = set()
-
-        if (d['library_source'] == 'TRANSCRIPTOMIC') | (d['library_strategy'] == 'RNA-Seq'):
-            d['db_flags'].add('RNASeq')
-
-        if d['library_layout'] == 'SINGLE':
-            d['db_flags'].add('SE')
-        elif d['library_layout'] == 'PAIRED':
-            d['db_flags'].add('PE')
-
         d = self._drop_empty(d)
         return d
 
