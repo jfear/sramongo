@@ -42,12 +42,12 @@ class SraExperiment(object):
 
         # Add db flags
         if (self.sra['experiment']['library_source'] == 'TRANSCRIPTOMIC') | (self.sra['experiment']['library_strategy'] == 'RNA-Seq'):
-            self.sra['experiment']['db_flags'].add('RNASeq')
+            self.sra['db_flags'].add('RNASeq')
 
         if self.sra['experiment']['library_layout'] == 'SINGLE':
-            self.sra['experiment']['db_flags'].add('SE')
-        elif d['library_layout'] == 'PAIRED':
-            self.sra['experiment']['db_flags'].add('PE')
+            self.sra['db_flags'].add('SE')
+        elif self.sra['experiment']['library_layout'] == 'PAIRED':
+            self.sra['db_flags'].add('PE')
 
     def _raise_xref_status(self, xref):
         """Some xrefs are more imporant and I want to pull them out.
@@ -300,7 +300,7 @@ class SraExperiment(object):
         node: xml.etree.ElementTree.ElementTree.Element
             Node where the root is 'EXPERIMENT_ATTRIBUTES'.
         """
-        attributes
+        attributes = []
         for attribute in node.getchildren():
             attributes.append({'name': attribute.find('TAG').text,
                       'value': attribute.find('VALUE').text})
