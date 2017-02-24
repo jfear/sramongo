@@ -5,6 +5,7 @@ from textwrap import dedent
 from sramongo.sra import SraExperiment
 from sramongo.biosample import BioSampleParse
 from sramongo.bioproject import BioProjectParse
+from sramongo.pubmed import PubmedParse
 from sramongo.mongo_schema import URLLink, Xref, XrefLink, \
     EntrezLink, DDBJLink, ENALink, Submission, Organization, \
     Study, Sample, Experiment, Run, BioSample, Ncbi
@@ -175,9 +176,17 @@ class TestSRR3001915:
         return BioProjectParse(root.find('DocumentSummary'))
 
     @pytest.fixture(scope='class')
-    def Ncbi(self, sraExperiment, bioSample, bioProject):
+    def Pubmed(self):
+        fname = 'tests/data/pubmed_26732976.xml'
+        tree = ElementTree.parse(fname)
+        root = tree.getroot()
+        return PubmedParse(root.find('PubmedArticle/MedlineCitation'))
+
+    @pytest.fixture(scope='class')
+    def Ncbi(self, sraExperiment, bioSample, bioProject, Pubmed):
         return Ncbi(srx=sraExperiment.srx, sra=sraExperiment.sra,
-                    biosample=[bioSample.biosample,], bioproject=bioProject.bioproject)
+                    biosample=[bioSample.biosample,], bioproject=bioProject.bioproject,
+                    pubmed=[Pubmed.pubmed,])
 
     def test_organization(self, Ncbi):
         assert Ncbi.sra.organization.name == 'NCBI'
@@ -299,3 +308,15 @@ class TestSRR3001915:
         assert Ncbi.bioproject['submission_id'] == 'SUB1475494'
         assert Ncbi.bioproject['submission_date'] == '2014-08-11'
         assert Ncbi.bioproject['last_update'] == '2016-04-20'
+
+    def test_pubmed(self, Ncbi):
+        assert Ncbi.pubmed[0].pubmed_id == '26732976'
+        assert Ncbi.pubmed[0].title.strip().split(' ')[0] == 'Comparison'
+        assert Ncbi.pubmed[0].title.strip().split(' ')[-1] == 'melanogaster.'
+        assert Ncbi.pubmed[0].date_created == '2016-01-06'
+        assert Ncbi.pubmed[0].date_completed == '2016-09-28'
+        assert Ncbi.pubmed[0].date_revised == '2016-10-19'
+        assert Ncbi.pubmed[0].citation == '17 BMC Genomics 2016'
+        assert Ncbi.pubmed[0].abstract.strip().split('\n')[1].split(' ')[0] == 'We'
+        assert Ncbi.pubmed[0].abstract.strip().split('\n')[2].split(' ')[1] == 'best'
+        assert Ncbi.pubmed[0].authors[0]['last_name'] == 'Lin'

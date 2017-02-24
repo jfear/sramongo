@@ -1,7 +1,7 @@
 """Module to parse pubmed XML."""
 from sramongo.xml_helpers import valid_path, parse_tree_from_dict
 
-class Pubmed(object):
+class PubmedParse(object):
     def __init__(self, node):
         self.pubmed = {}
         locs = {
