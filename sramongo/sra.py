@@ -417,18 +417,17 @@ class SraExperiment(object):
     def _parse_taxon(self, node):
         """Parse taxonomy informaiton."""
 
-        def crawl(node):
-            d = {}
+        def crawl(node, d=defaultdict(list)):
             for i in node:
-                name = i.get('name').replace('.', '_').replace('$', '')
-                d[name] = {'parent': node.get('name'),
-                           'total_count': int(i.get('total_count')),
-                           'self_count': int(i.get('self_count')),
-                           'tax_id': i.get('tax_id'),
-                           'rank': i.get('rank')
-                           }
+                d[i.get('rank')].append({
+                    'name': i.get('name').replace('.', '_').replace('$', ''),
+                    'parent': node.get('name'),
+                    'total_count': int(i.get('total_count')),
+                    'self_count': int(i.get('self_count')),
+                    'tax_id': i.get('tax_id'),
+                    })
                 if i.getchildren():
-                    d.update(crawl(i))
+                    d.update(crawl(i, d))
             return d
 
         d = {'tax_analysis': {'nspot_analyze': node.get('analyzed_spot_count'),
