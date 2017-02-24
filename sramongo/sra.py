@@ -35,6 +35,7 @@ class SraExperiment(object):
                 'experiment': self._parse_experiment(node.find('EXPERIMENT')),
                 'run': self._parse_run(node.find('RUN_SET')),
                 'sample': self._parse_sample(node.find('SAMPLE')),
+                'pool': self._parse_pool(node.find('Pool')),
                 'db_flags': set()
                 }
 
@@ -46,9 +47,6 @@ class SraExperiment(object):
             self.sra['experiment']['db_flags'].add('SE')
         elif d['library_layout'] == 'PAIRED':
             self.sra['experiment']['db_flags'].add('PE')
-
-        #TODO: What needs done with samples
-        self.samples = self._parse_pool(node.find('Pool'))
 
     def _raise_xref_status(self, xref):
         """Some xrefs are more imporant and I want to pull them out.

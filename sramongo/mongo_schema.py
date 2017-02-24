@@ -5,7 +5,7 @@ import datetime
 from mongoengine import Document, EmbeddedDocument
 from mongoengine import StringField, IntField, FloatField, \
     ListField, DictField, MapField, DateTimeField
-from mongoengine import EmbeddedDocumentField, ReferenceField, signals
+from mongoengine import EmbeddedDocumentField, signals
 from mongoengine.errors import ValidationError, FieldDoesNotExist
 
 from sramongo.sra import SraExperiment
@@ -187,56 +187,7 @@ class ENALink(XrefLink):
         return DocumentString(self).string
 
 
-# Study
-class Submission(EmbeddedDocument):
-    """Submission embedded document.
-
-    A submission must have a submission id (SRA/ERA/DRA). Additional metadata
-    may be present about the submitter and external links to other databases.
-    """
-    submission_id = StringField(primary_key=True)
-    broker = StringField()
-
-    # Other IDS
-    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
-    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
-    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
-    uuid = ListField(StringField(), default=list)
-
-    def __str__(self):
-        return DocumentString(self).string
-
-    @classmethod
-    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        """Builds submission from an sramongo.SraExperiment.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no submission_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        sraExperiment: sramongo.SraExperiment
-            An sra object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the sraExperiment prior
-            to building.
-        """
-        try:
-            sra = sraExperiment.submission
-            sra.update(kwargs)
-            submission = cls(**sra)
-            return submission
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this submission.' % err)
-            logger.debug(sra)
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(sra)
-            raise err
-
-
+# Organization
 class Organization(EmbeddedDocument):
     """Organization embedded document.
 
@@ -285,11 +236,62 @@ class Organization(EmbeddedDocument):
             raise err
 
 
+# Submission
+class Submission(EmbeddedDocument):
+    """Submission embedded document.
+
+    A submission must have a submission id (SRA/ERA/DRA). Additional metadata
+    may be present about the submitter and external links to other databases.
+    """
+    submission_id = StringField()
+    broker = StringField()
+
+    # Other IDS
+    external_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
+    uuid = ListField(StringField(), default=list)
+
+    def __str__(self):
+        return DocumentString(self).string
+
+    @classmethod
+    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
+        """Builds submission from an sramongo.SraExperiment.
+
+        Pulls in information and tries to validate. If there is a
+        ValidationError (i.e. no submission_id or additional fields that have
+        not been defined) then return None.
+
+        Parameters
+        ----------
+        sraExperiment: sramongo.SraExperiment
+            An sra object parsed from XML.
+        kwargs:
+            Other name arguments will be used to update the sraExperiment prior
+            to building.
+        """
+        try:
+            sra = sraExperiment.submission
+            sra.update(kwargs)
+            submission = cls(**sra)
+            return submission
+        except ValidationError as err:
+            logger.warn('%s\nSkipping this submission.' % err)
+            logger.debug(sra)
+            return None
+        except FieldDoesNotExist as err:
+            logger.error(err)
+            logger.debug(sra)
+            raise err
+
+
+# Study
 class RelatedStudy(XrefLink):
     is_primary = StringField()
 
 
-class Study(Document):
+class Study(EmbeddedDocument):
     """The contents of a SRA study.
 
     A study consists of a set of experiments designed with an overall goal in
@@ -375,7 +377,7 @@ class Study(Document):
     experiments: mongoengine.ListField
         List of experiment_ids that are in this study.
     """
-    study_id = StringField(primary_key=True)
+    study_id = StringField()
 
     # Look through the external/secondary/submitter for these database xrefs
     # and pull them out for easy access.
@@ -407,11 +409,6 @@ class Study(Document):
     entrez_links = ListField(EmbeddedDocumentField(EntrezLink), default=list)
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
-
-    # NOTE: Additional Fields added post creation
-    submission = EmbeddedDocumentField(Submission)
-    organization = EmbeddedDocumentField(Organization)
-    experiments = ListField(StringField(), default=list)
 
     def __str__(self):
         return DocumentString(self).string
@@ -452,9 +449,12 @@ class Study(Document):
             logger.debug(sra)
             raise err
 
+class Attribute(EmbeddedDocument):
+    name = StringField()
+    value = StringField()
 
-# Samples
-class Sample(Document):
+# Sample
+class Sample(EmbeddedDocument):
     """The contents of a SRA sample.
 
     A sample is the biological unit. An individual sample or a pool of samples
@@ -532,12 +532,12 @@ class Sample(Document):
 
     """
     # SRS/DRS/ERS
-    sample_id = StringField(primary_key=True)
+    sample_id = StringField()
 
     # Look through the external/secondary/submitter for these database xrefs
     # and pull them out for easy access.
     GEO = StringField()
-    BioSample = ReferenceField('BioSample')
+    BioSample = StringField()
     BioProject = StringField()
     pubmed = StringField()
 
@@ -554,7 +554,7 @@ class Sample(Document):
     common_name = StringField()
     individual_name = StringField()
     description = StringField()
-    attributes = DictField()
+    attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
 
     # External links
     url_links = ListField(EmbeddedDocumentField(URLLink), default=list)
@@ -562,8 +562,6 @@ class Sample(Document):
     entrez_links = ListField(EmbeddedDocumentField(EntrezLink), default=list)
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
-
-    meta = {'allow_inheritance': True}
 
     def __str__(self):
         return DocumentString(self).string
@@ -607,7 +605,7 @@ class Sample(Document):
 
 
 # Experiment
-class Experiment(Document):
+class Experiment(EmbeddedDocument):
     """Experiment Document.
 
     An experiment describes an individual library. This library is made from a
@@ -720,7 +718,7 @@ class Experiment(Document):
 
     """
     # SRX/DRX/ERX
-    experiment_id = StringField(primary_key=True)
+    experiment_id = StringField()
 
     # Look through the external/secondary/submitter for these database xrefs
     # and pull them out for easy access.
@@ -750,7 +748,7 @@ class Experiment(Document):
     library_construction_protocol = StringField()
     platform = StringField()
     instrument_model = StringField()
-    attributes = DictField()
+    attributes = ListField(EmbeddedDocument(Attribute), default=list)
 
     # External links
     url_links = ListField(EmbeddedDocumentField(URLLink), default=list)
@@ -758,15 +756,6 @@ class Experiment(Document):
     entrez_links = ListField(EmbeddedDocumentField(EntrezLink), default=list)
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
-
-    # NOTE: Additional Fields added post creation
-    study = ReferenceField(Study)
-    samples = ListField(ReferenceField(Sample), default=list)
-    runs = ListField(StringField(), default=list)
-    db_flags = ListField(StringField(), default=list)
-    pipeline_flags = ListField(StringField(), default=list)
-
-    meta = {'allow_inheritance': True}
 
     def __str__(self):
         return DocumentString(self).string
@@ -842,8 +831,7 @@ class TaxAnalysis(EmbeddedDocument):
         return DocumentString(self).string
 
 
-@update_modified.apply
-class Run(Document):
+class Run(EmbeddedDocument):
     """Run Document.
 
     A Run describes a dataset generated from an Experiment. For example if a
@@ -935,7 +923,7 @@ class Run(Document):
 
     """
     # SRR/DRR/ERR
-    run_id = StringField(primary_key=True)
+    run_id = StringField()
 
     # Other IDs
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
@@ -959,7 +947,6 @@ class Run(Document):
     read_len_r2 = FloatField()
 
     # NOTE: Additional Fields added post creation
-    experiment = ReferenceField(Experiment)
     release_date = StringField()
     load_date = StringField()
     size_MB = IntField()
@@ -1047,6 +1034,20 @@ class Run(Document):
         return runs
 
 
+# SRA holder subdocument
+class Sra(EmbeddedDocument):
+    """SubDocument containg all SRA data."""
+    submission = EmbeddedDocumentField(Submission)
+    organization = EmbeddedDocumentField(Organization)
+    study = EmbeddedDocumentField(Study)
+    sample = EmbeddedDocumentField(Sample)
+    experiment = EmbeddedDocumentField(Experiment)
+    run = EmbeddedDocumentField(Run)
+    pool = ListField(DictField(), default=list)
+    db_flags = ListField(StringField(), default=list)
+
+
+# BioSample
 class Contacts(EmbeddedDocument):
     email = StringField()
     first_name = StringField()
@@ -1056,8 +1057,7 @@ class Contacts(EmbeddedDocument):
         return DocumentString(self).string
 
 
-# BioSample
-class BioSample(Document):
+class BioSample(EmbeddedDocument):
     """The contents of a BioSample.
 
     BioSample is another database housed at NCBI which records sample metadata.
@@ -1122,7 +1122,7 @@ class BioSample(Document):
         or sex:female.
 
     """
-    biosample_id = StringField(primary_key=True)
+    biosample_id = StringField()
     biosample_secondary = StringField()
     db_id = StringField()
     sample_id = StringField()
@@ -1191,7 +1191,7 @@ class BioSample(Document):
 
 
 # BioProject
-class BioProject(Document):
+class BioProject(EmbeddedDocument):
     """The contents of a BioProject.
 
     BioProject is another database housed at NCBI which records project
@@ -1233,7 +1233,7 @@ class BioProject(Document):
         List of additional external ids.
 
     """
-    bioproject_id = StringField(primary_key=True)
+    bioproject_id = StringField()
     name = StringField()
     title = StringField()
     description = StringField()
@@ -1286,7 +1286,7 @@ class BioProject(Document):
 
 
 # Pubmed
-class Pubmed(Document):
+class Pubmed(EmbeddedDocument):
     """The contents of a Pubmed document.
 
     This document contains specific information about publications.
@@ -1319,7 +1319,7 @@ class Pubmed(Document):
         Date the pubmed entry was last updated.
 
     """
-    pubmed_id = StringField(primary_key=True)
+    pubmed_id = StringField()
     title = StringField()
     abstract = StringField()
     authors = ListField(DictField())
@@ -1366,3 +1366,22 @@ class Pubmed(Document):
             logger.error(err)
             logger.debug(bio)
             raise err
+
+
+# GEO
+class Geo(EmbeddedDocument):
+    """Subdocument for GEO."""
+    pass
+
+
+# Main Document class
+class Ncbi(Document):
+    """Document class that contains data from various NCBI databases.
+
+    """
+    srx = StringField(primary_key=True)
+    sra = EmbeddedDocumentField(Sra)
+    biosample = ListField(EmbeddedDocumentField(BioSample))
+    bioproject = EmbeddedDocumentField(BioProject)
+    geo = EmbeddedDocumentField(Geo)
+    pubmed = ListField(EmbeddedDocumentField(Pubmed), default=list)
