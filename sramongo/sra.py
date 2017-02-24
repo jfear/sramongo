@@ -36,10 +36,11 @@ class SraExperiment(object):
                 'run': self._parse_run(node.find('RUN_SET')),
                 'sample': self._parse_sample(node.find('SAMPLE')),
                 'pool': self._parse_pool(node.find('Pool')),
-                'db_flags': set()
+                'db_flags': set(),
+                'db_imported': datetime.datetime.now,
                 }
 
-        # Add flags from Experiment
+        # Add db flags
         if (self.sra['experiment']['library_source'] == 'TRANSCRIPTOMIC') | (self.sra['experiment']['library_strategy'] == 'RNA-Seq'):
             self.sra['experiment']['db_flags'].add('RNASeq')
 
@@ -536,13 +537,10 @@ class SraExperiment(object):
         runs = []
         for run in node.findall('RUN'):
             d = dict()
-            d['db_flags'] = set()
             d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
             d['samples'] = self._parse_pool(run.find('Pool'))
             d.update(self._parse_taxon(run.find('tax_analysis')))
             d.update(self._parse_run_reads(run.find('Statistics'), d['run_id']))
-            d['db_created'] = datetime.datetime.now
-            d['db_modified'] = datetime.datetime.now
 
             locs = {
                 'experiment_id': ('EXPERIMENT_REF', 'accession'),

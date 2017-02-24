@@ -946,17 +946,12 @@ class Run(EmbeddedDocument):
     read_count_r2 = FloatField()
     read_len_r2 = FloatField()
 
-    # NOTE: Additional Fields added post creation
+    # NOTE: Additional Fields not in the SRA XML but in summary table
     release_date = StringField()
     load_date = StringField()
     size_MB = IntField()
     download_path = StringField()
-    db_flags = ListField(StringField(), default=list)
-    pipeline_flags = ListField(StringField(), default=list)
-    db_created = DateTimeField(default=datetime.datetime.now)
-    db_modified = DateTimeField()
 
-    meta = {'allow_inheritance': True}
 
     def __str__(self):
         return DocumentString(self).string
@@ -1045,6 +1040,7 @@ class Sra(EmbeddedDocument):
     run = EmbeddedDocumentField(Run)
     pool = ListField(DictField(), default=list)
     db_flags = ListField(StringField(), default=list)
+    db_imported = DateTimeField(default=datetime.datetime.now)
 
 
 # BioSample
@@ -1385,3 +1381,5 @@ class Ncbi(Document):
     bioproject = EmbeddedDocumentField(BioProject)
     geo = EmbeddedDocumentField(Geo)
     pubmed = ListField(EmbeddedDocumentField(Pubmed), default=list)
+
+    meta = {'allow_inheritance': True}
