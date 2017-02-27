@@ -154,11 +154,15 @@ class URLLink(EmbeddedDocument):
     label = StringField()
     url = StringField()
 
+    def __str__(self):
+        return DocumentString(self).string
 
 class Xref(EmbeddedDocument):
     db = StringField()
     id = StringField()
 
+    def __str__(self):
+        return DocumentString(self).string
 
 class XrefLink(EmbeddedDocument):
     label = StringField()
@@ -166,6 +170,8 @@ class XrefLink(EmbeddedDocument):
     id = StringField()
     meta = {'allow_inheritance': True}
 
+    def __str__(self):
+        return DocumentString(self).string
 
 class EntrezLink(XrefLink):
     query = StringField()
@@ -216,6 +222,8 @@ class Organization(EmbeddedDocument):
     first_name = StringField()
     last_name = StringField()
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # Submission
 class Submission(EmbeddedDocument):
@@ -256,6 +264,8 @@ class Submission(EmbeddedDocument):
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
     uuid = ListField(StringField(), default=list)
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # Study
 class RelatedStudy(XrefLink):
@@ -373,11 +383,15 @@ class Study(EmbeddedDocument):
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
+    def __str__(self):
+        return DocumentString(self).string
 
 class Attribute(EmbeddedDocument):
     name = StringField()
     value = StringField()
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # Sample
 class Sample(EmbeddedDocument):
@@ -489,6 +503,8 @@ class Sample(EmbeddedDocument):
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # Experiment
 class Experiment(EmbeddedDocument):
@@ -633,6 +649,8 @@ class Experiment(EmbeddedDocument):
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # Run
 class TaxRecord(EmbeddedDocument):
@@ -642,6 +660,8 @@ class TaxRecord(EmbeddedDocument):
     tax_id = StringField()
     name = StringField()
 
+    def __str__(self):
+        return DocumentString(self).string
 
 class TaxAnalysis(EmbeddedDocument):
     nspot_analyze = IntField()
@@ -649,6 +669,8 @@ class TaxAnalysis(EmbeddedDocument):
     mapped_spots = IntField()
     tax_counts = MapField(ListField(EmbeddedDocumentField(TaxRecord), default=list))
 
+    def __str__(self):
+        return DocumentString(self).string
 
 class Run(EmbeddedDocument):
     """Run Document.
@@ -789,6 +811,8 @@ class Run(EmbeddedDocument):
     size_MB = IntField()
     download_path = StringField()
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # SRA holder subdocument
 class Sra(EmbeddedDocument):
@@ -816,6 +840,8 @@ class Sra(EmbeddedDocument):
     db_flags = ListField(StringField(), default=list)
     db_imported = DateTimeField(default=datetime.datetime.now)
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # BioSample
 class Contacts(EmbeddedDocument):
@@ -823,6 +849,8 @@ class Contacts(EmbeddedDocument):
     first_name = StringField()
     last_name = StringField()
 
+    def __str__(self):
+        return DocumentString(self).string
 
 class BioSample(EmbeddedDocument):
     """The contents of a BioSample.
@@ -907,6 +935,8 @@ class BioSample(EmbeddedDocument):
     models = ListField(StringField())
     attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # BioProject
 class BioProject(EmbeddedDocument):
@@ -962,6 +992,8 @@ class BioProject(EmbeddedDocument):
     submission_date = DateTimeField()
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # Pubmed
 class Pubmed(EmbeddedDocument):
@@ -1006,12 +1038,16 @@ class Pubmed(EmbeddedDocument):
     date_completed = DateTimeField()
     date_revised = DateTimeField()
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # GEO
 class Geo(EmbeddedDocument):
     """Subdocument for GEO."""
     pass
 
+    def __str__(self):
+        return DocumentString(self).string
 
 # Main Document class
 class Ncbi(Document):
