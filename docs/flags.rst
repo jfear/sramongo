@@ -6,10 +6,10 @@ Database Flags
 
 ``sra2mongo`` adds several flags based on data found in the SRA metadata.  These
 flags are created to make querying specific metadata easier. Flags can be at
-either the `Experiment`_ level or the `Run`_ level.
+either the `Ncbi`_ level or the `Run`_ level.
 
-Experiment
-==========
+Ncbi
+====
 
 SE
     Single-end reads according to the SRA ``library_layout``.

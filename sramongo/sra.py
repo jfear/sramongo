@@ -421,7 +421,8 @@ class SraExperiment(object):
 
         def crawl(node, d=defaultdict(list)):
             for i in node:
-                d[i.get('rank')].append({
+                rank = i.get('rank', 'Unkown')
+                d[rank].append({
                     'name': i.get('name').replace('.', '_').replace('$', ''),
                     'parent': node.get('name'),
                     'total_count': int(i.get('total_count')),
@@ -478,12 +479,12 @@ class SraExperiment(object):
         except:
             # Sometimes nreads is set to 'variable' and no read information is
             # provided. I set these values to -1.
-            if d['nreads'] == 'varaible':
+            if nreads == 'variable':
                 d['nreads'] = -1
                 d['run_flags'].add('no_read_information')
             else:
                 raise ValueError('nreads is "{}", this value is not expected. '
-                                 'Please adjust "sra.py" to account for this.'.format(d['nreads']))
+                                 'Please adjust "sra.py" to account for this.'.format(nreads))
 
         if d['nreads'] == 1:
             # Single-ended Reads

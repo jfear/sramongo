@@ -150,6 +150,7 @@ INSTRUMENT_MODEL_ACTIVE = [
     "Illumina HiSeq X Five",
     "Illumina HiSeq X Ten",
     "Illumina MiSeq",
+    "Illumina MiniSeq",
     "Ion Torrent PGM",
     "Ion Torrent Proton",
     "NextSeq 500",

@@ -40,7 +40,7 @@ options run ``sra2mongo -h``. A simple query would look like:
        --query '"Drosophila melanogaster[orgn]"'
 
 The ``\`` allows for breaking the command on multiple lines. This command will
-query the SRA for ``"Drosophila melanogaster[orgn]"``, download the XML for all
+query the SRA for ``"Drosophila melanogaster"[orgn]``, download the XML for all
 of the runs, and parse the XML into a database named 'sra' that is stored in the
 user's home folder. If the mongo database was running then the script will
 connect to the instance, if it is not running the script will startup a mongodb
@@ -73,7 +73,8 @@ subclass the ODMs and add fields to them.
 
 For example, let's imagine that you have a workflow that runs fastq screen on
 each run and you want to store a list of potential contaminants in the database.
-We would start by subclassing the ``Run`` ODM and then adding a field to store these
+We would start by subclassing the ``Ncbi`` ODM and then adding a field to store
+these
 contaminants. My base ODM class uses mongoengine_ so you must use the
 `mongoengine syntax <http://docs.mongoengine.org/guide/defining-documents.html>`__.
 
@@ -82,25 +83,23 @@ contaminants. My base ODM class uses mongoengine_ so you must use the
    from mongoengine import ListField, StringField
    from sramongo import mongo_schema
 
-   class myRun(mongo_schema.Run):
+   class myNcbi(mongo_schema.Ncbi):
        """My custom Run ODM."""
        fastq_screen = ListField(StrinField(), default=list)
 
 .. note::
     When using mongoengine it stores a hidden variable in each document
     describing the mongoengine class used to create the document. For example,
-    if you used sra2mongo to build the database the ``Run`` document would have
-    ``_cls = Run``. **If you subclass Run you must change this value to add your
-    subclass name.** Given our example above:
+    if you used sra2mongo to build the database the ``Ncbi`` document would have
+    ``_cls = Ncbi``. **If you subclass Ncbi you must change this value to add
+    your subclass name.** Given our example above:
 
     .. code:: python
 
         from mongoengine import connect
 
         client = connect('sra')
-        client.sra.run.update_many({}, {'$set': {'_cls': 'Run.myRun'}})
-
-    Similarly if you subclass `Experiment`, `Study`, or `Sample`.
+        client.sra.ncbi.update_many({}, {'$set': {'_cls': 'Ncbi.myNcbi'}})
 
 .. _mongoengine: http://mongoengine.org
 

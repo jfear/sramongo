@@ -14,13 +14,15 @@ from shutil import rmtree
 
 from Bio import Entrez
 from mongoengine import connect
+from mongoengine.errors import ValidationError
 
 from sramongo.logger import logger
 from sramongo.mongo import MongoDB
 from sramongo.sra import SraExperiment, XMLSchemaException
 from sramongo.biosample import BioSampleParse
-from sramongo.mongo_schema import Submission, Organization,  Study, \
-    Sample, Experiment, Run, BioSample
+from sramongo.mongo_schema import Ncbi
+
+from ipdb import slaunch_ipdb_on_exception
 
 _DEBUG = False
 
@@ -226,28 +228,29 @@ def parse_sra(cache):
         tree = ElementTree.parse(xml)
 
         # Import runinfo
-        ri = pd.read_csv(runinfo, index_col='Run')
+        runinfo = pd.read_csv(runinfo, index_col='Run')
 
         # Iterate over experiments and parse
         for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
             sraExperiment = SraExperiment(exp_pkg)
             # Iterate over runs and update missing fields from runinfo
-            for i, run in enumerate(SraExperiment.sra.run):
-                srr = run.run_id
+            for i, run in enumerate(sraExperiment.sra['run']):
+                srr = run['run_id']
                 try:
                     rinfo = runinfo.loc[srr].dropna().to_dict()
                     if 'ReleaseDate' in rinfo:
-                        SraExperiment.sra.run[i]['release_date'] = rinfo['ReleaseDate']
+                        sraExperiment.sra['run'][i]['release_date'] = rinfo['ReleaseDate']
                     if 'LoadDate' in rinfo:
-                        SraExperiment.sra.run[i]['load_date'] = rinfo['LoadDate']
+                        sraExperiment.sra['run'][i]['load_date'] = rinfo['LoadDate']
                     if 'size_MB' in rinfo:
-                        SraExperiment.sra.run[i]['size_MB'] = rinfo['size_MB']
+                        sraExperiment.sra['run'][i]['size_MB'] = rinfo['size_MB']
                     if 'download_path' in rinfo:
-                        SraExperiment.sra.run[i]['download_path'] = rinfo['download_path']
+                        sraExperiment.sra['run'][i]['download_path'] = rinfo['download_path']
                 except KeyError:
                     pass
 
-            Ncbi.objects(pk=SraExperiment.srx).modify(upsert=True, sra=SraExperiment.sra)
+            with slaunch_ipdb_on_exception():
+                Ncbi.objects(pk=sraExperiment.srx).modify(upsert=True, sra=sraExperiment.sra)
 
 
 def main():

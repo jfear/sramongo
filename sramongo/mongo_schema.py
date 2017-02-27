@@ -57,6 +57,7 @@ class DocumentString(object):
         ----------
         dictionary: dict
             A dictionary with values to be turned into a string.
+
         spacer: int
             The amount of indention to use. As we go down further into a
             hierarchy indent values further.
@@ -84,10 +85,13 @@ class DocumentString(object):
         ----------
         key: str
             Key of the item.
+
         value: str
             Value of the item.
+
         spacer: int
             Length of the indention.
+
         """
         spacer = ' ' * spacer
         if value is not None:
@@ -104,10 +108,13 @@ class DocumentString(object):
         ----------
         key: str
             Key of the item.
+
         value: list
             Value of the item.
+
         spacer: int
             Length of the indention.
+
         """
         spacer = ' ' * spacer
         if len(value) > 0:
@@ -126,10 +133,13 @@ class DocumentString(object):
         ----------
         key: str
             Key of the item.
+
         value: mongoengine.Document|mongoengine.EmbeddedDocument
             Value of the item.
+
         spacer: int
             Length of the indention.
+
         """
         spacer = ' ' * spacer
         self.string += spacer + '{}:\n'.format(key)
@@ -144,16 +154,10 @@ class URLLink(EmbeddedDocument):
     label = StringField()
     url = StringField()
 
-    def __str__(self):
-        return DocumentString(self).string
-
 
 class Xref(EmbeddedDocument):
     db = StringField()
     id = StringField()
-
-    def __str__(self):
-        return DocumentString(self).string
 
 
 class XrefLink(EmbeddedDocument):
@@ -162,37 +166,48 @@ class XrefLink(EmbeddedDocument):
     id = StringField()
     meta = {'allow_inheritance': True}
 
-    def __str__(self):
-        return DocumentString(self).string
-
 
 class EntrezLink(XrefLink):
     query = StringField()
-
-    def __str__(self):
-        return DocumentString(self).string
 
 
 class DDBJLink(XrefLink):
     url = StringField()
 
-    def __str__(self):
-        return DocumentString(self).string
-
 
 class ENALink(XrefLink):
     url = StringField()
-
-    def __str__(self):
-        return DocumentString(self).string
 
 
 # Organization
 class Organization(EmbeddedDocument):
     """Organization embedded document.
 
-    An organization has not defined id, so there are no required fields. This
-    may result in multiple copies in the database.
+    An organization contains information about the group that submitted to sra.
+    For example, all data submitted to GEO are submitted to SRA using the GEO
+    credentials.
+
+    Attributes
+    ----------
+    organization_type: str
+        Weather this organization is a center or individual or some other kind
+        of group.
+
+    abbreviation: str
+        A short name for the organization.
+
+    name: str
+        Name of the organization.
+
+    emai: str
+        Contact email address.
+
+    first_name: str
+        First name of the person who submitted the data.
+
+    last_name: str
+        First name of the person who submitted the data.
+
     """
     organization_type = StringField()
     abbreviation = StringField()
@@ -200,48 +215,37 @@ class Organization(EmbeddedDocument):
     email = StringField()
     first_name = StringField()
     last_name = StringField()
-    # TODO: Look into creating a primary key using first_name and last_name
-
-    def __str__(self):
-        return DocumentString(self).string
-
-    @classmethod
-    def build_from_SraExperiment(cls, sraExperiment, **kwargs):
-        """Builds organization from an sramongo.SraExperiment.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        sraExperiment: sramongo.SraExperiment
-            An sra object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the sraExperiment prior
-            to building.
-        """
-        try:
-            sra = sraExperiment.organization
-            sra.update(kwargs)
-            organization = cls(**sra)
-            return organization
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this organization.' % err)
-            logger.debug(sra)
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(sra)
-            raise err
 
 
 # Submission
 class Submission(EmbeddedDocument):
     """Submission embedded document.
 
-    A submission must have a submission id (SRA/ERA/DRA). Additional metadata
-    may be present about the submitter and external links to other databases.
+    A submission is a group of experiments that are uploaded. This is the
+    highest level container for information in the SRA. Typically not useful
+    unless trying to track down the submitter.
+
+    Attributes
+    ----------
+    submission_id: mongoengine.StringField
+        This is ID will start with SRA/ERA/DRA depending on the originating
+        database.
+
+    broker: mongoengine.StringField
+        Name of the group that submitted the data.
+
+    external_id: mongoengine.ListField of mongoengine.EmbeddedDocumentField(Xref)
+        External identifiers stored as {'db': value, 'id': value}
+
+    secondary_id: mongoengine.ListField of mongoengine.EmbeddedDocumentField(Xref)
+        Secondary identifiers stored as {'db': value, 'id': value}
+
+    submitter_id: mongoengine.ListField of mongoengine.EmbeddedDocumentField(Xref)
+        submitter identifiers stored as {'db': value, 'id': value}
+
+    uuid: mongoengine.ListField
+        A list of associated uuids.
+
     """
     submission_id = StringField()
     broker = StringField()
@@ -251,9 +255,6 @@ class Submission(EmbeddedDocument):
     secondary_id = ListField(EmbeddedDocumentField(Xref), default=list)
     submitter_id = ListField(EmbeddedDocumentField(Xref), default=list)
     uuid = ListField(StringField(), default=list)
-
-    def __str__(self):
-        return DocumentString(self).string
 
 
 # Study
@@ -338,14 +339,6 @@ class Study(EmbeddedDocument):
     ena_links: mongoengine.ListField
         List of Europe's ena links.
 
-    submission: mongoengine.EmbeddedDocumentField
-        A dictionary describing attributes about the Submission.
-
-    organization = mongoengine.EmbeddedDocumentField
-        A dictionary describing attributes about the Organization.
-
-    experiments: mongoengine.ListField
-        List of experiment_ids that are in this study.
     """
     study_id = StringField()
 
@@ -379,9 +372,6 @@ class Study(EmbeddedDocument):
     entrez_links = ListField(EmbeddedDocumentField(EntrezLink), default=list)
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
-
-    def __str__(self):
-        return DocumentString(self).string
 
 
 class Attribute(EmbeddedDocument):
@@ -499,9 +489,6 @@ class Sample(EmbeddedDocument):
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
-    def __str__(self):
-        return DocumentString(self).string
-
 
 # Experiment
 class Experiment(EmbeddedDocument):
@@ -585,8 +572,10 @@ class Experiment(EmbeddedDocument):
     instrument_model: mongoengine.StringField
         The instrument model, one of :ref:`instrumentModels`.
 
-    attributes: mongoengine.DictField
-        A set of key:value pairs describing the experiment.
+    attributes: mongoengine.ListField of mongoengine.DictField
+        A list of dictionaries containing key:value pairs describing the
+        experiment. The stored dictionaries are of the form {'name': value,
+        'value': value}. This was done to make querying easier.
 
     url_links: mongoengine.ListField
         List of url links
@@ -602,18 +591,6 @@ class Experiment(EmbeddedDocument):
 
     ena_links: mongoengine.ListField
         List of Europe's ena links.
-
-    study: mongoengine.ReferenceField
-        References the corresponding Study.
-
-    samples: mongoengine.ListField
-        List of references to corresponding samples.
-
-    runs: mongoengine.ListField
-        List of run_ids
-
-    db_flags: mongoengine.ListField
-        List of :ref:`database_flags`.
 
     """
     # SRX/DRX/ERX
@@ -656,9 +633,6 @@ class Experiment(EmbeddedDocument):
     ddbj_links = ListField(EmbeddedDocumentField(DDBJLink), default=list)
     ena_links = ListField(EmbeddedDocumentField(ENALink), default=list)
 
-    def __str__(self):
-        return DocumentString(self).string
-
 
 # Run
 class TaxRecord(EmbeddedDocument):
@@ -668,18 +642,12 @@ class TaxRecord(EmbeddedDocument):
     tax_id = StringField()
     name = StringField()
 
-    def __str__(self):
-        return DocumentString(self).string
-
 
 class TaxAnalysis(EmbeddedDocument):
     nspot_analyze = IntField()
     total_spots = IntField()
     mapped_spots = IntField()
     tax_counts = MapField(ListField(EmbeddedDocumentField(TaxRecord), default=list))
-
-    def __str__(self):
-        return DocumentString(self).string
 
 
 class Run(EmbeddedDocument):
@@ -723,8 +691,29 @@ class Run(EmbeddedDocument):
         A dictionary containing results from a taxonomic analysis. Some Runs are
         analyzed and the number of reads that align to different taxa are
         recorded. The taxanomic analysis is stored in the SRA as a hierarchy,
-        but it is stored here as a flat dictionary for easier access to
-        different classes.
+        but it is stored here as a flattend dictionary for easier access to
+        different classes. Basic structure is:
+
+            'nspoot_analyze': The number of spots analyzed,
+            'total_spots': The total number of spots,
+            'mapped_spots': The number of spots that were able to be mapped,
+            'tax_count': A dictionary containing actual taxonomic counts
+            organized by level in the tree of life:
+                'kingdom':
+                    ...
+                'species':
+                    'parent':
+                        Name of parent level
+                    'total_count':
+                        Number of mapped spots at this level and below.
+                    'self_count':
+                        Number of mapped spots at this level
+                    'tax_id':
+                        taxonomic identifier.
+                    'name':
+                        of this taxonomy.
+                'subspeciies':
+                    ...
 
     nreads: mongoengine.IntField
         The number of reads.
@@ -745,32 +734,26 @@ class Run(EmbeddedDocument):
         This is the avearge length of reads from the second read pair in pair
         ended data.
 
-    experiment: mongoengine.ReferenceField
-        This is an embedded reference to the corresponding experiment.
-
     release_date: mongoengine.StringField
-        Release date of the Run.
+        Release date of the Run. This information is from the runinfo table and
+        not the XML.
 
     load_date: mongoengine.StringField
-        Date the Run was uploaded.
+        Date the Run was uploaded. This information is from the runinfo table
+        and not the XML.
 
     size_MB: mongoengine.IntField
-        Size of the Run file.
+        Size of the Run file. This information is from the runinfo table and not
+        the XML.
 
     download_path: mongoengine.StringField
-        Download path of the Run file.
+        Download path of the Run file. This information is from the runinfo
+        table and not the XML.
 
-    db_flags: mongoengine.ListField
+    run_flags: mongoengine.ListField
         These are custom flags that I add. I have created these flags by
         interpreting specific information from data provided by the SRA. A list
         of :ref:`database_flags` and their descriptions.
-
-    db_created: mongoengine.DateTimeField
-        The date this document was added to the mongo database. In other words
-        when you downloaded the data.
-
-    db_modified: mongoengine.DateTimeField
-        This is the date the document was last modified in the mongo database.
 
     """
     # SRR/DRR/ERR
@@ -807,92 +790,29 @@ class Run(EmbeddedDocument):
     download_path = StringField()
 
 
-    def __str__(self):
-        return DocumentString(self).string
-
-    @classmethod
-    def build_from_SraExperiment(cls, sraExperiment, runinfo, **kwargs):
-        """Builds run from an sramongo.SraExperiment and a runinfo table.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no run_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        sraExperiment: sramongo.SraExperiment
-            An sra object parsed from XML.
-        runinfo: pandas.DataFrame
-            A runinfo table imported as a data frame.
-        kwargs:
-            Other name arguments will be used to update the sraExperiment prior
-            to building.
-        """
-        runs = []
-        for sra in sraExperiment.run:
-            try:
-                if 'experiment' in sra:
-                    sra['experiment'] = Experiment.objects(pk=sra['experiment']).modify(
-                        upsert=True, new=True, pk=sra['experiment'])
-
-                if 'run_id' in sra:
-                    run = cls.objects(pk=sra['run_id']).modify(upsert=True, new=True, **sra)
-                else:
-                    raise ValidationError('No run_id')
-
-                try:
-                    if runinfo.notnull().loc[run.run_id, 'ReleaseDate']:
-                        run.modify(release_date=runinfo.loc[run.run_id, 'ReleaseDate'])
-                except KeyError:
-                    pass
-
-                try:
-                    if runinfo.notnull().loc[run.run_id, 'LoadDate']:
-                        run.modify(load_date=runinfo.loc[run.run_id, 'LoadDate'])
-                except KeyError:
-                    pass
-
-                try:
-                    if runinfo.notnull().loc[run.run_id, 'size_MB']:
-                        run.modify(size_MB=int(runinfo.loc[run.run_id, 'size_MB']))
-                except KeyError:
-                    pass
-
-                try:
-                    if runinfo.notnull().loc[run.run_id, 'download_path']:
-                        run.modify(download_path=runinfo.loc[run.run_id, 'download_path'])
-                except KeyError:
-                    pass
-
-                try:
-                    run.modfiy(experiment=Experiment.objects(experiment_id=run.experiment_id).first())
-                except:
-                    pass
-
-                runs.append(run)
-
-            except ValidationError as err:
-                logger.warn('%s\nSkipping this run.' % err)
-                logger.debug(sra)
-                logger.debug(runinfo.loc[run.run_id, :])
-            except FieldDoesNotExist as err:
-                logger.error(err)
-                logger.debug(sra)
-                raise err
-
-        return runs
-
-
 # SRA holder subdocument
 class Sra(EmbeddedDocument):
-    """SubDocument containg all SRA data."""
+    """SubDocument containg all SRA data.
+
+    This is the general holder class for all SRA data. It has a couple of
+    summary fields generate at import time.
+
+    db_flags: mongoengine.ListField
+        List of :ref:`database_flags`.
+
+    db_imported: mongoengine.DateTimeField
+        The date this document was added to the mongo database. In other words
+        when you downloaded the data.
+
+    """
+
     submission = EmbeddedDocumentField(Submission)
     organization = EmbeddedDocumentField(Organization)
     study = EmbeddedDocumentField(Study)
     sample = EmbeddedDocumentField(Sample)
     experiment = EmbeddedDocumentField(Experiment)
     run = ListField(EmbeddedDocumentField(Run), default=list)
-    pool = ListField(DictField(), default=list)
+    pool = ListField(StringField(), default=list)
     db_flags = ListField(StringField(), default=list)
     db_imported = DateTimeField(default=datetime.datetime.now)
 
@@ -903,20 +823,16 @@ class Contacts(EmbeddedDocument):
     first_name = StringField()
     last_name = StringField()
 
-    def __str__(self):
-        return DocumentString(self).string
-
 
 class BioSample(EmbeddedDocument):
     """The contents of a BioSample.
 
     BioSample is another database housed at NCBI which records sample metadata.
-    This information should already be present in the SRA.Sample information,
+    This information should already be present in the Sra.sample information,
     but to be safe we can pull into the BioSample for additional metadata.
 
     Attributes
     ----------
-
     biosample_id: mongoengine.StringField
         The primary identifier for a BioSample. These are the accession number
         which begin with SAM.
@@ -967,9 +883,10 @@ class BioSample(EmbeddedDocument):
     models: mongoengine.ListField
         List of model information.
 
-    attributes: mongoengine.DictField
-        A set of key:value pairs describing the sample. For example tissue:ovary
-        or sex:female.
+    attributes: mongoengine.ListField of mongoengine.DictField
+        A list of dictionaries containing key:value pairs describing the
+        experiment. The stored dictionaries are of the form {'name': value,
+        'value': value}. This was done to make querying easier.
 
     """
     biosample_id = StringField()
@@ -989,55 +906,6 @@ class BioSample(EmbeddedDocument):
     contacts = ListField(EmbeddedDocumentField(Contacts), default=list)
     models = ListField(StringField())
     attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
-
-    def __str__(self):
-        return DocumentString(self).string
-
-    @classmethod
-    def build_from_BioSample(cls, bioSample, **kwargs):
-        """Builds BioSample from an sramongo.biosample.BioSample.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no biosample_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        bioSample: sramongo.biosample.BioSample
-            An biosample object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the BioSample prior
-            to building.
-        """
-        try:
-            bio = bioSample.biosample
-
-            if 'biosample_id' in bio:
-                bs = cls.objects(pk=bio['biosample_id']).modify(
-                            upsert=True, new=True, **bio)
-                # Make sure the samples are pointing at the right BioSample
-                # object
-                Sample.objects(BioSample=bs.db_id).update(BioSample=bs)
-
-                # Delete BioSample document with wrong id
-                BioSample.objects(pk=bs.db_id).delete()
-
-                return bs
-            else:
-                raise ValidationError('No biosample_id')
-
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this BioSample.' % err)
-            logger.debug(bio)
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(bio)
-            raise err
-        except Exception as err:
-            logger.error(err)
-            logger.debug(bio)
-            raise err
 
 
 # BioProject
@@ -1094,46 +962,6 @@ class BioProject(EmbeddedDocument):
     submission_date = DateTimeField()
     external_id = ListField(EmbeddedDocumentField(Xref), default=list)
 
-    def __str__(self):
-        return DocumentString(self).string
-
-    @classmethod
-    def build_from_BioProject(cls, bioProject, **kwargs):
-        """Builds BioProject from an sramongo.bioproject.BioProject.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no bioproject_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        bioProject: sramongo.bioproject.BioProject
-            An bioproject object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the BioProject prior
-            to building.
-        """
-        try:
-            bio = bioProject.bioproject
-            if 'bioproject_id' in bio:
-                return cls.objects(pk=bio['bioproject_id']).modify(
-                            upsert=True, new=True, **bio)
-            else:
-                raise ValidationError('No bioproject_id')
-
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this BioProject.' % err)
-            logger.debug(bio)
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(bio)
-            raise err
-        except Exception as err:
-            logger.error(err)
-            logger.debug(bio)
-            raise err
-
 
 # Pubmed
 class Pubmed(EmbeddedDocument):
@@ -1177,45 +1005,6 @@ class Pubmed(EmbeddedDocument):
     date_created = DateTimeField()
     date_completed = DateTimeField()
     date_revised = DateTimeField()
-
-    def __str__(self):
-        return DocumentString(self).string
-
-    @classmethod
-    def build_from_Pubmed(cls, pubmed, **kwargs):
-        """Builds Pubmed from an sramongo.pubmed.Pubmed.
-
-        Pulls in information and tries to validate. If there is a
-        ValidationError (i.e. no bioproject_id or additional fields that have
-        not been defined) then return None.
-
-        Parameters
-        ----------
-        pubmed: sramongo.pubmed.Pubmed
-            An pubmed object parsed from XML.
-        kwargs:
-            Other name arguments will be used to update the BioProject prior
-            to building.
-        """
-        try:
-            pub = Pubmed.pubmed
-            if 'pubmed_id' in pub:
-                return cls.objects(pk=pub['pubmed_id']).modify(
-                            upsert=True, new=True, **pub)
-            else:
-                raise ValidationError('No pubmed_id')
-        except ValidationError as err:
-            logger.warn('%s\nSkipping this Pubmed.' % err)
-            logger.debug(pub)
-            return None
-        except FieldDoesNotExist as err:
-            logger.error(err)
-            logger.debug(pub)
-            raise err
-        except Exception as err:
-            logger.error(err)
-            logger.debug(bio)
-            raise err
 
 
 # GEO
