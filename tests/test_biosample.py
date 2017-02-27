@@ -36,8 +36,12 @@ class TestSAMN02981065:
         assert bioTree.biosample['contacts'][0]['first_name'] == 'Brian'
         assert bioTree.biosample['contacts'][0]['last_name'] == 'Oliver'
         assert bioTree.biosample['models'][0] == 'Generic'
-        assert bioTree.biosample['attributes']['source_name'] == 'Whole body'
-        assert bioTree.biosample['attributes']['strain'] == 'DGRP-563'
-        assert bioTree.biosample['attributes']['dev_stage'] == 'Adult'
-        assert bioTree.biosample['attributes']['sex'] == 'male'
-        assert bioTree.biosample['attributes']['tissue'] == 'Whole body'
+        attr = {
+                'source_name': 'Whole body',
+                'strain': 'DGRP-563',
+                'dev_stage': 'Adult',
+                'sex': 'male',
+                'tissue': 'Whole body',
+                }
+        for attribute in bioTree.biosample['attributes']:
+            assert attribute['value'] == attr[attribute['name']]

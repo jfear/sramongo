@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 
 import pytest
 
-from sramongo.bioproject import BioProject
+from sramongo.bioproject import BioProjectParse
 
 
 class TestPRJNA258012:
@@ -17,7 +17,7 @@ class TestPRJNA258012:
 
     @pytest.fixture(autouse=True, scope='class')
     def bioTree(self, bio_etree):
-        return BioProject(bio_etree)
+        return BioProjectParse(bio_etree)
 
     def test_parse(self, bioTree):
         assert bioTree.bioproject['bioproject_id'] == 'PRJNA258012'

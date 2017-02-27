@@ -28,13 +28,27 @@ class SraExperiment(object):
             Experiment level node as an ElemenTree element.
         """
         # parse different sections for SRA xml
-        self.organization = self._parse_organization(node.find('Organization'))
-        self.submission = self._parse_submission(node.find('SUBMISSION'))
-        self.study = self._parse_study(node.find('STUDY'))
-        self.experiment = self._parse_experiment(node.find('EXPERIMENT'))
-        self.sample = self._parse_sample(node.find('SAMPLE'))
-        self.samples = self._parse_pool(node.find('Pool'))
-        self.run = self._parse_run(node.find('RUN_SET'))
+        self.sra = {
+                'organization': self._parse_organization(node.find('Organization')),
+                'submission': self._parse_submission(node.find('SUBMISSION')),
+                'study': self._parse_study(node.find('STUDY')),
+                'experiment': self._parse_experiment(node.find('EXPERIMENT')),
+                'run': self._parse_run(node.find('RUN_SET')),
+                'sample': self._parse_sample(node.find('SAMPLE')),
+                'pool': self._parse_pool(node.find('Pool')),
+                'db_flags': set(),
+                'db_imported': datetime.datetime.now,
+                }
+        self.srx = self.sra['experiment']['experiment_id']
+
+        # Add db flags
+        if (self.sra['experiment']['library_source'] == 'TRANSCRIPTOMIC') | (self.sra['experiment']['library_strategy'] == 'RNA-Seq'):
+            self.sra['db_flags'].add('RNASeq')
+
+        if self.sra['experiment']['library_layout'] == 'SINGLE':
+            self.sra['db_flags'].add('SE')
+        elif self.sra['experiment']['library_layout'] == 'PAIRED':
+            self.sra['db_flags'].add('PE')
 
     def _raise_xref_status(self, xref):
         """Some xrefs are more imporant and I want to pull them out.
@@ -185,16 +199,6 @@ class SraExperiment(object):
                     d[_id.tag.lower()].append(xref)
         return d
 
-    # Submission
-    @valid_path
-    def _parse_submission(self, node):
-        """Parses submission section."""
-        d = dict()
-        d.update(self._parse_ids(node.find('IDENTIFIERS'), 'submission'))
-        d.update(parse_tree_from_dict(node, {'broker': ('.', 'broker_name')}))
-        d = self._drop_empty(d)
-        return d
-
     # Organization
     @valid_path
     def _parse_organization(self, node):
@@ -209,6 +213,16 @@ class SraExperiment(object):
             'last_name': ('Contact/Name/Last', 'text'),
         }
         d.update(parse_tree_from_dict(node, locs))
+        d = self._drop_empty(d)
+        return d
+
+    # Submission
+    @valid_path
+    def _parse_submission(self, node):
+        """Parses submission section."""
+        d = dict()
+        d.update(self._parse_ids(node.find('IDENTIFIERS'), 'submission'))
+        d.update(parse_tree_from_dict(node, {'broker': ('.', 'broker_name')}))
         d = self._drop_empty(d)
         return d
 
@@ -278,7 +292,7 @@ class SraExperiment(object):
         d = self._drop_empty(d)
         return d
 
-    @valid_path
+    @valid_path(rettype=list)
     def _parse_attributes(self, node):
         """Parse various attributes as tag:value pairs.
 
@@ -287,20 +301,11 @@ class SraExperiment(object):
         node: xml.etree.ElementTree.ElementTree.Element
             Node where the root is 'EXPERIMENT_ATTRIBUTES'.
         """
-        d = defaultdict(dict)
+        attributes = []
         for attribute in node.getchildren():
-            try:
-                key_norm = attribute.find('TAG').text.lower()
-                value_norm = attribute.find('VALUE').text.lower()
-
-                if re.match('\w+\d+', value_norm):
-                    value_norm = value_norm.upper()
-
-                d['attributes'][key_norm] = value_norm
-            except:
-                logger.debug('Malformed attribute: "%s: %s"',
-                             attribute.find('TAG').text, attribute.find('VALUE').text)
-        return d
+            attributes.append({'name': attribute.find('TAG').text,
+                      'value': attribute.find('VALUE').text})
+        return attributes
 
     # Sample
     @valid_path
@@ -310,7 +315,7 @@ class SraExperiment(object):
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'sample'))
         d.update(self._parse_links(node.find('SAMPLE_LINKS')))
-        d.update(self._parse_attributes(node.find('SAMPLE_ATTRIBUTES')))
+        d['attributes'] = self._parse_attributes(node.find('SAMPLE_ATTRIBUTES'))
 
         locs = {
             'title': ('TITLE', 'text'),
@@ -339,11 +344,10 @@ class SraExperiment(object):
     def _parse_experiment(self, node):
         """Parses experiment section."""
         d = dict()
-        d['db_flags'] = set()
 
         d.update(self._parse_ids(node.find('IDENTIFIERS'), 'experiment'))
         d.update(self._parse_links(node.find('EXPERIMENT_LINKS')))
-        d.update(self._parse_attributes(node.find('EXPERIMENT_ATTRIBUTES')))
+        d['attributes'] = self._parse_attributes(node.find('EXPERIMENT_ATTRIBUTES'))
 
         locs = {
             'title': ('TITLE', 'text'),
@@ -397,9 +401,7 @@ class SraExperiment(object):
                         return {name: c}
             else:
                 logger.error('"{}" not found in {}.'.format(dat[name], name))
-#                 raise XMLSchemaException(name)
                 return {}
-
 
         d.update(_clean_const(d, 'library_strategy'))
         d.update(_clean_const(d, 'library_source'))
@@ -410,18 +412,6 @@ class SraExperiment(object):
         # Update instrument model if depricated
         d['instrument_model'] = INSTRUMENT_MODEL_DEPRICATED.get(d['instrument_model'], d['instrument_model'])
         d.update(_clean_const(d, 'instrument_model'))
-
-        # Add flags
-        d['db_flags'] = set()
-
-        if (d['library_source'] == 'TRANSCRIPTOMIC') | (d['library_strategy'] == 'RNA-Seq'):
-            d['db_flags'].add('RNASeq')
-
-        if d['library_layout'] == 'SINGLE':
-            d['db_flags'].add('SE')
-        elif d['library_layout'] == 'PAIRED':
-            d['db_flags'].add('PE')
-
         d = self._drop_empty(d)
         return d
 
@@ -429,18 +419,18 @@ class SraExperiment(object):
     def _parse_taxon(self, node):
         """Parse taxonomy informaiton."""
 
-        def crawl(node):
-            d = {}
+        def crawl(node, d=defaultdict(list)):
             for i in node:
-                name = i.get('name').replace('.', '_').replace('$', '')
-                d[name] = {'parent': node.get('name'),
-                           'total_count': int(i.get('total_count')),
-                           'self_count': int(i.get('self_count')),
-                           'tax_id': i.get('tax_id'),
-                           'rank': i.get('rank')
-                           }
+                rank = i.get('rank', 'Unkown')
+                d[rank].append({
+                    'name': i.get('name').replace('.', '_').replace('$', ''),
+                    'parent': node.get('name'),
+                    'total_count': int(i.get('total_count')),
+                    'self_count': int(i.get('self_count')),
+                    'tax_id': i.get('tax_id'),
+                    })
                 if i.getchildren():
-                    d.update(crawl(i))
+                    d.update(crawl(i, d))
             return d
 
         d = {'tax_analysis': {'nspot_analyze': node.get('analyzed_spot_count'),
@@ -480,7 +470,7 @@ class SraExperiment(object):
     def _parse_run_reads(self, node, run_id):
         """Parse reads from runs."""
         d = dict()
-        d['db_flags'] = set()
+        d['run_flags'] = set()
 
         nreads = node.get('nreads')
         try:
@@ -489,16 +479,16 @@ class SraExperiment(object):
         except:
             # Sometimes nreads is set to 'variable' and no read information is
             # provided. I set these values to -1.
-            if d['nreads'] == 'varaible':
+            if nreads == 'variable':
                 d['nreads'] = -1
-                d['db_flags'].add('no_read_information')
+                d['run_flags'].add('no_read_information')
             else:
                 raise ValueError('nreads is "{}", this value is not expected. '
-                                 'Please adjust "sra.py" to account for this.'.format(d['nreads']))
+                                 'Please adjust "sra.py" to account for this.'.format(nreads))
 
         if d['nreads'] == 1:
             # Single-ended Reads
-            d['db_flags'].add('SE')
+            d['run_flags'].add('SE')
             read = node.find('Read')
             d['read_count_r1'] = float(read.get('count'))
             d['read_len_r1'] = float(read.get('average'))
@@ -519,16 +509,16 @@ class SraExperiment(object):
             # Sometime nreads will be 2, but read len/count will be 0 for one
             # of the reads. Check for this and make SE if they are 0's
             if (d['read_len_r1'] != 0) & (d['read_len_r2'] != 0) & (d['read_count_r1'] != 0) & (d['read_count_r2'] != 0):
-                d['db_flags'].add('PE')
+                d['run_flags'].add('PE')
 
                 # Flag if read count or len are different
                 if abs(d['read_len_r1'] - d['read_len_r2']) > 5:
-                    d['db_flags'].add('pe_reads_not_equal_len')
+                    d['run_flags'].add('pe_reads_not_equal_len')
 
                 if abs(d['read_count_r1'] - d['read_count_r2']) > 10:
-                    d['db_flags'].add('pe_reads_not_equal_count')
+                    d['run_flags'].add('pe_reads_not_equal_count')
             else:
-                d['db_flags'].add('SE')
+                d['run_flags'].add('SE')
 
                 # Set which ever read has information to R1 and delete R2.
                 if (d['read_len_r1'] == 0) | (d['read_count_r1'] == 0):
@@ -549,13 +539,10 @@ class SraExperiment(object):
         runs = []
         for run in node.findall('RUN'):
             d = dict()
-            d['db_flags'] = set()
             d.update(self._parse_ids(run.find('IDENTIFIERS'), 'run'))
             d['samples'] = self._parse_pool(run.find('Pool'))
             d.update(self._parse_taxon(run.find('tax_analysis')))
             d.update(self._parse_run_reads(run.find('Statistics'), d['run_id']))
-            d['db_created'] = datetime.datetime.now
-            d['db_modified'] = datetime.datetime.now
 
             locs = {
                 'experiment_id': ('EXPERIMENT_REF', 'accession'),

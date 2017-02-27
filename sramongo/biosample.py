@@ -99,16 +99,16 @@ class BioSampleParse(object):
             models.append(model.text)
         return models
 
-    @valid_path
+    @valid_path(rettype=list)
     def _parse_attributes(self, node):
-        d = {}
+        attributes = []
         for attribute in node:
             name = attribute.get('harmonized_name')
             if name is None:
                 name = attribute.get('attribute_name')
-            d[name] = attribute.text
-
-        return d
+            attributes.append({'name': name,
+                      'value': attribute.text})
+        return attributes
 
     def _clean_dates(self):
         """Cleans up biosample dates."""

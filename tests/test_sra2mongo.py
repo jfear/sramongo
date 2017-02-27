@@ -7,8 +7,8 @@ from xml.etree import ElementTree
 from mongoengine import connect
 from Bio import Entrez
 
-from sramongo.mongo_schema import Experiment, Run
-from sramongo.sra2mongo import Cache, ncbi_query, fetch_sra, add_sra_to_database
+from sramongo.mongo_schema import Ncbi
+from sramongo.sra2mongo import Cache, ncbi_query, fetch_sra, parse_sra
 
 # TODO: Probably should not set my email permanently.
 Entrez.email = 'justin.fear@nih.gov'
@@ -41,14 +41,9 @@ def test_fetch_sra(sra_fetch):
     assert os.path.exists(os.path.join(sra_fetch.cachedir, '0.csv'))
 
 
-def test_add_sra_to_database(sra_fetch, mongoDB):
+def test_parse_sra(sra_fetch, mongoDB):
     connect('test_sra')
-    for xml, runinfo in sra_fetch:
-        tree = ElementTree.parse(xml)
-        ri = pd.read_csv(runinfo, index_col='Run')
-        for pkg in tree.findall('EXPERIMENT_PACKAGE'):
-            add_sra_to_database(pkg, ri)
-
-        run = Run.objects(run_id='ERR1751044').first().select_related(max_depth=9)
-        assert run.run_id == 'ERR1751044'
-        assert run.experiment_id == 'ERX1819343'
+    parse_sra(sra_fetch)
+    ncbi = Ncbi.objects(sra__run__run_id='ERR1751044').first()
+    assert ncbi.sra.run[0].run_id == 'ERR1751044'
+    assert ncbi.sra.experiment.experiment_id == 'ERX1819343'

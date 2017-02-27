@@ -3,7 +3,7 @@ import re
 from sramongo.xml_helpers import valid_path, parse_tree_from_dict
 
 
-class BioProject(object):
+class BioProjectParse(object):
     def __init__(self, node):
         """Represents the bioproject XML.
 

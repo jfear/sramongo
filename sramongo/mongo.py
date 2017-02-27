@@ -61,6 +61,35 @@ def start_mongo(dbDir=None, logDir=None, port=27017, command_line_args=''):
     return process
 
 
+def stop_mongo(dbDir=None, port=27017):
+    """ Start the mongod server.
+
+    Use a linux subprocess to start the mongoDB server.
+
+    Parameters
+    ----------
+    dbDir: str
+        The path to the mongoDB database direcotry. If not given will try to
+        use `MONGODB_DATA_DIR` environmental variable.
+    port: int
+        The port to run the server on.
+    """
+    if dbDir is None:
+        try:
+            dbDir = os.environ('MONGODB_DATA_DIR')
+        except KeyError:
+            raise MongoDBFolderError('No database direcotry given. '
+                                     'Either set the MONGODB_DATA_DIR environmental variable '
+                                     'or provide a dbDir.')
+    if not os.path.exists(dbDir):
+        raise MongoDBFolderError('Database direcotry must exists.')
+
+    cmd = ['mongod', '--dbpath', dbDir, '--shutdown']
+
+    process = Popen(cmd)
+    sleep(5)
+
+
 class MongoDB():
     def __init__(self, dbDir=None, logDir=None, port=27017, command_line_args=''):
         """MongoDB server Context manager.
@@ -97,4 +126,4 @@ class MongoDB():
         return self.pid
 
     def __exit__(self, *args):
-        self.pid.kill()
+        stop_mongo(dbDir=self.dbDir, port=self.port)

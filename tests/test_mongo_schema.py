@@ -1,8 +1,14 @@
 """Tests for mongo_schema.py"""
+from xml.etree import ElementTree
+import pytest
 from textwrap import dedent
+from sramongo.sra import SraExperiment
+from sramongo.biosample import BioSampleParse
+from sramongo.bioproject import BioProjectParse
+from sramongo.pubmed import PubmedParse
 from sramongo.mongo_schema import URLLink, Xref, XrefLink, \
     EntrezLink, DDBJLink, ENALink, Submission, Organization, \
-    Study, Sample, Experiment, Run, BioSample
+    Study, Sample, Experiment, Run, BioSample, Ncbi
 
 from mongoengine import connect
 
@@ -123,15 +129,6 @@ xref_links: None
 entrez_links: None
 ddbj_links: None
 ena_links: None
-submission: None
-organization:
-    organization_type: center
-    abbreviation: GEO
-    name: NCBI
-    email: geo@nih.gov
-    first_name: GEO
-    last_name: Curators
-experiments: None
 """
 
 
@@ -150,85 +147,176 @@ def test_Study_str_partial():
     study.external_id.append(Xref(**{'db': 'test2', 'id': '1032'}))
     study.external_id.append(Xref(**{'db': 'test3', 'id': '1033'}))
     study.submitter_id.append(Xref(**{'db': 'test', 'id': 'test submitter'}))
-
     study.url_links.append(URLLink(**{'label': 'test', 'url': 'http://test.com'}))
-
-    study.organization = Organization(
-        organization_type='center', abbreviation='GEO', name='NCBI',
-        email='geo@nih.gov', first_name='GEO', last_name='Curators')
 
     assert str(study) == STUDY
 
 
-def test_study_w_sra(sraExperiment):
-    submission = Submission(**sraExperiment.submission)
-    organization = Organization(**sraExperiment.organization)
-    study = Study(submission=submission, organization=organization, **sraExperiment.study)
-    assert study.study_id == 'SRP045429'
-    assert study.submission.submitter_id[0]['db'] == 'GEO'
+class TestSRR3001915:
+    @pytest.fixture(scope='class')
+    def sraExperiment(self):
+        """ Element tree of single sra experiment. """
+        fname = 'tests/data/sra_SRR3001915.xml'
+        tree = ElementTree.parse(fname)
+        root = tree.getroot()
+        return SraExperiment(root.find('EXPERIMENT_PACKAGE'))
 
+    @pytest.fixture(scope='class')
+    def bioSample(self):
+        fname = 'tests/data/biosample_SAMN02981965.xml'
+        tree = ElementTree.parse(fname)
+        root = tree.getroot()
+        return BioSampleParse(root.find('BioSample'))
 
-def test_sample_w_sra(sraExperiment):
-    sample = Sample(**sraExperiment.sample)
-    print(sample)
+    @pytest.fixture(scope='class')
+    def bioProject(self):
+        fname = 'tests/data/bioproject_PRJNA258012.xml'
+        tree = ElementTree.parse(fname)
+        root = tree.getroot()
+        return BioProjectParse(root.find('DocumentSummary'))
 
+    @pytest.fixture(scope='class')
+    def Pubmed(self):
+        fname = 'tests/data/pubmed_26732976.xml'
+        tree = ElementTree.parse(fname)
+        root = tree.getroot()
+        return PubmedParse(root.find('PubmedArticle/MedlineCitation'))
 
-def test_experiment_w_sra(mongoDB, sraExperiment):
-    client = connect('test_sra')
+    @pytest.fixture(scope='class')
+    def Ncbi(self, sraExperiment, bioSample, bioProject, Pubmed):
+        return Ncbi(srx=sraExperiment.srx, sra=sraExperiment.sra,
+                    biosample=[bioSample.biosample,], bioproject=bioProject.bioproject,
+                    pubmed=[Pubmed.pubmed,])
 
-    try:
-        submission = Submission(**sraExperiment.submission)
-        organization = Organization(**sraExperiment.organization)
-        study = Study(submission=submission, organization=organization, **sraExperiment.study)
-        experiment = Experiment(**sraExperiment.experiment)
-        experiment.study = study
-        experiment.save()
-        study.experiments.append(experiment.id)
-        study.save()
+    def test_organization(self, Ncbi):
+        assert Ncbi.sra.organization.name == 'NCBI'
+        assert Ncbi.sra.organization.organization_type == 'center'
+        assert Ncbi.sra.organization.abbreviation == 'GEO'
+        assert Ncbi.sra.organization.name == 'NCBI'
+        assert Ncbi.sra.organization.email == 'geo-group@ncbi.nlm.nih.gov'
+        assert Ncbi.sra.organization.first_name == 'Geo'
+        assert Ncbi.sra.organization.last_name == 'Curators'
 
-        assert Study.objects(study_id=study.id)[0].experiments[0] == experiment.id
-        assert Experiment.objects(experiment_id=experiment.id)[0].study.study_id == study.id
+    def test_submission(self, Ncbi):
+        assert Ncbi.sra.submission.submission_id == 'SRA178685'
+        assert Ncbi.sra.submission.submitter_id[0]['id'] == 'GEO: GSE60314'
 
-    finally:
-        client.drop_database('test_sra')
+    def test_study(self, Ncbi):
+        assert Ncbi.sra.study.study_id == 'SRP045429'
+        assert Ncbi.sra.study.BioProject == 'PRJNA258012'
+        assert Ncbi.sra.study.GEO == 'GSE60314'
+        assert Ncbi.sra.study.title.strip().split(' ')[0] == 'mRNA'
+        assert Ncbi.sra.study.title.strip().split(' ')[-1] == 'environments'
+        assert Ncbi.sra.study.study_type == 'Transcriptome Analysis'
+        assert Ncbi.sra.study.abstract.strip().split(' ')[0] == 'Our'
+        assert Ncbi.sra.study.abstract.strip().split(' ')[-1] == 'level.'
+        assert Ncbi.sra.study.center_project_name == 'GSE60314'
+        assert Ncbi.sra.study.pubmed == '26732976'
 
+    def test_experiment(self, Ncbi):
+        assert Ncbi.sra.experiment.experiment_id == 'SRX1483046'
+        assert Ncbi.sra.experiment.submitter_id[0]['id'] == 'GSM1973128'
+        assert Ncbi.sra.experiment.title.strip() == 'GSM1973128: 563M322; Drosophila melanogaster; RNA-Seq'
+        assert Ncbi.sra.experiment.library_strategy == 'RNA-Seq'
+        assert Ncbi.sra.experiment.library_source == 'TRANSCRIPTOMIC'
+        assert Ncbi.sra.experiment.library_selection == 'cDNA'
+        assert Ncbi.sra.experiment.library_layout == 'SINGLE'
+        assert Ncbi.sra.experiment.library_construction_protocol.strip().split(' ')[0] == 'Single'
+        assert Ncbi.sra.experiment.library_construction_protocol.strip().split(' ')[-1] == 'GEO_biosample_summary.xls.'
+        assert Ncbi.sra.experiment.platform == 'ILLUMINA'
+        assert Ncbi.sra.experiment.instrument_model == 'Illumina HiSeq 2000'
+        assert Ncbi.sra.experiment.GEO_Dataset == '301973128'
+        assert Ncbi.sra.experiment.attributes[0]['name'] == 'GEO Accession'
+        assert Ncbi.sra.experiment.attributes[0]['value'] == 'GSM1973128'
 
-def test_run_w_sra(mongoDB, sraExperiment):
-    client = connect('test_sra')
+    def test_parse_sample(self, Ncbi):
+        assert Ncbi.sra.sample.sample_id == 'SRS679015'
+        assert Ncbi.sra.sample.BioSample == 'SAMN02981965'
+        assert Ncbi.sra.sample.GEO == 'GSM1471477'
+        assert Ncbi.sra.sample.title == 'DGRP563 M_E3_2_L3'
+        assert Ncbi.sra.sample.taxon_id == '7227'
+        assert Ncbi.sra.sample.scientific_name == 'Drosophila melanogaster'
+        assert Ncbi.sra.sample.BioProject == '258012'
 
-    try:
-        submission = Submission(**sraExperiment.submission)
-        organization = Organization(**sraExperiment.organization)
-        study = Study(submission=submission, organization=organization, **sraExperiment.study)
-        study.save()
-        experiment = Experiment(**sraExperiment.experiment)
-        experiment.study = study
-        experiment.save()
+        attrs = {
+                'source_name': 'Whole body',
+                'strain': 'DGRP-563',
+                'developmental stage': 'Adult',
+                'Sex': 'male',
+                'tissue': 'Whole body',
+                }
 
-        runs = []
-        for r in sraExperiment.run:
-            run = Run(experiment=experiment, **r)
-            run.save()
-            runs.append(run.id)
-        experiment.runs = runs
-        experiment.save()
+        for attribute in Ncbi.sra.sample.attributes:
+            name = attribute['name']
+            assert attrs[name] == attribute['value']
 
-        assert Experiment.objects(experiment_id=experiment.id)[0].runs == [run.id]
-        assert run.tax_analysis.tax_counts['Neoptera']['self_count'] == 95
+    def test_parse_pool(self, Ncbi):
+        assert Ncbi.sra.pool[0] == 'SRS679015'
 
-    finally:
-        client.drop_database('test_sra')
+    def test_run(self, Ncbi):
+        assert Ncbi.sra.run[0]['run_id'] == 'SRR3001915'
+        assert Ncbi.sra.run[0]['samples'][0] == 'SRS679015'
+        assert Ncbi.sra.run[0]['experiment_id'] == 'SRX1483046'
+        assert Ncbi.sra.run[0]['nspots'] == 2001211
+        assert Ncbi.sra.run[0]['nbases'] == 152092036
+        assert Ncbi.sra.run[0]['nreads'] == 1
+        assert Ncbi.sra.run[0]['read_count_r1'] == 2001211.0
+        assert Ncbi.sra.run[0]['read_len_r1'] == 76.0
 
+        assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['parent'] == 'Pterygota'
+        assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['self_count'] == 95
+        assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['total_count'] == 360608
+        assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['tax_id'] == '33340'
+        assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['name'] == 'Neoptera'
 
-def test_biosample_w_db(mongoDB, bioSample):
-    client = connect('test_sra')
-    try:
-        biosample = BioSample(**bioSample.biosample)
-        biosample.save()
-        bs = BioSample.objects(biosample_id=biosample.id).first()
-        assert bs.sample_id == 'SRS679015'
-        assert bs.title == 'DGRP563 M_E3_2_L3'
-    except:
-        raise
-    finally:
-        client.drop_database('test_sra')
+    def test_biosample(self, Ncbi):
+        assert Ncbi.biosample[0].biosample_id == 'SAMN02981965'
+        assert Ncbi.biosample[0].sample_id == 'SRS679015'
+        assert Ncbi.biosample[0].GEO == 'GSM1471477'
+        assert Ncbi.biosample[0].title == 'DGRP563 M_E3_2_L3'
+        assert Ncbi.biosample[0].tax_id == '7227'
+        assert Ncbi.biosample[0].tax_name == 'Drosophila melanogaster'
+        assert Ncbi.biosample[0].organism_name == 'Drosophila melanogaster'
+        assert Ncbi.biosample[0].institute == 'Developmental Genomics, LCDB, NIDDK, NIH'
+        assert Ncbi.biosample[0].access == 'public'
+        assert Ncbi.biosample[0].publication_date == '2015-12-22'
+        assert Ncbi.biosample[0].last_update == '2015-12-22'
+        assert Ncbi.biosample[0].submission_date == '2014-08-11'
+        assert Ncbi.biosample[0].contacts[0]['email'] == 'briano@helix.nih.gov'
+        assert Ncbi.biosample[0].contacts[0]['first_name'] == 'Brian'
+        assert Ncbi.biosample[0].contacts[0]['last_name'] == 'Oliver'
+        assert Ncbi.biosample[0].models[0] == 'Generic'
+        attr = {
+                'source_name': 'Whole body',
+                'strain': 'DGRP-563',
+                'dev_stage': 'Adult',
+                'sex': 'male',
+                'tissue': 'Whole body',
+                }
+        for attribute in Ncbi.biosample[0].attributes:
+            assert attribute['value'] == attr[attribute['name']]
+
+    def test_bioproject(self, Ncbi):
+        assert Ncbi.bioproject['bioproject_id'] == 'PRJNA258012'
+        assert Ncbi.bioproject['name'].strip().split(' ')[0] == 'mRNA'
+        assert Ncbi.bioproject['name'].strip().split(' ')[-1] == 'environments'
+        assert Ncbi.bioproject['title'].strip().split(' ')[0] == 'mRNA'
+        assert Ncbi.bioproject['title'].strip().split(' ')[-1] == 'environments'
+        assert Ncbi.bioproject['description'].strip().split(' ')[0] == 'Our'
+        assert Ncbi.bioproject['description'].strip().split(' ')[-1] == 'level.'
+        assert Ncbi.bioproject['publication'] == '26732976'
+        assert Ncbi.bioproject['submission_id'] == 'SUB1475494'
+        assert Ncbi.bioproject['submission_date'] == '2014-08-11'
+        assert Ncbi.bioproject['last_update'] == '2016-04-20'
+
+    def test_pubmed(self, Ncbi):
+        assert Ncbi.pubmed[0].pubmed_id == '26732976'
+        assert Ncbi.pubmed[0].title.strip().split(' ')[0] == 'Comparison'
+        assert Ncbi.pubmed[0].title.strip().split(' ')[-1] == 'melanogaster.'
+        assert Ncbi.pubmed[0].date_created == '2016-01-06'
+        assert Ncbi.pubmed[0].date_completed == '2016-09-28'
+        assert Ncbi.pubmed[0].date_revised == '2016-10-19'
+        assert Ncbi.pubmed[0].citation == '17 BMC Genomics 2016'
+        assert Ncbi.pubmed[0].abstract.strip().split('\n')[1].split(' ')[0] == 'We'
+        assert Ncbi.pubmed[0].abstract.strip().split('\n')[2].split(' ')[1] == 'best'
+        assert Ncbi.pubmed[0].authors[0]['last_name'] == 'Lin'

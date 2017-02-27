@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 
 import pytest
 
-from sramongo.pubmed import Pubmed
+from sramongo.pubmed import PubmedParse
 
 
 class TestPMID26732976:
@@ -17,7 +17,7 @@ class TestPMID26732976:
 
     @pytest.fixture(autouse=True, scope='class')
     def pubTree(self, pub_etree):
-        return Pubmed(pub_etree)
+        return PubmedParse(pub_etree)
 
     def test_parse(self, pubTree):
         assert pubTree.pubmed['pubmed_id'] == '26732976'
