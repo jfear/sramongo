@@ -22,8 +22,6 @@ from sramongo.sra import SraExperiment, XMLSchemaException
 from sramongo.biosample import BioSampleParse
 from sramongo.mongo_schema import Ncbi
 
-from ipdb import slaunch_ipdb_on_exception
-
 _DEBUG = False
 
 class Cache(object):
@@ -249,8 +247,7 @@ def parse_sra(cache):
                 except KeyError:
                     pass
 
-            with slaunch_ipdb_on_exception():
-                Ncbi.objects(pk=sraExperiment.srx).modify(upsert=True, sra=sraExperiment.sra)
+            Ncbi.objects(pk=sraExperiment.srx).modify(upsert=True, sra=sraExperiment.sra)
 
 
 def main():
