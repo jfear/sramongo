@@ -720,16 +720,17 @@ class Run(EmbeddedDocument):
             'total_spots': The total number of spots,
             'mapped_spots': The number of spots that were able to be mapped,
             'tax_count': A dictionary containing actual taxonomic counts
-            organized by level in the tree of life:
+            organized by level in the tree of life
+
                 'kingdom':
                     ...
                 'species':
                     'parent':
-                        Name of parent level
+                        Name of parent level.
                     'total_count':
                         Number of mapped spots at this level and below.
                     'self_count':
-                        Number of mapped spots at this level
+                        Number of mapped spots at this level.
                     'tax_id':
                         taxonomic identifier.
                     'name':
