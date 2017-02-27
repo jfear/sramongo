@@ -285,20 +285,20 @@ def main():
         logger.info('Parsing SRA XML')
         parse_sra(cache)
 
-#         # Query BioSample
-#         bs_cache = Cache(directory='.cache/sra2mongo/biosample')
-#         biosample_accn = list(BioSample.objects.distinct('biosample_id'))
+        # Query BioSample
+#         cache = Cache(directory='.cache/sra2mongo/biosample')
+#         biosample_accn = list(BioSample.objects.distinct('sra.sample.BioSample'))
 #
 #         logger.info('Querying BioSample: with {:,} ids'.format(len(biosample_accn)))
-#         logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
-#         bs_query = ncbi_query(biosample_accn, db='biosample')
+#         logger.info('Saving to cache: {}'.format(cache.cachedir))
+#         query = ncbi_query(biosample_accn, db='biosample')
 #
 #         logger.info('Downloading BioSample documents')
-#         logger.info('Saving to cache: {}'.format(bs_cache.cachedir))
-#         fetch_sra(bs_query, bs_cache, runinfo_retmode=None, db='biosample')
+#         logger.info('Saving to cache: {}'.format(cache.cachedir))
+#         fetch_sra(query, cache, runinfo_retmode=None, db='biosample')
 #
 #         logger.info('Adding documents to database')
-#         for xml in bs_cache:
+#         for xml in cache:
 #             logger.debug('Parsing: {}'.format(xml))
 #             tree = ElementTree.parse(xml)
 #             for pkg in tree.findall('BioSample'):
