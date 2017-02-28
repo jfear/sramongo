@@ -46,11 +46,21 @@ class PubmedParse(object):
 
     @valid_path
     def _parse_citation(self, node):
-        issue = node.find('ISSN').text
-        volume = node.find('JournalIssue/Volume').text
-        year = node.find('JournalIssue/PubDate/Year').text
-        journal = node.find('ISOAbbreviation').text
-        return '{v} {j} {y}'.format(i=issue, y=year, j=journal, v=volume)
+        citation = {
+                'issue': None,
+                'volume': None,
+                'year': None,
+                'journal': None,
+                }
+
+        locs = {
+                'issue': ('ISSN', 'text'),
+                'volume': ('JournalIssue/Volume', 'text'),
+                'year': ('JournalIssue/PubDate/Year', 'text'),
+                'journal': ('ISOAbbreviation', 'text'),
+                }
+        citation.update(parse_tree_from_dict(node, locs))
+        return '{i} {v} {j} {y}'.format(i=citation['issue'], y=citation['year'], j=citation['journal'], v=citation['volume'])
 
     @valid_path
     def _parse_abstract(self, node):
@@ -63,10 +73,10 @@ class PubmedParse(object):
     def _parse_authors(self, node):
         authors =[]
         for author in node:
-            d = {
-                'first_name': author.find('ForeName').text,
-                'last_name': author.find('LastName').text,
-                'affiliation': author.find('AffiliationInfo/Affiliation').text,
-                }
-            authors.append(d)
+            locs = {
+                    'first_name': ('ForeName', 'text'),
+                    'last_name': ('LastName', 'text'),
+                    'affiliation': ('AffiliationInfo/Affiliation', 'text'),
+                    }
+            authors.append(parse_tree_from_dict(author, locs))
         return authors

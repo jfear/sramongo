@@ -21,6 +21,7 @@ from sramongo.mongo import MongoDB
 from sramongo.sra import SraExperiment, XMLSchemaException
 from sramongo.biosample import BioSampleParse
 from sramongo.bioproject import BioProjectParse
+from sramongo.pubmed import PubmedParse
 from sramongo.mongo_schema import Ncbi
 
 _DEBUG = False
@@ -156,21 +157,24 @@ def ncbi_query(query, **kwargs):
         options['retmax'] = 100000          # the highest valid value
 
         # Some of accn are actually IDs lets pull those out.
-        ids = set()
-        accn = set()
-        for _id in query:
+        ids = []
+        accn = []
+        for _id in set(query):
             if _id.startswith('SAM') or _id.startswith('PRJ'):
-                accn.add(_id)
+                accn.append(_id)
+            elif _id.startswith('PMID'):
+                ids.append(_id.replce('PMID', ''))
             else:
-                ids.add(_id)
+                ids.append(_id)
 
-        for q in iter_query(list(accn)):
+        for q in iter_query(accn):
             options['term'] = q
             handle = Entrez.esearch(**options)
             records = Entrez.read(handle)
-            ids = ids.union(set(records['IdList']))
+            ids.extend(records['IdList'])
             handle.close()
 
+        ids = list(set(ids))
         handle = Entrez.epost(options['db'], id=','.join(ids))
         records = Entrez.read(handle)
         handle.close()
@@ -204,7 +208,7 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
             while attempt < 3:
                 attempt += 1
                 try:
-                    xml_handle = Entrez.efetch(retstart=start, **options)
+                    xml_handle = Entrez.efetch(retmode='xml', retstart=start, **options)
                     xml_data = xml_handle.read()
                     cache.add_to_cache(start, 'xml', xml_data)
                     xml_handle.close()
@@ -287,6 +291,17 @@ def parse_bioproject(cache):
             Ncbi.objects(sra__study__BioProject=bs.bioproject['bioproject_id']).update(bioproject=bs.bioproject)
 
 
+def parse_pubmed(cache):
+    for xml in cache:
+        logger.debug('Parsing: {}'.format(xml))
+        tree = ElementTree.parse(xml)
+        for pkg in tree.findall('PubmedArticle/MedlineCitation'):
+            pm = PubmedParse(pkg)
+            Ncbi.objects(sra__study__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
+            Ncbi.objects(sra__sample__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
+            Ncbi.objects(sra__experiment__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
+
+
 def main():
     # Import commandline arguments.
     args = arguments()
@@ -327,7 +342,7 @@ def main():
     fetch_sra(sra_query, cache)
 
     logger.info('Parsing SRA XML')
-    #parse_sra(cache)
+    parse_sra(cache)
 
     # Query BioSample
     cache = Cache(directory='.cache/sra2mongo/biosample')
@@ -342,7 +357,7 @@ def main():
     fetch_sra(query, cache, runinfo_retmode=None, db='biosample')
 
     logger.info('Adding documents to database')
-    #parse_biosample(cache)
+    parse_biosample(cache)
 
     # Query BioProject
     cache = Cache(directory='.cache/sra2mongo/bioproject')
@@ -358,6 +373,24 @@ def main():
 
     logger.info('Adding documents to database')
     parse_bioproject(cache)
+
+    # Query Pubmed
+    cache = Cache(directory='.cache/sra2mongo/pubmed')
+    accn = list(Ncbi.objects.distinct('sra.study.pubmed'))
+    accn.extend(list(Ncbi.objects.distinct('sra.experiment.pubmed')))
+    accn.extend(list(Ncbi.objects.distinct('sra.sample.pubmed')))
+    accn = list(set(accn))
+
+    logger.info('Querying Pubmed: with {:,} ids'.format(len(accn)))
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    query = ncbi_query(accn, db='pubmed')
+
+    logger.info('Downloading Pubmed documents')
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    fetch_sra(query, cache, runinfo_retmode=None, db='pubmed')
+
+    logger.info('Adding documents to database')
+    parse_pubmed(cache)
 
     if mongodb:
         mongodb.close()
