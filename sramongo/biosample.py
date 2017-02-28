@@ -25,6 +25,8 @@ class BioSampleParse(object):
                 'organism_name': ('Description/Organism/OrganismName', 'text'),
                 'institute': ('Owner/Name', 'text'),
                 'access': ('.', 'access'),
+                'biosample_accn': ('.', 'accn'),
+                'biosample_id': ('.', 'id'),
                 'publication_date': ('.', 'publication_date'),
                 'last_update': ('.', 'last_update'),
                 'submission_date': ('.', 'submission_date'),
@@ -65,7 +67,7 @@ class BioSampleParse(object):
             if (db is not None) and (db in dbs_of_interest):
                 # If Primary BioSample then make biosample_id
                 if (db == 'BioSample') and (primary is not None):
-                    d['biosample_id'] = _id.text
+                    d['biosample_primary'] = _id.text
                 elif (db == 'BioSample'):
                     d['biosample_secondary'] = _id.text
                 elif (db == 'SRA'):
@@ -74,8 +76,8 @@ class BioSampleParse(object):
                     d[db] = _id.text
 
         # Try to ensure there is a biosample_id
-        if ('biosample_id' not in d) and ('biosample_secondary' in d):
-            d['biosample_id'] = d['biosample_secondary']
+        if ('biosample_primary' not in d) and ('biosample_secondary' in d):
+            d['biosample_primary'] = d['biosample_secondary']
             del d['biosample_secondary']
 
         return d

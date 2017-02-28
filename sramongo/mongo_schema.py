@@ -862,13 +862,19 @@ class BioSample(EmbeddedDocument):
 
     Attributes
     ----------
-    biosample_id: mongoengine.StringField
+    biosample_accn: mongoengine.StringField
         The primary identifier for a BioSample. These are the accession number
         which begin with SAM.
 
+    biosample_id: mongoengine.StringField
+        The primary identifier for a BioSample. These are the id number.
+
+    biosample_primary: mongoengine.StringField
+        This is the identifier that was said to be the primary identifier for a
+        BioSample. These appear to be just the accession with SAM.
+
     biosample_secondary: mongoengine.StringField
-        A secondary identifier for a BioSample. Identifiers begin with
-        SAM.
+        A secondary identifier for a BioSample.
 
     db_id: mongoengine.StringField
         This is BioSample's unique ID number.
@@ -918,7 +924,9 @@ class BioSample(EmbeddedDocument):
         'value': value}. This was done to make querying easier.
 
     """
+    biosample_accn = StringField()
     biosample_id = StringField()
+    biosample_primary = StringField()
     biosample_secondary = StringField()
     db_id = StringField()
     sample_id = StringField()
@@ -950,9 +958,12 @@ class BioProject(EmbeddedDocument):
 
     Attributes
     ----------
-    bioproject_id: mongoengine.StringField
+    bioproject_accn: mongoengine.StringField
         The primary identifier for a BioProject. These are the accession number
         which begin with PRJ.
+
+    bioproject_id: mongoengine.StringField
+        The primary identifier for a BioProject. These are the id numbers.
 
     name: mongoengine.StringField
         A brief name of the project.
@@ -982,6 +993,7 @@ class BioProject(EmbeddedDocument):
         List of additional external ids.
 
     """
+    bioproject_accn = StringField()
     bioproject_id = StringField()
     name = StringField()
     title = StringField()

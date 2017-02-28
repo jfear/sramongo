@@ -14,7 +14,8 @@ class BioProjectParse(object):
 
         """
         locs = {
-                'bioproject_id': ('Project/ProjectID/ArchiveID', 'accession'),
+                'bioproject_accn': ('Project/ProjectID/ArchiveID', 'accession'),
+                'bioproject_id': ('Project/ProjectID/ArchiveID', 'id'),
                 'name': ('Project/ProjectDescr/Name', 'text'),
                 'title': ('Project/ProjectDescr/Title', 'text'),
                 'description': ('Project/ProjectDescr/Description', 'text'),
