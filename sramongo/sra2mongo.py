@@ -277,8 +277,15 @@ def parse_biosample(cache):
         tree = ElementTree.parse(xml)
         for pkg in tree.findall('BioSample'):
             bs = BioSampleParse(pkg)
-            Ncbi.objects(sra__sample__BioSample=bs.biosample['biosample_accn']).update(add_to_set__biosample=bs.biosample)
-            Ncbi.objects(sra__sample__BioSample=bs.biosample['biosample_id']).update(add_to_set__biosample=bs.biosample)
+            try:
+                Ncbi.objects(sra__sample__BioSample=bs.biosample['biosample_accn']).update(add_to_set__biosample=bs.biosample)
+            except KeyError:
+                pass
+
+            try:
+                Ncbi.objects(sra__sample__BioSample=bs.biosample['biosample_id']).update(add_to_set__biosample=bs.biosample)
+            except KeyError:
+                pass
 
 
 def parse_bioproject(cache):
