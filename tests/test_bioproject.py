@@ -20,7 +20,8 @@ class TestPRJNA258012:
         return BioProjectParse(bio_etree)
 
     def test_parse(self, bioTree):
-        assert bioTree.bioproject['bioproject_id'] == 'PRJNA258012'
+        assert bioTree.bioproject['bioproject_accn'] == 'PRJNA258012'
+        assert bioTree.bioproject['bioproject_id'] == '258012'
         assert bioTree.bioproject['name'].strip().split(' ')[0] == 'mRNA'
         assert bioTree.bioproject['name'].strip().split(' ')[-1] == 'environments'
         assert bioTree.bioproject['title'].strip().split(' ')[0] == 'mRNA'

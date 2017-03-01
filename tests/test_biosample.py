@@ -20,7 +20,9 @@ class TestSAMN02981065:
         return BioSampleParse(bio_etree)
 
     def test_parse(self, bioTree):
-        assert bioTree.biosample['biosample_id'] == 'SAMN02981965'
+        assert bioTree.biosample['biosample_accn'] == 'SAMN02981965'
+        assert bioTree.biosample['biosample_primary'] == 'SAMN02981965'
+        assert bioTree.biosample['biosample_id'] == '2981965'
         assert bioTree.biosample['sample_id'] == 'SRS679015'
         assert bioTree.biosample['GEO'] == 'GSM1471477'
         assert bioTree.biosample['title'] == 'DGRP563 M_E3_2_L3'

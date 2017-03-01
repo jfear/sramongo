@@ -25,12 +25,11 @@ class BioSampleParse(object):
                 'organism_name': ('Description/Organism/OrganismName', 'text'),
                 'institute': ('Owner/Name', 'text'),
                 'access': ('.', 'access'),
-                'biosample_accn': ('.', 'accn'),
+                'biosample_accn': ('.', 'accession'),
                 'biosample_id': ('.', 'id'),
                 'publication_date': ('.', 'publication_date'),
                 'last_update': ('.', 'last_update'),
                 'submission_date': ('.', 'submission_date'),
-                'db_id': ('.', 'id'),
                 }
         self.biosample.update(parse_tree_from_dict(node, locs))
 

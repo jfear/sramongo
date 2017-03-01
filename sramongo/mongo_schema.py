@@ -876,9 +876,6 @@ class BioSample(EmbeddedDocument):
     biosample_secondary: mongoengine.StringField
         A secondary identifier for a BioSample.
 
-    db_id: mongoengine.StringField
-        This is BioSample's unique ID number.
-
     sample_id: mongoengine.StringField
         Unique id of the sample provided by the submitter.
 
@@ -928,7 +925,6 @@ class BioSample(EmbeddedDocument):
     biosample_id = StringField()
     biosample_primary = StringField()
     biosample_secondary = StringField()
-    db_id = StringField()
     sample_id = StringField()
     GEO = StringField()
     title = StringField()

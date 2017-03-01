@@ -270,7 +270,7 @@ class TestSRR3001915:
         assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['name'] == 'Neoptera'
 
     def test_biosample(self, Ncbi):
-        assert Ncbi.biosample[0].biosample_id == 'SAMN02981965'
+        assert Ncbi.biosample[0].biosample_accn == 'SAMN02981965'
         assert Ncbi.biosample[0].sample_id == 'SRS679015'
         assert Ncbi.biosample[0].GEO == 'GSM1471477'
         assert Ncbi.biosample[0].title == 'DGRP563 M_E3_2_L3'
@@ -297,7 +297,7 @@ class TestSRR3001915:
             assert attribute['value'] == attr[attribute['name']]
 
     def test_bioproject(self, Ncbi):
-        assert Ncbi.bioproject['bioproject_id'] == 'PRJNA258012'
+        assert Ncbi.bioproject['bioproject_accn'] == 'PRJNA258012'
         assert Ncbi.bioproject['name'].strip().split(' ')[0] == 'mRNA'
         assert Ncbi.bioproject['name'].strip().split(' ')[-1] == 'environments'
         assert Ncbi.bioproject['title'].strip().split(' ')[0] == 'mRNA'
@@ -316,7 +316,7 @@ class TestSRR3001915:
         assert Ncbi.pubmed[0].date_created == '2016-01-06'
         assert Ncbi.pubmed[0].date_completed == '2016-09-28'
         assert Ncbi.pubmed[0].date_revised == '2016-10-19'
-        assert Ncbi.pubmed[0].citation == '17 BMC Genomics 2016'
+        assert Ncbi.pubmed[0].citation == '1471-2164 17 BMC Genomics 2016'
         assert Ncbi.pubmed[0].abstract.strip().split('\n')[1].split(' ')[0] == 'We'
         assert Ncbi.pubmed[0].abstract.strip().split('\n')[2].split(' ')[1] == 'best'
         assert Ncbi.pubmed[0].authors[0]['last_name'] == 'Lin'
