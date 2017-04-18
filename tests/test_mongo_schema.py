@@ -15,54 +15,60 @@ from mongoengine import connect
 
 def test_URLLink_str_complete():
     url = URLLink(label='test', url='http://test.com')
-    assert str(url) == 'label: test\nurl: http://test.com\n'
+    assert url.label == 'test'
+    assert url.url == 'http://test.com'
 
 
 def test_URLLink_str_nolabel():
     url = URLLink(url='http://test.com')
-    assert str(url) == 'label: None\nurl: http://test.com\n'
+    assert url.label is None
+    assert url.url == 'http://test.com'
 
 
 def test_URLLink_str_nourl():
     url = URLLink(label='test')
-    assert str(url) == 'label: test\nurl: None\n'
+    assert url.label == 'test'
+    assert url.url is None
 
 
 def test_Xref_str_complete():
     xref = Xref(db='test', id='1030')
-    assert str(xref) == 'db: test\nid: 1030\n'
+    assert xref.db == 'test'
+    assert xref.id == '1030'
 
 
 def test_XrefLink_str_complete():
     xref = XrefLink(db='test', id='1030', label='test label')
-    assert str(xref) == 'label: test label\ndb: test\nid: 1030\n'
+    assert xref.db == 'test'
+    assert xref.id == '1030'
+    assert xref.label == 'test label'
 
 
 def test_EntrezLink_str_complete():
     xref = EntrezLink(db='test', id='1030', label='test label',
                       query='Test[orgn]')
-    assert str(xref) == ('label: test label\n'
-                         'db: test\n'
-                         'id: 1030\n'
-                         'query: Test[orgn]\n')
+    assert xref.db == 'test'
+    assert xref.id == '1030'
+    assert xref.label == 'test label'
+    assert xref.query == 'Test[orgn]'
 
 
 def test_DDBJLink_str_complete():
     xref = DDBJLink(db='test', id='1030', label='test label',
                     url='http://test.com')
-    assert str(xref) == ('label: test label\n'
-                         'db: test\n'
-                         'id: 1030\n'
-                         'url: http://test.com\n')
+    assert xref.db == 'test'
+    assert xref.id == '1030'
+    assert xref.label == 'test label'
+    assert xref.url == 'http://test.com'
 
 
 def test_ENALink_str_complete():
     xref = ENALink(db='test', id='1030', label='test label',
                    url='http://test.com')
-    assert str(xref) == ('label: test label\n'
-                         'db: test\n'
-                         'id: 1030\n'
-                         'url: http://test.com\n')
+    assert xref.db == 'test'
+    assert xref.id == '1030'
+    assert xref.label == 'test label'
+    assert xref.url == 'http://test.com'
 
 
 def test_Submission_str_complete():
@@ -72,17 +78,17 @@ def test_Submission_str_complete():
     submission.external_id.append(Xref(**{'db': 'test3', 'id': '1033'}))
     submission.submitter_id.append(Xref(**{'db': 'test', 'id': 'test submitter'}))
 
-    assert str(submission).strip() == dedent("""\
-        submission_id: SRA12345
-        broker: GEO
-        external_id:
-            db: test, id: 1030
-            db: test2, id: 1032
-            db: test3, id: 1033
-        secondary_id: None
-        submitter_id:
-            db: test, id: test submitter
-        uuid: None""")
+    assert submission.submission_id == 'SRA12345'
+    assert submission.broker == 'GEO'
+    assert submission.external_id[0].db == 'test'
+    assert submission.external_id[0].id == '1030'
+    assert submission.external_id[1].db == 'test2'
+    assert submission.external_id[1].id == '1032'
+    assert submission.external_id[2].db == 'test3'
+    assert submission.external_id[2].id == '1033'
+    assert submission.submitter_id[0].db == 'test'
+    assert submission.submitter_id[0].id == 'test submitter'
+    assert submission.uuid == []
 
 
 def test_Organization_str_complete():
@@ -90,47 +96,12 @@ def test_Organization_str_complete():
         organization_type='center', abbreviation='GEO', name='NCBI',
         email='geo@nih.gov', first_name='GEO', last_name='Curators')
 
-    assert str(organization) == dedent("""\
-        organization_type: center
-        abbreviation: GEO
-        name: NCBI
-        email: geo@nih.gov
-        first_name: GEO
-        last_name: Curators
-        """)
-
-STUDY = """\
-study_id: SRA12345
-GEO: GSE12345
-GEO_Dataset: None
-BioProject: PRJN1234
-pubmed: 123456
-external_id:
-    db: test, id: 1030
-    db: test2, id: 1032
-    db: test3, id: 1033
-secondary_id: None
-submitter_id:
-    db: test, id: test submitter
-uuid: None
-title: Test title
-study_type: Test type
-abstract: A very long abstract with more than 80 characters per line. A very long
-          abstract with more than 80 characters per line. A very long abstract with
-          more than 80 characters per line. A very long abstract with more than 80
-          characters per line.
-center_name: None
-center_project_name: Test center
-description: None
-related_studies: None
-url_links:
-    label: test, url: http://test.com
-xref_links: None
-entrez_links: None
-ddbj_links: None
-ena_links: None
-"""
-
+    assert organization.organization_type == 'center'
+    assert organization.abbreviation == 'GEO'
+    assert organization.name == 'NCBI'
+    assert organization.email == 'geo@nih.gov'
+    assert organization.first_name == 'GEO'
+    assert organization.last_name == 'Curators'
 
 def test_Study_str_partial():
     abstract = ('A very long abstract with more than 80 characters per line. '
@@ -149,7 +120,26 @@ def test_Study_str_partial():
     study.submitter_id.append(Xref(**{'db': 'test', 'id': 'test submitter'}))
     study.url_links.append(URLLink(**{'label': 'test', 'url': 'http://test.com'}))
 
-    assert str(study) == STUDY
+    assert study.study_id == 'SRA12345'
+    assert study.GEO == 'GSE12345'
+    assert study.BioProject == 'PRJN1234'
+    assert study.pubmed == '123456'
+    assert study.title == 'Test title'
+    assert study.study_type == 'Test type'
+    assert study.abstract == abstract
+    assert study.center_project_name == 'Test center'
+
+    assert study.external_id[0].db == 'test'
+    assert study.external_id[0].id == '1030'
+    assert study.external_id[1].db == 'test2'
+    assert study.external_id[1].id == '1032'
+    assert study.external_id[2].db == 'test3'
+    assert study.external_id[2].id == '1033'
+    assert study.submitter_id[0].db == 'test'
+    assert study.submitter_id[0].id == 'test submitter'
+    assert study.url_links[0].label == 'test'
+    assert study.url_links[0].url == 'http://test.com'
+    assert study.entrez_links == []
 
 
 class TestSRR3001915:
@@ -270,7 +260,7 @@ class TestSRR3001915:
         assert Ncbi.sra.run[0]['tax_analysis']['tax_counts']['subclass'][0]['name'] == 'Neoptera'
 
     def test_biosample(self, Ncbi):
-        assert Ncbi.biosample[0].biosample_id == 'SAMN02981965'
+        assert Ncbi.biosample[0].biosample_accn == 'SAMN02981965'
         assert Ncbi.biosample[0].sample_id == 'SRS679015'
         assert Ncbi.biosample[0].GEO == 'GSM1471477'
         assert Ncbi.biosample[0].title == 'DGRP563 M_E3_2_L3'
@@ -297,7 +287,7 @@ class TestSRR3001915:
             assert attribute['value'] == attr[attribute['name']]
 
     def test_bioproject(self, Ncbi):
-        assert Ncbi.bioproject['bioproject_id'] == 'PRJNA258012'
+        assert Ncbi.bioproject['bioproject_accn'] == 'PRJNA258012'
         assert Ncbi.bioproject['name'].strip().split(' ')[0] == 'mRNA'
         assert Ncbi.bioproject['name'].strip().split(' ')[-1] == 'environments'
         assert Ncbi.bioproject['title'].strip().split(' ')[0] == 'mRNA'
@@ -316,7 +306,7 @@ class TestSRR3001915:
         assert Ncbi.pubmed[0].date_created == '2016-01-06'
         assert Ncbi.pubmed[0].date_completed == '2016-09-28'
         assert Ncbi.pubmed[0].date_revised == '2016-10-19'
-        assert Ncbi.pubmed[0].citation == '17 BMC Genomics 2016'
+        assert Ncbi.pubmed[0].citation == '1471-2164 17 BMC Genomics 2016'
         assert Ncbi.pubmed[0].abstract.strip().split('\n')[1].split(' ')[0] == 'We'
         assert Ncbi.pubmed[0].abstract.strip().split('\n')[2].split(' ')[1] == 'best'
         assert Ncbi.pubmed[0].authors[0]['last_name'] == 'Lin'

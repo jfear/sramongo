@@ -20,6 +20,8 @@ from sramongo.logger import logger
 from sramongo.mongo import MongoDB
 from sramongo.sra import SraExperiment, XMLSchemaException
 from sramongo.biosample import BioSampleParse
+from sramongo.bioproject import BioProjectParse
+from sramongo.pubmed import PubmedParse
 from sramongo.mongo_schema import Ncbi
 
 _DEBUG = False
@@ -92,7 +94,10 @@ def arguments():
     parser.add_argument("--query", dest="query", action='store', required=True,
                         help="Query to submit to Entrez.")
 
-    parser.add_argument("--dbDir", dest="dbDir", action='store', required=True,
+    parser.add_argument("--host", dest="host", action='store', required=False,
+                        help="Location of an already running database. If provided ignores --dbpath and --logDir.")
+
+    parser.add_argument("--dbpath", dest="dbDir", action='store', required=False,
                         help="Folder containing mongo database.")
 
     parser.add_argument("--logDir", dest="logDir", action='store', required=False, default=None,
@@ -110,14 +115,28 @@ def arguments():
     parser.add_argument("--force", dest="force", action='store_true', required=False,
                         help="Forces clearing the cache.")
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    if args.host and (args.dbDir or args.logDir):
+        logger.warn('Both --host and --dbpath/--logDir were provided; going to try using running mongo server.')
+
+    if not (args.host or args.dbDir or args.logDir):
+        logger.warn('You must provide either a `--host hostname` with a running database or '
+                '`--dbpath <path to db> --logDir <path to log>`')
+
+    return args
 
 
 def iter_query(query):
     batch_size = 5000
     for start in range(0, len(query), batch_size):
         end = min(len(query), start+batch_size)
-        yield '[accn] OR '.join(query[start:end]) + '[accn]'
+        if query[0].startswith('SAM'):
+            yield '[accn] OR '.join(query[start:end]) + '[accn]'
+        elif query[0].startswith('PRJ'):
+            # For some reason you cannot query BioProject using the [accn]
+            # keyword.
+            yield ' OR '.join(query[start:end])
 
 
 def ncbi_query(query, **kwargs):
@@ -137,13 +156,14 @@ def ncbi_query(query, **kwargs):
         # This is used when there is a list of accession numbers to query.
         options['retmax'] = 100000          # the highest valid value
 
-        # Some of the biosample_accn are actually biosamples IDs lets pull
-        # those out.
+        # Some of accn are actually IDs lets pull those out.
         ids = []
         accn = []
-        for _id in query:
-            if _id.startswith('SAM'):
+        for _id in set(query):
+            if _id.startswith('SAM') or _id.startswith('PRJ'):
                 accn.append(_id)
+            elif _id.startswith('PMID'):
+                ids.append(_id.replce('PMID', ''))
             else:
                 ids.append(_id)
 
@@ -154,6 +174,7 @@ def ncbi_query(query, **kwargs):
             ids.extend(records['IdList'])
             handle.close()
 
+        ids = list(set(ids))
         handle = Entrez.epost(options['db'], id=','.join(ids))
         records = Entrez.read(handle)
         handle.close()
@@ -187,7 +208,7 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
             while attempt < 3:
                 attempt += 1
                 try:
-                    xml_handle = Entrez.efetch(retstart=start, **options)
+                    xml_handle = Entrez.efetch(retmode='xml', retstart=start, **options)
                     xml_data = xml_handle.read()
                     cache.add_to_cache(start, 'xml', xml_data)
                     xml_handle.close()
@@ -250,6 +271,44 @@ def parse_sra(cache):
             Ncbi.objects(pk=sraExperiment.srx).modify(upsert=True, sra=sraExperiment.sra)
 
 
+def parse_biosample(cache):
+    for xml in cache:
+        logger.debug('Parsing: {}'.format(xml))
+        tree = ElementTree.parse(xml)
+        for pkg in tree.findall('BioSample'):
+            bs = BioSampleParse(pkg)
+            try:
+                Ncbi.objects(sra__sample__BioSample=bs.biosample['biosample_accn']).update(add_to_set__biosample=bs.biosample)
+            except KeyError:
+                pass
+
+            try:
+                Ncbi.objects(sra__sample__BioSample=bs.biosample['biosample_id']).update(add_to_set__biosample=bs.biosample)
+            except KeyError:
+                pass
+
+
+def parse_bioproject(cache):
+    for xml in cache:
+        logger.debug('Parsing: {}'.format(xml))
+        tree = ElementTree.parse(xml)
+        for pkg in tree.findall('DocumentSummary'):
+            bs = BioProjectParse(pkg)
+            Ncbi.objects(sra__study__BioProject=bs.bioproject['bioproject_accn']).update(bioproject=bs.bioproject)
+            Ncbi.objects(sra__study__BioProject=bs.bioproject['bioproject_id']).update(bioproject=bs.bioproject)
+
+
+def parse_pubmed(cache):
+    for xml in cache:
+        logger.debug('Parsing: {}'.format(xml))
+        tree = ElementTree.parse(xml)
+        for pkg in tree.findall('PubmedArticle/MedlineCitation'):
+            pm = PubmedParse(pkg)
+            Ncbi.objects(sra__study__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
+            Ncbi.objects(sra__sample__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
+            Ncbi.objects(sra__experiment__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
+
+
 def main():
     # Import commandline arguments.
     args = arguments()
@@ -267,43 +326,81 @@ def main():
     Entrez.email = args.email
 
     # Connect to mongo server
-    logger.info('Starting MongoDB')
-    with MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port):
+    if args.host:
+        logger.info('Connecting to running server at: mongodb://{}:{}'.format(args.host, args.port))
+        host = args.host
+        mongodb = False
+    else:
+        logger.info('Starting MongoDB')
+        mongodb = MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port)
         logger.info('Connecting to: {}'.format(args.db))
-        connect(args.db)
+        host = 'localhost'
 
-        # SRA
-        logger.info('Querying SRA: {}'.format(args.query))
-        sra_query = ncbi_query(args.query)
+    connect(args.db, host=host, port=args.port)
 
-        logger.info('Downloading documents')
-        cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
+    # SRA
+    logger.info('Querying SRA: {}'.format(args.query))
+    sra_query = ncbi_query(args.query)
 
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        fetch_sra(sra_query, cache)
+    logger.info('Downloading documents')
+    cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
 
-        logger.info('Parsing SRA XML')
-        parse_sra(cache)
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    fetch_sra(sra_query, cache)
 
-        # Query BioSample
-#         cache = Cache(directory='.cache/sra2mongo/biosample')
-#         biosample_accn = list(BioSample.objects.distinct('sra.sample.BioSample'))
-#
-#         logger.info('Querying BioSample: with {:,} ids'.format(len(biosample_accn)))
-#         logger.info('Saving to cache: {}'.format(cache.cachedir))
-#         query = ncbi_query(biosample_accn, db='biosample')
-#
-#         logger.info('Downloading BioSample documents')
-#         logger.info('Saving to cache: {}'.format(cache.cachedir))
-#         fetch_sra(query, cache, runinfo_retmode=None, db='biosample')
-#
-#         logger.info('Adding documents to database')
-#         for xml in cache:
-#             logger.debug('Parsing: {}'.format(xml))
-#             tree = ElementTree.parse(xml)
-#             for pkg in tree.findall('BioSample'):
-#                 bs = BioSampleParse(pkg)
-#                 b = BioSample.build_from_BioSample(bs)
+    logger.info('Parsing SRA XML')
+    parse_sra(cache)
+
+    # Query BioSample
+    cache = Cache(directory='.cache/sra2mongo/biosample')
+    accn = list(Ncbi.objects.distinct('sra.sample.BioSample'))
+
+    logger.info('Querying BioSample: with {:,} ids'.format(len(accn)))
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    query = ncbi_query(accn, db='biosample')
+
+    logger.info('Downloading BioSample documents')
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    fetch_sra(query, cache, runinfo_retmode=None, db='biosample')
+
+    logger.info('Adding documents to database')
+    parse_biosample(cache)
+
+    # Query BioProject
+    cache = Cache(directory='.cache/sra2mongo/bioproject')
+    accn = list(Ncbi.objects.distinct('sra.study.BioProject'))
+
+    logger.info('Querying BioProject: with {:,} ids'.format(len(accn)))
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    query = ncbi_query(accn, db='bioproject')
+
+    logger.info('Downloading BioProject documents')
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    fetch_sra(query, cache, runinfo_retmode=None, db='bioproject')
+
+    logger.info('Adding documents to database')
+    parse_bioproject(cache)
+
+    # Query Pubmed
+    cache = Cache(directory='.cache/sra2mongo/pubmed')
+    accn = list(Ncbi.objects.distinct('sra.study.pubmed'))
+    accn.extend(list(Ncbi.objects.distinct('sra.experiment.pubmed')))
+    accn.extend(list(Ncbi.objects.distinct('sra.sample.pubmed')))
+    accn = list(set(accn))
+
+    logger.info('Querying Pubmed: with {:,} ids'.format(len(accn)))
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    query = ncbi_query(accn, db='pubmed')
+
+    logger.info('Downloading Pubmed documents')
+    logger.info('Saving to cache: {}'.format(cache.cachedir))
+    fetch_sra(query, cache, runinfo_retmode=None, db='pubmed')
+
+    logger.info('Adding documents to database')
+    parse_pubmed(cache)
+
+    if mongodb:
+        mongodb.close()
 
 
 if __name__ == '__main__':

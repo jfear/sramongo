@@ -14,7 +14,8 @@ class BioProjectParse(object):
 
         """
         locs = {
-                'bioproject_id': ('Project/ProjectID/ArchiveID', 'accession'),
+                'bioproject_accn': ('Project/ProjectID/ArchiveID', 'accession'),
+                'bioproject_id': ('Project/ProjectID/ArchiveID', 'id'),
                 'name': ('Project/ProjectDescr/Name', 'text'),
                 'title': ('Project/ProjectDescr/Title', 'text'),
                 'description': ('Project/ProjectDescr/Description', 'text'),
@@ -61,19 +62,19 @@ class BioProjectParse(object):
         try:
             self.bioproject['publication_date'] = re.match(
                 regex, self.bioproject['publication_date']).groups()[0]
-        except AttributeError:
+        except (AttributeError, KeyError):
             pass
 
         try:
             self.bioproject['last_update'] = re.match(
                 regex, self.bioproject['last_update']).groups()[0]
-        except AttributeError:
+        except (AttributeError, KeyError):
             pass
 
         try:
             self.bioproject['submission_date'] = re.match(
                 regex, self.bioproject['submission_date']).groups()[0]
-        except AttributeError:
+        except (AttributeError, KeyError):
             pass
 
     @valid_path(rettype=list)
