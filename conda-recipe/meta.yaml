@@ -2,7 +2,7 @@ package:
   name: sramongo
   version: {{ SRAMONGO_VERSION }}
 source:
-  git_url: https://github.com/jfear/sramong.git
+  git_url: https://github.com/jfear/sramongo.git
   git_rev: master
 
 build:
@@ -11,27 +11,29 @@ build:
 requirements:
   build:
     - biopython >=1.68
-    - blinker>=1.4
-    - mongoengine>=0.11.0
-    - pandas>=0.19.2
-    - pymongo>=3.3.0
-    - pytest>=3.0.5
-    - setuptools>=27.2.0
-    - sphinx>=1.5.1
-    - sphinxcontrib-napoleon>=0.1.9
-    - sphinx_rtd_theme>=0.1.9
+    - blinker >=1.4
+    - mongoengine >=0.11.0
+    - pandas >=0.19.2
+    - pymongo >=3.3.0
+    - pytest >=3.0.5
+    - pytest-runner >=2.11
+    - setuptools >=27.2.0
+    - sphinx >=1.5.1
+    - sphinxcontrib-napoleon >=0.1.9
+    - sphinx_rtd_theme >=0.1.9
 
   run:
     - biopython >=1.68
-    - blinker>=1.4
-    - mongoengine>=0.11.0
-    - pandas>=0.19.2
-    - pymongo>=3.3.0
-    - pytest>=3.0.5
-    - setuptools>=27.2.0
-    - sphinx>=1.5.1
-    - sphinxcontrib-napoleon>=0.1.9
-    - sphinx_rtd_theme>=0.1.9
+    - blinker >=1.4
+    - mongoengine >=0.11.0
+    - pandas >=0.19.2
+    - pymongo >=3.3.0
+    - pytest >=3.0.5
+    - pytest-runner >=2.11
+    - setuptools >=27.2.0
+    - sphinx >=1.5.1
+    - sphinxcontrib-napoleon >=0.1.9
+    - sphinx_rtd_theme >=0.1.9
 
 test:
   imports:
