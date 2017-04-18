@@ -1,8 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-set -x
 
-# Download and set up conda
+# Download and set up mongo
 curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1204-3.4.1.tgz
 tar -zxf mongodb-linux-x86_64-ubuntu1204-3.4.1.tgz && mv mongodb-linux-x86_64-ubuntu1204-3.4.1  ~/mongo
 
@@ -20,5 +19,8 @@ conda config --add channels jfear
 
 conda install -y python=3.5
 conda install -y --file requirements.txt
+
+# we also want conda-build to build a conda package
+conda install -y conda-build
 
 ~/anaconda/bin/python setup.py install
