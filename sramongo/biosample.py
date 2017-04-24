@@ -23,6 +23,7 @@ class BioSampleParse(object):
                 'tax_id': ('Description/Organism', 'taxonomy_id'),
                 'tax_name': ('Description/Organism', 'taxonomy_name'),
                 'organism_name': ('Description/Organism/OrganismName', 'text'),
+                'description': ('Description/Comment/Paragraph', 'text'),
                 'institute': ('Owner/Name', 'text'),
                 'access': ('.', 'access'),
                 'biosample_accn': ('.', 'accession'),

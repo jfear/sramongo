@@ -857,6 +857,9 @@ class BioSample(EmbeddedDocument):
     title: mongoengine.StringField
         A free text description of the sample.
 
+    description: mongoengine.StringField
+        A free text description of the sample.
+
     tax_id: mongoengine.StringField
         The tax_id that the sample belongs.
 
@@ -900,6 +903,7 @@ class BioSample(EmbeddedDocument):
     sample_id = StringField()
     GEO = StringField()
     title = StringField()
+    description = StringField()
     tax_id = StringField()
     tax_name = StringField()
     organism_name = StringField()
