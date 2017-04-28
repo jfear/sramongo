@@ -118,10 +118,10 @@ def arguments():
     args = parser.parse_args()
 
     if args.host and (args.dbDir or args.logDir):
-        logger.warn('Both --host and --dbpath/--logDir were provided; going to try using running mongo server.')
+        logger.warning('Both --host and --dbpath/--logDir were provided; going to try using running mongo server.')
 
     if not (args.host or args.dbDir or args.logDir):
-        logger.warn('You must provide either a `--host hostname` with a running database or '
+        logger.warning('You must provide either a `--host hostname` with a running database or '
                 '`--dbpath <path to db> --logDir <path to log>`')
 
     return args
@@ -222,8 +222,8 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
 
                 except HTTPError as err:
                     if (500 <= err.code <= 599) & (attempt < 3):
-                        logger.warn("Received error from server %s" % err)
-                        logger.warn("Attempt %i of 3" % attempt)
+                        logger.warning("Received error from server %s" % err)
+                        logger.warning("Attempt %i of 3" % attempt)
                         time.sleep(15)
                     else:
                         logger.error("Received error from server %s" % err)
@@ -231,8 +231,8 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
                         sys.exit(1)
                 except IncompleteRead as err:
                     if attempt < 3:
-                        logger.warn("Received error from server %s" % err)
-                        logger.warn("Attempt %i of 3" % attempt)
+                        logger.warning("Received error from server %s" % err)
+                        logger.warning("Attempt %i of 3" % attempt)
                         time.sleep(15)
                     else:
                         logger.error("Received error from server %s" % err)
