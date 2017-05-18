@@ -22,6 +22,7 @@ EXISTING_STUDY_TYPES_DEPRICATED = {
 
 LIBRARY_STRATEGY = [
     "AMPLICON",
+    "ATAC-seq",
     "Bisulfite-Seq",
     "ChIP-Seq",
     "CLONE",
@@ -32,6 +33,7 @@ LIBRARY_STRATEGY = [
     "FAIRE-seq",
     "FINISHING",
     "FL-cDNA",
+    "HI-C",
     "MBD-Seq",
     "MeDIP-Seq",
     "miRNA-Seq",
@@ -151,6 +153,7 @@ INSTRUMENT_MODEL_ACTIVE = [
     "Illumina HiSeq X Ten",
     "Illumina MiSeq",
     "Illumina MiniSeq",
+    "Illumina NextSeq 500",
     "Ion Torrent PGM",
     "Ion Torrent Proton",
     "NextSeq 500",
