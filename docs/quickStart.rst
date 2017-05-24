@@ -24,6 +24,13 @@ run:
 
     conda install -c jfear sramongo
 
+or sramongo can be installed using pip:
+
+.. code:: bash
+
+    pip install git+https://github.com/jfear/sramongo
+
+
 sra2mongo Usage
 ---------------
 
@@ -34,10 +41,10 @@ options run ``sra2mongo -h``. A simple query would look like:
 
    sra2mongo \
        --email john.smith@example.com \
-       --dbDir $HOME/db \
+       --dbpath $HOME/db \
        --logDir $HOME/logs \
        --db sra \
-       --query '"Drosophila melanogaster[orgn]"'
+       --query '"Drosophila melanogaster"[orgn]'
 
 The ``\`` allows for breaking the command on multiple lines. This command will
 query the SRA for ``"Drosophila melanogaster"[orgn]``, download the XML for all
@@ -57,11 +64,17 @@ Querying the Database
 ---------------------
 
 .. todo::
-    Add section about querying the database using mongoengine. Until then follow
+    Add section about querying the database using mongoengine and pymongo. Until
+    then follow
     `mongoengines docs <http://docs.mongoengine.org/guide/querying.html>`__
 
 Extending Database
 ------------------
+
+.. note::
+    While this section still applies, I have found that creating a new
+    collection and corresponding model, and copying the fields of interest over
+    to it is more modular and easier to maintain.
 
 sramongo uses what is called an object document mapping or ODM (called
 mongoengine_). An ODM allows mapping of attributes from a python class to the
