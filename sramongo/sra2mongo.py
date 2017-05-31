@@ -29,19 +29,24 @@ _DEBUG = False
 
 class Cache(object):
     def __init__(self, directory='', clean=False):
+
+        # Clean cache if option given
+        if clean & os.path.exists(directory):
+            logger.info('Clearing cache: {}.'.format(directory))
+            self.clear()
+
+        # Make cach directory
         if not os.path.exists(directory):
             os.makedirs(directory)
 
         self.cachedir = os.path.abspath(directory)
 
-        if clean:
-            logger.info('Clearing cache: {}.'.format(cache.cachedir))
-            self.clear()
-
+        # Scan cache and make list of names.
         self.cached = set([x.replace('.xml', '') for x in os.listdir(path=self.cachedir) if x.endswith('.xml')])
 
     def add_to_cache(self, name, _type, data):
-        self.cached.add(name)
+        """Add downloaded data to the cache."""
+        self.cached.add(str(name))
 
         if _type == 'xml':
             ext = 'xml'
@@ -54,12 +59,14 @@ class Cache(object):
             fh.write(data)
 
     def remove_from_cache(self, name):
-        self.cached.discard(name)
-        for fn in glob(os.path.join(self.cachedir, name + '*')):
+        """Remove file from cache."""
+        self.cached.discard(str(name))
+        for fn in glob(os.path.join(self.cachedir, str(name) + '*')):
             if os.path.exists(fn):
                 os.remove(fn)
 
     def get_cache(self, name, _type):
+        """Get file contents from cache."""
         if _type == 'xml':
             ext = 'xml'
         else:

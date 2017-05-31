@@ -8,15 +8,14 @@ from mongoengine import connect
 from Bio import Entrez
 
 from sramongo.mongo_schema import Ncbi
-from sramongo.sra2mongo import Cache, ncbi_query, fetch_sra, parse_sra
+from sramongo.sra2mongo import Cache, ncbi_query, fetch_ncbi, parse_sra
 
 # TODO: Probably should not set my email permanently.
 Entrez.email = 'justin.fear@nih.gov'
 
-@pytest.fixture(scope='session')
-def cache(tmpdir_factory):
-    tmpdir = str(tmpdir_factory.mktemp('sra2mongo'))
-    return Cache(tmpdir)
+@pytest.fixture
+def tmpdir(tmpdir_factory):
+    return str(tmpdir_factory.mktemp('sra2mongo'))
 
 
 @pytest.fixture(scope='session')
@@ -24,9 +23,10 @@ def sra_query():
     return ncbi_query('ERR1751044')
 
 
-@pytest.fixture(scope='session')
-def sra_fetch(sra_query, cache):
-    fetch_sra(sra_query, cache, runinfo_retmode='text')
+@pytest.fixture
+def sra_fetch(sra_query, tmpdir):
+    cache = Cache(tmpdir)
+    fetch_ncbi(sra_query, cache, runinfo_retmode='text')
     return cache
 
 
@@ -36,9 +36,18 @@ def test_ncbi_query(sra_query):
 
 
 def test_fetch_sra(sra_fetch):
-    assert 0 in sra_fetch.cached
+    print(sra_fetch.cached)
+    assert '0' in sra_fetch.cached
     assert os.path.exists(os.path.join(sra_fetch.cachedir, '0.xml'))
     assert os.path.exists(os.path.join(sra_fetch.cachedir, '0.csv'))
+
+
+def test_fetch_sra_remove(sra_fetch):
+    assert '0' in sra_fetch.cached
+    sra_fetch.remove_from_cache(0)
+    assert os.path.exists(os.path.join(sra_fetch.cachedir, '0.xml')) is False
+    assert os.path.exists(os.path.join(sra_fetch.cachedir, '0.csv')) is False
+    assert '0' not in sra_fetch.cached
 
 
 def test_parse_sra(sra_fetch, mongoDB):
