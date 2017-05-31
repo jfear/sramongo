@@ -186,7 +186,7 @@ def ncbi_query(query, **kwargs):
         raise ValueError('Query should be a string or list of Accession numbers.')
 
 
-def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
+def fetch_ncbi(records, cache, runinfo_retmode='text', **kwargs):
     count = records['Count']
     batch_size = 500
 
@@ -346,7 +346,7 @@ def main():
     cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
 
     logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_sra(sra_query, cache)
+    fetch_ncbi(sra_query, cache)
 
     logger.info('Parsing SRA XML')
     parse_sra(cache)
@@ -361,7 +361,7 @@ def main():
 
     logger.info('Downloading BioSample documents')
     logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_sra(query, cache, runinfo_retmode=None, db='biosample')
+    fetch_ncbi(query, cache, runinfo_retmode=None, db='biosample')
 
     logger.info('Adding documents to database')
     parse_biosample(cache)
@@ -376,7 +376,7 @@ def main():
 
     logger.info('Downloading BioProject documents')
     logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_sra(query, cache, runinfo_retmode=None, db='bioproject')
+    fetch_ncbi(query, cache, runinfo_retmode=None, db='bioproject')
 
     logger.info('Adding documents to database')
     parse_bioproject(cache)
@@ -394,7 +394,7 @@ def main():
 
     logger.info('Downloading Pubmed documents')
     logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_sra(query, cache, runinfo_retmode=None, db='pubmed')
+    fetch_ncbi(query, cache, runinfo_retmode=None, db='pubmed')
 
     logger.info('Adding documents to database')
     parse_pubmed(cache)
