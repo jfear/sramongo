@@ -11,6 +11,7 @@ from logging import INFO, DEBUG
 import pandas as pd
 import time
 from shutil import rmtree
+from glob import glob
 
 from Bio import Entrez
 from mongoengine import connect
@@ -51,6 +52,12 @@ class Cache(object):
 
         with open(os.path.join(self.cachedir, fname), 'w') as fh:
             fh.write(data)
+
+    def remove_from_cache(self, name):
+        self.cached.discard(name)
+        for fn in glob(os.path.join(self.cachedir, name + '*')):
+            if os.path.exists(fn):
+                os.remove(fn)
 
     def get_cache(self, name, _type):
         if _type == 'xml':
@@ -228,6 +235,7 @@ def fetch_ncbi(records, cache, runinfo_retmode='text', **kwargs):
                     else:
                         logger.error("Received error from server %s" % err)
                         logger.error("Please re-run command latter.")
+                        cache.remove_from_cache(start)
                         sys.exit(1)
                 except IncompleteRead as err:
                     if attempt < 3:
@@ -237,15 +245,18 @@ def fetch_ncbi(records, cache, runinfo_retmode='text', **kwargs):
                     else:
                         logger.error("Received error from server %s" % err)
                         logger.error("Please re-run command latter.")
+                        cache.remove_from_cache(start)
                         sys.exit(1)
                 except URLError as err:
                     if (err.code == 60) & (attempt < 3):
                         logger.warning("Received error from server %s" % err)
                         logger.warning("Attempt %i of 3" % attempt)
+                        cache.remove_from_cache(start)
                         time.sleep(15)
                     else:
                         logger.error("Received error from server %s" % err)
                         logger.error("Please re-run command latter.")
+                        cache.remove_from_cache(start)
                         sys.exit(1)
 
 
