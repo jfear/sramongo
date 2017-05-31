@@ -4,7 +4,7 @@ import os
 import sys
 import argparse
 from argparse import RawDescriptionHelpFormatter as Raw
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from http.client import IncompleteRead
 from xml.etree import ElementTree
 from logging import INFO, DEBUG
@@ -231,6 +231,15 @@ def fetch_ncbi(records, cache, runinfo_retmode='text', **kwargs):
                         sys.exit(1)
                 except IncompleteRead as err:
                     if attempt < 3:
+                        logger.warning("Received error from server %s" % err)
+                        logger.warning("Attempt %i of 3" % attempt)
+                        time.sleep(15)
+                    else:
+                        logger.error("Received error from server %s" % err)
+                        logger.error("Please re-run command latter.")
+                        sys.exit(1)
+                except URLError as err:
+                    if (err.code == 60) & (attempt < 3):
                         logger.warning("Received error from server %s" % err)
                         logger.warning("Attempt %i of 3" % attempt)
                         time.sleep(15)
