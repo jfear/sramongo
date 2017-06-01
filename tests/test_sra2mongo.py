@@ -3,12 +3,13 @@ import os
 import pytest
 import pandas as pd
 from xml.etree import ElementTree
+from io import StringIO
 
 from mongoengine import connect
 from Bio import Entrez
 
 from sramongo.mongo_schema import Ncbi
-from sramongo.sra2mongo import Cache, ncbi_query, fetch_ncbi, parse_sra
+from sramongo.sra2mongo import Cache, ncbi_query, fetch_ncbi, parse_sra, catch_xml_error
 
 # TODO: Probably should not set my email permanently.
 Entrez.email = 'justin.fear@nih.gov'
@@ -56,3 +57,13 @@ def test_parse_sra(sra_fetch, mongoDB):
     ncbi = Ncbi.objects(sra__run__run_id='ERR1751044').first()
     assert ncbi.sra.run[0].run_id == 'ERR1751044'
     assert ncbi.sra.experiment.experiment_id == 'ERX1819343'
+
+
+def test_catch_xml_error():
+    XMLERROR = """<?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE eEfetchResult PUBLIC "-//NLM//DTD efetch 20131226//EN" "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20131226/efetch.dtd">
+    <eFetchResult>
+        <ERROR>Unable to obtain query #1</ERROR>
+    </eFetchResult>"""
+
+    assert catch_xml_error(StringIO(XMLERROR)) is True
