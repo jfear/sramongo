@@ -12,6 +12,7 @@ import pandas as pd
 import time
 from shutil import rmtree
 from glob import glob
+from io import StringIO
 
 from Bio import Entrez
 from mongoengine import connect
@@ -200,6 +201,21 @@ def ncbi_query(query, **kwargs):
         raise ValueError('Query should be a string or list of Accession numbers.')
 
 
+def catch_xml_error(xml):
+    try:
+        tree = ElementTree.parse(xml)
+    except xml.etree.ElementTree.ParseError:
+        logger.debug('Current XML file appears to be empty; re-download.')
+        return True
+
+    res = tree.find('ERROR')
+    if res is None:
+        return False
+    else:
+        logger.debug('Current XML has an ERROR tag; re-download.')
+        return True
+
+
 def fetch_ncbi(records, cache, runinfo_retmode='text', **kwargs):
     count = records['Count']
     batch_size = 500
@@ -214,7 +230,7 @@ def fetch_ncbi(records, cache, runinfo_retmode='text', **kwargs):
         cache_xml = cache.get_cache(start, 'xml')
         cache_runinfo = cache.get_cache(start, 'csv')
 
-        if (cache_xml is not None):
+        if (cache_xml is not None) & (catch_xml_error(StringIO(cache_xml)) is False):
             logger.info('Using cached version for: {} to {}.'.format(start+1, end))
         else:
             logger.info("Downloading record %i to %i" % (start+1, end))
