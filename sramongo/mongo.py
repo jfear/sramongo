@@ -127,3 +127,40 @@ class MongoDB():
 
     def __exit__(self, *args):
         stop_mongo(dbDir=self.dbDir, port=self.port)
+
+
+class MongoDB2():
+    def __init__(self, dbDir=None, logDir=None, port=27017, command_line_args=''):
+        """MongoDB controller for server.
+
+        Parameters
+        ----------
+        dbDir: str
+            The path to the mongoDB database direcotry. If not given will try to
+            use `MONGODB_DATA_DIR` environmental variable.
+        logDir: str
+            The path to the mongoDB log directory. If not given will try to use
+            `MONGODB_LOG_DIR` environmental variable.
+        port: int
+            The port to run the server on.
+        command_line_args: str
+            Additional mongod command line arguments. Passed directly to the mongod
+            command.
+        """
+        self.dbDir = dbDir
+        self.logDir = logDir
+        self.port = port
+        self.command_line_args=command_line_args
+
+        # If dirs don't exists then make them
+        if not os.path.exists(self.dbDir):
+            os.mkdir(self.dbDir)
+        if not os.path.exists(self.logDir):
+            os.mkdir(self.logDir)
+
+        self.pid = start_mongo(dbDir=self.dbDir, logDir=self.logDir,
+                               port=self.port,
+                               command_line_args=self.command_line_args)
+
+    def close(self, *args):
+        stop_mongo(dbDir=self.dbDir, port=self.port)

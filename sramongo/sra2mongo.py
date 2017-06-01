@@ -4,20 +4,22 @@ import os
 import sys
 import argparse
 from argparse import RawDescriptionHelpFormatter as Raw
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from http.client import IncompleteRead
 from xml.etree import ElementTree
 from logging import INFO, DEBUG
 import pandas as pd
 import time
 from shutil import rmtree
+from glob import glob
+from io import StringIO
 
 from Bio import Entrez
 from mongoengine import connect
 from mongoengine.errors import ValidationError
 
 from sramongo.logger import logger
-from sramongo.mongo import MongoDB
+from sramongo.mongo import MongoDB2
 from sramongo.sra import SraExperiment, XMLSchemaException
 from sramongo.biosample import BioSampleParse
 from sramongo.bioproject import BioProjectParse
@@ -28,19 +30,24 @@ _DEBUG = False
 
 class Cache(object):
     def __init__(self, directory='', clean=False):
+
+        # Clean cache if option given
+        if clean & os.path.exists(directory):
+            logger.info('Clearing cache: {}.'.format(directory))
+            self.clear()
+
+        # Make cach directory
         if not os.path.exists(directory):
             os.makedirs(directory)
 
         self.cachedir = os.path.abspath(directory)
 
-        if clean:
-            logger.info('Clearing cache: {}.'.format(cache.cachedir))
-            self.clear()
-
+        # Scan cache and make list of names.
         self.cached = set([x.replace('.xml', '') for x in os.listdir(path=self.cachedir) if x.endswith('.xml')])
 
     def add_to_cache(self, name, _type, data):
-        self.cached.add(name)
+        """Add downloaded data to the cache."""
+        self.cached.add(str(name))
 
         if _type == 'xml':
             ext = 'xml'
@@ -52,7 +59,15 @@ class Cache(object):
         with open(os.path.join(self.cachedir, fname), 'w') as fh:
             fh.write(data)
 
+    def remove_from_cache(self, name):
+        """Remove file from cache."""
+        self.cached.discard(str(name))
+        for fn in glob(os.path.join(self.cachedir, str(name) + '*')):
+            if os.path.exists(fn):
+                os.remove(fn)
+
     def get_cache(self, name, _type):
+        """Get file contents from cache."""
         if _type == 'xml':
             ext = 'xml'
         else:
@@ -186,7 +201,22 @@ def ncbi_query(query, **kwargs):
         raise ValueError('Query should be a string or list of Accession numbers.')
 
 
-def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
+def catch_xml_error(xml):
+    try:
+        tree = ElementTree.parse(xml)
+    except ElementTree.ParseError:
+        logger.debug('Current XML file appears to be empty; re-download.')
+        return True
+
+    res = tree.find('ERROR')
+    if res is None:
+        return False
+    else:
+        logger.debug('Current XML has an ERROR tag; re-download.')
+        return True
+
+
+def fetch_ncbi(records, cache, runinfo_retmode='text', **kwargs):
     count = records['Count']
     batch_size = 500
 
@@ -200,7 +230,7 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
         cache_xml = cache.get_cache(start, 'xml')
         cache_runinfo = cache.get_cache(start, 'csv')
 
-        if (cache_xml is not None):
+        if (cache_xml is not None) & (catch_xml_error(StringIO(cache_xml)) is False):
             logger.info('Using cached version for: {} to {}.'.format(start+1, end))
         else:
             logger.info("Downloading record %i to %i" % (start+1, end))
@@ -228,6 +258,7 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
                     else:
                         logger.error("Received error from server %s" % err)
                         logger.error("Please re-run command latter.")
+                        cache.remove_from_cache(start)
                         sys.exit(1)
                 except IncompleteRead as err:
                     if attempt < 3:
@@ -237,6 +268,18 @@ def fetch_sra(records, cache, runinfo_retmode='text', **kwargs):
                     else:
                         logger.error("Received error from server %s" % err)
                         logger.error("Please re-run command latter.")
+                        cache.remove_from_cache(start)
+                        sys.exit(1)
+                except URLError as err:
+                    if (err.code == 60) & (attempt < 3):
+                        logger.warning("Received error from server %s" % err)
+                        logger.warning("Attempt %i of 3" % attempt)
+                        cache.remove_from_cache(start)
+                        time.sleep(15)
+                    else:
+                        logger.error("Received error from server %s" % err)
+                        logger.error("Please re-run command latter.")
+                        cache.remove_from_cache(start)
                         sys.exit(1)
 
 
@@ -332,75 +375,80 @@ def main():
         mongodb = False
     else:
         logger.info('Starting MongoDB')
-        mongodb = MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port)
-        logger.info('Connecting to: {}'.format(args.db))
-        host = 'localhost'
+        mongodb = MongoDB2(dbDir=args.dbDir, logDir=args.logDir, port=args.port)
+        host = '127.0.0.1'
+        logger.info('Running server at: mongodb://{}:{}'.format(host, args.port))
 
-    connect(args.db, host=host, port=args.port)
+    logger.info('Connecting to: {}'.format(args.db))
+    client = connect(args.db, host=host, port=args.port)
 
-    # SRA
-    logger.info('Querying SRA: {}'.format(args.query))
-    sra_query = ncbi_query(args.query)
+    try:
+        # SRA
+        logger.info('Querying SRA: {}'.format(args.query))
+        sra_query = ncbi_query(args.query)
 
-    logger.info('Downloading documents')
-    cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
+        logger.info('Downloading documents')
+        cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
 
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_sra(sra_query, cache)
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_ncbi(sra_query, cache)
 
-    logger.info('Parsing SRA XML')
-    parse_sra(cache)
+        logger.info('Parsing SRA XML')
+        parse_sra(cache)
 
-    # Query BioSample
-    cache = Cache(directory='.cache/sra2mongo/biosample')
-    accn = list(Ncbi.objects.distinct('sra.sample.BioSample'))
+        # Query BioSample
+        cache = Cache(directory='.cache/sra2mongo/biosample')
+        accn = list(Ncbi.objects.distinct('sra.sample.BioSample'))
 
-    logger.info('Querying BioSample: with {:,} ids'.format(len(accn)))
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    query = ncbi_query(accn, db='biosample')
+        logger.info('Querying BioSample: with {:,} ids'.format(len(accn)))
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        query = ncbi_query(accn, db='biosample')
 
-    logger.info('Downloading BioSample documents')
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_sra(query, cache, runinfo_retmode=None, db='biosample')
+        logger.info('Downloading BioSample documents')
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_ncbi(query, cache, runinfo_retmode=None, db='biosample')
 
-    logger.info('Adding documents to database')
-    parse_biosample(cache)
+        logger.info('Adding documents to database')
+        parse_biosample(cache)
 
-    # Query BioProject
-    cache = Cache(directory='.cache/sra2mongo/bioproject')
-    accn = list(Ncbi.objects.distinct('sra.study.BioProject'))
+        # Query BioProject
+        cache = Cache(directory='.cache/sra2mongo/bioproject')
+        accn = list(Ncbi.objects.distinct('sra.study.BioProject'))
 
-    logger.info('Querying BioProject: with {:,} ids'.format(len(accn)))
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    query = ncbi_query(accn, db='bioproject')
+        logger.info('Querying BioProject: with {:,} ids'.format(len(accn)))
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        query = ncbi_query(accn, db='bioproject')
 
-    logger.info('Downloading BioProject documents')
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_sra(query, cache, runinfo_retmode=None, db='bioproject')
+        logger.info('Downloading BioProject documents')
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_ncbi(query, cache, runinfo_retmode=None, db='bioproject')
 
-    logger.info('Adding documents to database')
-    parse_bioproject(cache)
+        logger.info('Adding documents to database')
+        parse_bioproject(cache)
 
-    # Query Pubmed
-    cache = Cache(directory='.cache/sra2mongo/pubmed')
-    accn = list(Ncbi.objects.distinct('sra.study.pubmed'))
-    accn.extend(list(Ncbi.objects.distinct('sra.experiment.pubmed')))
-    accn.extend(list(Ncbi.objects.distinct('sra.sample.pubmed')))
-    accn = list(set(accn))
+        # Query Pubmed
+        cache = Cache(directory='.cache/sra2mongo/pubmed')
+        accn = list(Ncbi.objects.distinct('sra.study.pubmed'))
+        accn.extend(list(Ncbi.objects.distinct('sra.experiment.pubmed')))
+        accn.extend(list(Ncbi.objects.distinct('sra.sample.pubmed')))
+        accn = list(set(accn))
 
-    logger.info('Querying Pubmed: with {:,} ids'.format(len(accn)))
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    query = ncbi_query(accn, db='pubmed')
+        logger.info('Querying Pubmed: with {:,} ids'.format(len(accn)))
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        query = ncbi_query(accn, db='pubmed')
 
-    logger.info('Downloading Pubmed documents')
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_sra(query, cache, runinfo_retmode=None, db='pubmed')
+        logger.info('Downloading Pubmed documents')
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_ncbi(query, cache, runinfo_retmode=None, db='pubmed')
 
-    logger.info('Adding documents to database')
-    parse_pubmed(cache)
-
-    if mongodb:
-        mongodb.close()
+        logger.info('Adding documents to database')
+        parse_pubmed(cache)
+    except Exception as err:
+        raise err
+    finally:
+        client.close()
+        if mongodb:
+            mongodb.close()
 
 
 if __name__ == '__main__':
