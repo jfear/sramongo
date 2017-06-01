@@ -204,7 +204,7 @@ def ncbi_query(query, **kwargs):
 def catch_xml_error(xml):
     try:
         tree = ElementTree.parse(xml)
-    except xml.etree.ElementTree.ParseError:
+    except ElementTree.ParseError:
         logger.debug('Current XML file appears to be empty; re-download.')
         return True
 

@@ -67,3 +67,7 @@ def test_catch_xml_error():
     </eFetchResult>"""
 
     assert catch_xml_error(StringIO(XMLERROR)) is True
+
+def test_catch_xml_empty():
+    XMLERROR = ""
+    assert catch_xml_error(StringIO(XMLERROR)) is True
