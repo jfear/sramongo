@@ -18,7 +18,7 @@ from mongoengine import connect
 from mongoengine.errors import ValidationError
 
 from sramongo.logger import logger
-from sramongo.mongo import MongoDB
+from sramongo.mongo import MongoDB2
 from sramongo.sra import SraExperiment, XMLSchemaException
 from sramongo.biosample import BioSampleParse
 from sramongo.bioproject import BioProjectParse
