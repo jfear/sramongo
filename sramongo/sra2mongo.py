@@ -375,75 +375,80 @@ def main():
         mongodb = False
     else:
         logger.info('Starting MongoDB')
-        mongodb = MongoDB(dbDir=args.dbDir, logDir=args.logDir, port=args.port)
-        logger.info('Connecting to: {}'.format(args.db))
-        host = 'localhost'
+        mongodb = MongoDB2(dbDir=args.dbDir, logDir=args.logDir, port=args.port)
+        host = '127.0.0.1'
+        logger.info('Running server at: mongodb://{}:{}'.format(host, args.port))
 
-    connect(args.db, host=host, port=args.port)
+    logger.info('Connecting to: {}'.format(args.db))
+    client = connect(args.db, host=host, port=args.port)
 
-    # SRA
-    logger.info('Querying SRA: {}'.format(args.query))
-    sra_query = ncbi_query(args.query)
+    try:
+        # SRA
+        logger.info('Querying SRA: {}'.format(args.query))
+        sra_query = ncbi_query(args.query)
 
-    logger.info('Downloading documents')
-    cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
+        logger.info('Downloading documents')
+        cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
 
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_ncbi(sra_query, cache)
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_ncbi(sra_query, cache)
 
-    logger.info('Parsing SRA XML')
-    parse_sra(cache)
+        logger.info('Parsing SRA XML')
+        parse_sra(cache)
 
-    # Query BioSample
-    cache = Cache(directory='.cache/sra2mongo/biosample')
-    accn = list(Ncbi.objects.distinct('sra.sample.BioSample'))
+        # Query BioSample
+        cache = Cache(directory='.cache/sra2mongo/biosample')
+        accn = list(Ncbi.objects.distinct('sra.sample.BioSample'))
 
-    logger.info('Querying BioSample: with {:,} ids'.format(len(accn)))
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    query = ncbi_query(accn, db='biosample')
+        logger.info('Querying BioSample: with {:,} ids'.format(len(accn)))
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        query = ncbi_query(accn, db='biosample')
 
-    logger.info('Downloading BioSample documents')
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_ncbi(query, cache, runinfo_retmode=None, db='biosample')
+        logger.info('Downloading BioSample documents')
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_ncbi(query, cache, runinfo_retmode=None, db='biosample')
 
-    logger.info('Adding documents to database')
-    parse_biosample(cache)
+        logger.info('Adding documents to database')
+        parse_biosample(cache)
 
-    # Query BioProject
-    cache = Cache(directory='.cache/sra2mongo/bioproject')
-    accn = list(Ncbi.objects.distinct('sra.study.BioProject'))
+        # Query BioProject
+        cache = Cache(directory='.cache/sra2mongo/bioproject')
+        accn = list(Ncbi.objects.distinct('sra.study.BioProject'))
 
-    logger.info('Querying BioProject: with {:,} ids'.format(len(accn)))
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    query = ncbi_query(accn, db='bioproject')
+        logger.info('Querying BioProject: with {:,} ids'.format(len(accn)))
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        query = ncbi_query(accn, db='bioproject')
 
-    logger.info('Downloading BioProject documents')
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_ncbi(query, cache, runinfo_retmode=None, db='bioproject')
+        logger.info('Downloading BioProject documents')
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_ncbi(query, cache, runinfo_retmode=None, db='bioproject')
 
-    logger.info('Adding documents to database')
-    parse_bioproject(cache)
+        logger.info('Adding documents to database')
+        parse_bioproject(cache)
 
-    # Query Pubmed
-    cache = Cache(directory='.cache/sra2mongo/pubmed')
-    accn = list(Ncbi.objects.distinct('sra.study.pubmed'))
-    accn.extend(list(Ncbi.objects.distinct('sra.experiment.pubmed')))
-    accn.extend(list(Ncbi.objects.distinct('sra.sample.pubmed')))
-    accn = list(set(accn))
+        # Query Pubmed
+        cache = Cache(directory='.cache/sra2mongo/pubmed')
+        accn = list(Ncbi.objects.distinct('sra.study.pubmed'))
+        accn.extend(list(Ncbi.objects.distinct('sra.experiment.pubmed')))
+        accn.extend(list(Ncbi.objects.distinct('sra.sample.pubmed')))
+        accn = list(set(accn))
 
-    logger.info('Querying Pubmed: with {:,} ids'.format(len(accn)))
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    query = ncbi_query(accn, db='pubmed')
+        logger.info('Querying Pubmed: with {:,} ids'.format(len(accn)))
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        query = ncbi_query(accn, db='pubmed')
 
-    logger.info('Downloading Pubmed documents')
-    logger.info('Saving to cache: {}'.format(cache.cachedir))
-    fetch_ncbi(query, cache, runinfo_retmode=None, db='pubmed')
+        logger.info('Downloading Pubmed documents')
+        logger.info('Saving to cache: {}'.format(cache.cachedir))
+        fetch_ncbi(query, cache, runinfo_retmode=None, db='pubmed')
 
-    logger.info('Adding documents to database')
-    parse_pubmed(cache)
-
-    if mongodb:
-        mongodb.close()
+        logger.info('Adding documents to database')
+        parse_pubmed(cache)
+    except Exception as err:
+        raise err
+    finally:
+        client.close()
+        if mongodb:
+            mongodb.close()
 
 
 if __name__ == '__main__':
