@@ -11,3 +11,4 @@ script:
   - mongod --version
   - pytest -v tests
   - ./conda-build-and-upload.sh
+  - ./pypi-build-and-upload.sh
