@@ -76,6 +76,7 @@ LIBRARY_SELECTION = [
     "DNAse",
     "HMPR",
     "Hybrid Selection",
+    "Inverse rRNA",
     "MBD2 protein methyl-CpG binding domain",
     "MDA",
     "MF",
