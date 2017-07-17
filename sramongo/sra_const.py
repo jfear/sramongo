@@ -160,6 +160,7 @@ INSTRUMENT_MODEL_ACTIVE = [
     "NextSeq 550",
     "MinION",
     "PacBio RS",
+    "PacBio RS II",
     "unspecified",
     ]
 
