@@ -76,6 +76,7 @@ LIBRARY_SELECTION = [
     "DNAse",
     "HMPR",
     "Hybrid Selection",
+    "Inverse rRNA",
     "MBD2 protein methyl-CpG binding domain",
     "MDA",
     "MF",
@@ -160,6 +161,7 @@ INSTRUMENT_MODEL_ACTIVE = [
     "NextSeq 550",
     "MinION",
     "PacBio RS",
+    "PacBio RS II",
     "unspecified",
     ]
 
