@@ -1,5 +1,6 @@
 language: python
   - "3.5"
+  - "3.6"
 install: bash travis-setup.sh
 before_script:
   - export PATH=~/mongo/bin:$PATH
