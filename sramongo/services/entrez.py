@@ -268,7 +268,7 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
     Yields
     ------
     str
-        Text from efect results. Format depends on paramters passed to retmode
+        Text from effect results. Format depends on parameters passed to retmode
 
     """
     url = BASE_URL + f'efetch.fcgi?db={database}&retmode={retmode}&rettype={rettype}'
