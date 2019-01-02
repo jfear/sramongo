@@ -13,13 +13,14 @@ import re
 from dateutil.parser import parse
 
 BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
+PAUSE = .3
 
 EsearchResult = namedtuple('EsearchResult', 'ids count webenv query_key')
 EsummaryResult = namedtuple('EsummaryResult', 'id srx create_date update_date')
 
 
-def esearch(database, query, userhistory=True, webenv=False, query_key=False, retstart=False, retmax=False) \
-        -> Optional[EsearchResult]:
+def esearch(database, query, userhistory=True, webenv=False, query_key=False, retstart=False, retmax=False,
+            api_key=False) -> Optional[EsearchResult]:
     """Search for a query using the Entrez ESearch API.
 
     Parameters
@@ -38,6 +39,8 @@ def esearch(database, query, userhistory=True, webenv=False, query_key=False, re
         Return values starting at this index.
     retmax : int
         Return at most this number of values.
+    api_key : str
+        A users API key which allows more requests per second
 
     Returns
     -------
@@ -64,6 +67,12 @@ def esearch(database, query, userhistory=True, webenv=False, query_key=False, re
     if retmax:
         url += f'&retmax={retmax}'
 
+    if api_key:
+        url += f'&api_key={api_key}'
+        global PAUSE
+        PAUSE = .1
+
+    time.sleep(PAUSE)
     resp = requests.get(url)
     if resp.status_code != 200:
         print('There was a server error')
@@ -79,7 +88,7 @@ def esearch(database, query, userhistory=True, webenv=False, query_key=False, re
     )
 
 
-def epost(database, ids: List[str], webenv=False) -> Optional[requests.Response]:
+def epost(database, ids: List[str], webenv=False, api_key=False) -> Optional[requests.Response]:
     """Post IDs using the Entrez ESearch API.
 
     Parameters
@@ -90,6 +99,8 @@ def epost(database, ids: List[str], webenv=False) -> Optional[requests.Response]
         List of IDs to submit to the server.
     webenv : str
         An Entrez WebEnv to post ids to.
+    api_key : str
+        A users API key which allows more requests per second
 
     Returns
     -------
@@ -102,21 +113,29 @@ def epost(database, ids: List[str], webenv=False) -> Optional[requests.Response]
     if webenv:
         url_params += f'&WebEnv={webenv}'
 
+    if api_key:
+        url += f'&api_key={api_key}'
+        global PAUSE
+        PAUSE = .1
+
+    # TODO: try just using a POST to simplify code.
     if len(ids) <= 500:
         url = BASE_URL + f'epost.fcgi' + '?' + url_params
+        time.sleep(PAUSE)
         resp = requests.get(url)
         if resp.status_code != 200:
             print('There was a server error')
             return
     else:
         url = BASE_URL + f'epost.fcgi'
+        time.sleep(PAUSE)
         resp = requests.post(url, url_params)
 
     return resp
 
 
-def esummary(database, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False) \
-        -> Optional[List[EsummaryResult]]:
+def esummary(database, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
+             api_key=False) -> Optional[List[EsummaryResult]]:
     """Get document summaries using the Entrez ESearch API.
 
     Parameters
@@ -135,6 +154,8 @@ def esummary(database, ids=False, webenv=False, query_key=False, count=False, re
         Return values starting at this index.
     retmax : int
         Return at most this number of values.
+    api_key : str
+        A users API key which allows more requests per second
 
     Returns
     -------
@@ -143,6 +164,9 @@ def esummary(database, ids=False, webenv=False, query_key=False, count=False, re
 
     """
     url = BASE_URL + f'esummary.fcgi?db={database}&retmode=json'
+
+    if api_key:
+        url += f'&api_key={api_key}'
 
     if webenv and query_key:
         url += f'&WebEnv={webenv}&query_key={query_key}'
@@ -162,7 +186,7 @@ def esummary(database, ids=False, webenv=False, query_key=False, count=False, re
     return results
 
 
-def entrez_sets_of_results(url, retstart=False, retmax=False, count=False):
+def entrez_sets_of_results(url, retstart=False, retmax=False, count=False) -> Optional[requests.Response]:
     """Gets sets of results back from Entrez.
 
     Entrez can only return 500 results at a time. This creates a generator that gets results by incrementing
@@ -200,7 +224,7 @@ def entrez_sets_of_results(url, retstart=False, retmax=False, count=False):
             retmax = diff
 
         _url = url + f'&retstart={retstart}&retmax={retmax}'
-        resp = esummary_try_three_times(_url)
+        resp = entrez_try_three_times(_url)
         if resp is None:
             return
 
@@ -208,13 +232,13 @@ def entrez_sets_of_results(url, retstart=False, retmax=False, count=False):
         yield resp
 
 
-def esummary_try_three_times(url, attempt=0, num_tries=3) -> Optional[requests.Response]:
+def entrez_try_three_times(url, attempt=0, num_tries=3) -> Optional[requests.Response]:
     while attempt < num_tries:
+        time.sleep(PAUSE)
         resp = requests.get(url)
         if resp.status_code != 200:
             attempt += 1
-            time.sleep(1)
-            esummary_try_three_times(url, attempt, num_tries)
+            entrez_try_three_times(url, attempt, num_tries)
 
         return resp
 
@@ -239,7 +263,7 @@ def parse_esummary(json: dict) -> List[EsummaryResult]:
 
 
 def efetch(database, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
-           rettype='full', retmode='xml') -> Optional[List[EsummaryResult]]:
+           rettype='full', retmode='xml', api_key=False) -> Optional[List[EsummaryResult]]:
     """Get documents using the Entrez ESearch API.
 
     Parameters
@@ -264,6 +288,8 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
     retmode : str
         The format of document to return. Refer to link for valid formats for each database.
         https://www.ncbi.nlm.nih.gov/books/NBK25499/table/chapter4.T._valid_values_of__retmode_and/?report=objectonly
+    api_key : str
+        A users API key which allows more requests per second
 
     Yields
     ------
