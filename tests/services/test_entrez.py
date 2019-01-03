@@ -70,8 +70,3 @@ def test_efetch_nohisotry(small_esearch_results):
     for results in entrez.efetch(DB, ids):
         # TODO: Add XML parsing here.
         pass
-
-# TODO: Need to get API_KEY workin
-def test_API_KEY():
-    bob = API_KEY
-    pass
