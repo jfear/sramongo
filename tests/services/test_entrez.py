@@ -1,5 +1,6 @@
 import os
 import datetime
+from textwrap import dedent
 
 import pytest
 
@@ -15,6 +16,40 @@ API_KEY = os.environ.get('ENTREZ_API_KEY', False)
 def small_esearch_results() -> entrez.EsearchResult:
     esearch_results = entrez.esearch(DB, QUERY, retmax=RETMAX, api_key=API_KEY)
     return esearch_results
+
+
+@pytest.fixture(scope='module')
+def experiment_set_xml() -> str:
+    xml = dedent("""<?xml version="1.0"?>
+        <EXPERIMENT_PACKAGE_SET>
+          <EXPERIMENT_PACKAGE>
+            <EXPERIMENT accession="SRX5231949" alias="Library_2">
+              <IDENTIFIERS>
+                <PRIMARY_ID>SRX5231949</PRIMARY_ID>
+              </IDENTIFIERS>
+            </EXPERIMENT>
+            <SUBMISSION lab_name="College of plant protection" center_name="China Agricultural University" accession="SRA832165" alias="SUB5027898">
+              <IDENTIFIERS>
+                <PRIMARY_ID>SRA832165</PRIMARY_ID>
+              </IDENTIFIERS>
+            </SUBMISSION>
+          </EXPERIMENT_PACKAGE>
+          <EXPERIMENT_PACKAGE>
+            <EXPERIMENT accession="SRX5231948" alias="Library_1">
+              <IDENTIFIERS>
+                <PRIMARY_ID>SRX5231948</PRIMARY_ID>
+              </IDENTIFIERS>
+              <TITLE>d77ZT8</TITLE>
+            </EXPERIMENT>
+            <SUBMISSION lab_name="College of plant protection" center_name="China Agricultural University" accession="SRA832165" alias="SUB5027898">
+              <IDENTIFIERS>
+                <PRIMARY_ID>SRA832165</PRIMARY_ID>
+              </IDENTIFIERS>
+            </SUBMISSION>
+          </EXPERIMENT_PACKAGE>
+        </EXPERIMENT_PACKAGE_SET>
+    """)
+    return xml
 
 
 def test_urlencode_query():
@@ -65,8 +100,16 @@ def test_esummary_withhisotry_count(small_esearch_results):
     assert len(esummary_results) == 600
 
 
+def test_parse_experiment_set(experiment_set_xml):
+    for experiment in entrez.parse_efetch(experiment_set_xml):
+        if experiment.srx == 'SRX5231949':
+            assert 'Library_2' in experiment.xml
+        else:
+            assert 'Library_1' in experiment.xml
+
+
 def test_efetch_nohisotry(small_esearch_results):
     ids = small_esearch_results.ids
-    for results in entrez.efetch(DB, ids):
-        # TODO: Add XML parsing here.
-        pass
+    for results in entrez.efetch(DB, ids, api_key=API_KEY):
+        assert results.srx.startswith('SRX') | results.srx.startswith('DRX') | results.srx.startswith('ERX')
+

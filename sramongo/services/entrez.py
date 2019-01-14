@@ -4,11 +4,12 @@ NCBI provides an API for querying and downloading data from their databases.
 
 """
 import time
-from typing import Optional, List
+from typing import Optional, List, Generator
 import urllib.parse
 import requests
 from collections import namedtuple
 import re
+from xml.etree import cElementTree as ElementTree
 
 from dateutil.parser import parse
 
@@ -17,6 +18,7 @@ PAUSE = .3
 
 EsearchResult = namedtuple('EsearchResult', 'ids count webenv query_key')
 EsummaryResult = namedtuple('EsummaryResult', 'id srx create_date update_date')
+EfetchPackage = namedtuple('EfetchPackage', 'srx xml')
 
 
 def esearch(database, query, userhistory=True, webenv=False, query_key=False, retstart=False, retmax=False,
@@ -186,7 +188,7 @@ def esummary(database, ids=False, webenv=False, query_key=False, count=False, re
     return results
 
 
-def entrez_sets_of_results(url, retstart=False, retmax=False, count=False) -> Optional[requests.Response]:
+def entrez_sets_of_results(url, retstart=False, retmax=False, count=False) -> Optional[List[requests.Response]]:
     """Gets sets of results back from Entrez.
 
     Entrez can only return 500 results at a time. This creates a generator that gets results by incrementing
@@ -262,9 +264,17 @@ def parse_esummary(json: dict) -> List[EsummaryResult]:
     return results
 
 
+def parse_efetch(xml: str) -> List[EfetchPackage]:
+    root = ElementTree.fromstring(xml)
+    for experiment in root.findall('EXPERIMENT_PACKAGE'):
+        srx = experiment.find('EXPERIMENT').attrib['accession']
+        experiment_xml = ElementTree.tostring(experiment).decode()
+        yield EfetchPackage(srx, experiment_xml)
+
+
 def efetch(database, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
            rettype='full', retmode='xml', api_key=False) -> Optional[List[EsummaryResult]]:
-    """Get documents using the Entrez ESearch API.
+    """Get documents using the Entrez ESearch API.gg
 
     Parameters
     ----------
@@ -299,6 +309,9 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
     """
     url = BASE_URL + f'efetch.fcgi?db={database}&retmode={retmode}&rettype={rettype}'
 
+    if api_key:
+        url += f'&api_key={api_key}'
+
     if webenv and query_key:
         url += f'&WebEnv={webenv}&query_key={query_key}'
     elif ids:
@@ -310,6 +323,5 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
         count = len(id.split(','))
 
     for resp in entrez_sets_of_results(url, retstart, retmax, count):
-        yield resp.text
+        yield from parse_efetch(resp.text)
 
-# TODO: Maybe add XML parsing here to make it look like a JSON object
