@@ -17,8 +17,6 @@ BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
 PAUSE = .3
 
 EsearchResult = namedtuple('EsearchResult', 'ids count webenv query_key')
-EsummaryResult = namedtuple('EsummaryResult', 'id srx create_date update_date')
-EfetchPackage = namedtuple('EfetchPackage', 'srx xml')
 
 
 def esearch(database, query, userhistory=True, webenv=False, query_key=False, retstart=False, retmax=False,
@@ -90,7 +88,10 @@ def esearch(database, query, userhistory=True, webenv=False, query_key=False, re
     )
 
 
-def epost(database, ids: List[str], webenv=False, api_key=False) -> Optional[requests.Response]:
+EpostResult = namedtuple('EpostResult', 'webenv query_key')
+
+
+def epost(database, ids: List[str], webenv=False, api_key=False) -> Optional[EpostResult]:
     """Post IDs using the Entrez ESearch API.
 
     Parameters
@@ -109,34 +110,33 @@ def epost(database, ids: List[str], webenv=False, api_key=False) -> Optional[req
     requests.Response
 
     """
+    url = BASE_URL + f'epost.fcgi'
     id = ','.join(ids)
-    url_params = f'db={database}&id={id}&retmode=json'
+    url_params = f'db={database}&id={id}'
 
     if webenv:
         url_params += f'&WebEnv={webenv}'
 
     if api_key:
-        url += f'&api_key={api_key}'
+        url_params += f'&api_key={api_key}'
         global PAUSE
         PAUSE = .1
 
-    # TODO: try just using a POST to simplify code.
-    if len(ids) <= 500:
-        url = BASE_URL + f'epost.fcgi' + '?' + url_params
-        time.sleep(PAUSE)
-        resp = requests.get(url)
-        if resp.status_code != 200:
-            print('There was a server error')
-            return
-    else:
-        url = BASE_URL + f'epost.fcgi'
-        time.sleep(PAUSE)
-        resp = requests.post(url, url_params)
-
-    return resp
+    resp = entrez_try_put_multiple_times(url, url_params, num_tries=3)
+    return parse_epost(resp.text)
 
 
-def esummary(database, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
+def parse_epost(xml: str) -> EpostResult:
+    root = ElementTree.fromstring(xml)
+    webenv = root.find('WebEnv').text
+    query_key = root.find('QueryKey').text
+    return EpostResult(webenv, query_key)
+
+
+EsummaryResult = namedtuple('EsummaryResult', 'id srx create_date update_date')
+
+
+def esummary(database: str, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
              api_key=False) -> Optional[List[EsummaryResult]]:
     """Get document summaries using the Entrez ESearch API.
 
@@ -188,66 +188,6 @@ def esummary(database, ids=False, webenv=False, query_key=False, count=False, re
     return results
 
 
-def entrez_sets_of_results(url, retstart=False, retmax=False, count=False) -> Optional[List[requests.Response]]:
-    """Gets sets of results back from Entrez.
-
-    Entrez can only return 500 results at a time. This creates a generator that gets results by incrementing
-    retstart and retmax.
-
-    Parameters
-    ----------
-    url : str
-        The Entrez API url to use.
-    retstart : int
-        Return values starting at this index.
-    retmax : int
-        Return at most this number of values.
-    count : int
-        The number of results returned by EQuery.
-
-    Yields
-    ------
-    requests.Response
-
-    """
-    if not retstart:
-        retstart = 0
-
-    if not retmax:
-        retmax = 500
-
-    if not count:
-        count = retmax
-
-    retmax = 500  # Entrez can return a max of 500
-    while retstart < count:
-        diff = count - retstart
-        if diff < 500:
-            retmax = diff
-
-        _url = url + f'&retstart={retstart}&retmax={retmax}'
-        resp = entrez_try_three_times(_url)
-        if resp is None:
-            return
-
-        retstart += retmax
-        yield resp
-
-
-def entrez_try_three_times(url, attempt=0, num_tries=3) -> Optional[requests.Response]:
-    while attempt < num_tries:
-        time.sleep(PAUSE)
-        resp = requests.get(url)
-        if resp.status_code != 200:
-            attempt += 1
-            entrez_try_three_times(url, attempt, num_tries)
-
-        return resp
-
-    print('There was a server error')
-    return
-
-
 def parse_esummary(json: dict) -> List[EsummaryResult]:
     uids = json['result']['uids']
 
@@ -264,12 +204,7 @@ def parse_esummary(json: dict) -> List[EsummaryResult]:
     return results
 
 
-def parse_efetch(xml: str) -> List[EfetchPackage]:
-    root = ElementTree.fromstring(xml)
-    for experiment in root.findall('EXPERIMENT_PACKAGE'):
-        srx = experiment.find('EXPERIMENT').attrib['accession']
-        experiment_xml = ElementTree.tostring(experiment).decode()
-        yield EfetchPackage(srx, experiment_xml)
+EfetchPackage = namedtuple('EfetchPackage', 'srx xml')
 
 
 def efetch(database, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
@@ -323,5 +258,82 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
         count = len(id.split(','))
 
     for resp in entrez_sets_of_results(url, retstart, retmax, count):
-        yield from parse_efetch(resp.text)
+        yield from parse_efetch_experiment_set(resp.text)
 
+
+def parse_efetch_experiment_set(xml: str) -> List[EfetchPackage]:
+    root = ElementTree.fromstring(xml)
+    for experiment in root.findall('EXPERIMENT_PACKAGE'):
+        srx = experiment.find('EXPERIMENT').attrib['accession']
+        experiment_xml = ElementTree.tostring(experiment).decode()
+        yield EfetchPackage(srx, experiment_xml)
+
+
+def entrez_sets_of_results(url, retstart=False, retmax=False, count=False) -> Optional[List[requests.Response]]:
+    """Gets sets of results back from Entrez.
+
+    Entrez can only return 500 results at a time. This creates a generator that gets results by incrementing
+    retstart and retmax.
+
+    Parameters
+    ----------
+    url : str
+        The Entrez API url to use.
+    retstart : int
+        Return values starting at this index.
+    retmax : int
+        Return at most this number of values.
+    count : int
+        The number of results returned by EQuery.
+
+    Yields
+    ------
+    requests.Response
+
+    """
+    if not retstart:
+        retstart = 0
+
+    if not retmax:
+        retmax = 500
+
+    if not count:
+        count = retmax
+
+    retmax = 500  # Entrez can return a max of 500
+    while retstart < count:
+        diff = count - retstart
+        if diff < 500:
+            retmax = diff
+
+        _url = url + f'&retstart={retstart}&retmax={retmax}'
+        resp = entrez_try_get_multiple_times(_url)
+        if resp is None:
+            return
+
+        retstart += retmax
+        yield resp
+
+
+def entrez_try_get_multiple_times(url, num_tries=3) -> Optional[requests.Response]:
+    attempt = 0
+    while attempt < num_tries:
+        resp = requests.get(url)
+        if resp.status_code == 200:
+            return resp
+        attempt += 1
+        time.sleep(PAUSE)
+
+    print('There were multiple server errors')
+
+
+def entrez_try_put_multiple_times(url: str, url_params: str, num_tries=3) -> Optional[requests.Response]:
+    attempt = 0
+    while attempt < num_tries:
+        resp = requests.post(url, url_params)
+        if resp.status_code == 200:
+            return resp
+        num_tries += 1
+        time.sleep(PAUSE)
+
+    print('There were multiple server errors')

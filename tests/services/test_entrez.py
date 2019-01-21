@@ -28,7 +28,7 @@ def experiment_set_xml() -> str:
                 <PRIMARY_ID>SRX5231949</PRIMARY_ID>
               </IDENTIFIERS>
             </EXPERIMENT>
-            <SUBMISSION lab_name="College of plant protection" center_name="China Agricultural University" accession="SRA832165" alias="SUB5027898">
+            <SUBMISSION accession="SRA832165" alias="SUB5027898">
               <IDENTIFIERS>
                 <PRIMARY_ID>SRA832165</PRIMARY_ID>
               </IDENTIFIERS>
@@ -41,7 +41,7 @@ def experiment_set_xml() -> str:
               </IDENTIFIERS>
               <TITLE>d77ZT8</TITLE>
             </EXPERIMENT>
-            <SUBMISSION lab_name="College of plant protection" center_name="China Agricultural University" accession="SRA832165" alias="SUB5027898">
+            <SUBMISSION accession="SRA832165" alias="SUB5027898">
               <IDENTIFIERS>
                 <PRIMARY_ID>SRA832165</PRIMARY_ID>
               </IDENTIFIERS>
@@ -72,7 +72,13 @@ def test_esearch_sra_withhistory():
     assert esearch_results.query_key != ''
 
 
-def test_esummary_nohisotry(small_esearch_results):
+def test_epost(small_esearch_results):
+    ids = small_esearch_results.ids[:2]
+    epost_results = entrez.epost(DB, ids=ids, api_key=API_KEY)
+    assert epost_results.query_key == '1'
+
+
+def test_esummary_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     esummary_results = entrez.esummary(DB, ids, api_key=API_KEY)
     assert len(esummary_results) == RETMAX
@@ -82,7 +88,7 @@ def test_esummary_nohisotry(small_esearch_results):
     assert type(esummary_results[0].update_date) == datetime.datetime
 
 
-def test_esummary_withhisotry_retmax(small_esearch_results):
+def test_esummary_with_history_retmax(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
     esummary_results = entrez.esummary(DB, webenv=webenv, query_key=query_key, retmax=600, api_key=API_KEY)
@@ -93,23 +99,22 @@ def test_esummary_withhisotry_retmax(small_esearch_results):
     assert type(esummary_results[0].update_date) == datetime.datetime
 
 
-def test_esummary_withhisotry_count(small_esearch_results):
+def test_esummary_with_history_count(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
     esummary_results = entrez.esummary(DB, webenv=webenv, query_key=query_key, count=600, api_key=API_KEY)
     assert len(esummary_results) == 600
 
 
-def test_parse_experiment_set(experiment_set_xml):
-    for experiment in entrez.parse_efetch(experiment_set_xml):
+def test_parse_efetch_experiment_set(experiment_set_xml):
+    for experiment in entrez.parse_efetch_experiment_set(experiment_set_xml):
         if experiment.srx == 'SRX5231949':
             assert 'Library_2' in experiment.xml
         else:
             assert 'Library_1' in experiment.xml
 
 
-def test_efetch_nohisotry(small_esearch_results):
+def test_efetch_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     for results in entrez.efetch(DB, ids, api_key=API_KEY):
         assert results.srx.startswith('SRX') | results.srx.startswith('DRX') | results.srx.startswith('ERX')
-
