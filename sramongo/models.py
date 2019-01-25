@@ -306,7 +306,7 @@ class Pubmed(EmbeddedDocument):
 
     Attributes
     ----------
-    pubmed_id: mongoengine.StringField
+    accn: mongoengine.StringField
         The primary identifier for Pubmed. These are the accession number
         which begin with PMID.
 
@@ -332,7 +332,7 @@ class Pubmed(EmbeddedDocument):
         Date the pubmed entry was last updated.
 
     """
-    id = StringField()
+    accn = StringField()
     title = StringField()
     abstract = StringField()
     authors = ListField(DictField())
@@ -348,6 +348,10 @@ class SraDocument(Document):
     title = StringField()
     design = StringField()
 
+    # TODO: look up how to automate date added and date updated fields
+    sra_mongo_date_added = DateTimeField()
+    sra_mongo_date_updated = DateTimeField()
+
     # Technical Attributes
     library_name = StringField()
     library_strategy = StringField()
@@ -360,13 +364,14 @@ class SraDocument(Document):
     platform = StringField()
     instrument_model = StringField()
 
-    # Embeded Documents
+    # Embedded Documents
     organization = EmbeddedDocumentField(Organization)
     study = EmbeddedDocumentField(Study)
     sample = EmbeddedDocumentField(Sample)
     runs = ListField(EmbeddedDocumentField(Run))
     bioproject = EmbeddedDocumentField(BioProject)
     biosmaple = EmbeddedDocumentField(BioSample)
+    pubmed = EmbeddedDocumentField(Pubmed)
     geo = EmbeddedDocumentField(Geo)
 
 
