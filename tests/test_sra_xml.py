@@ -1,81 +1,82 @@
-import pytest
-
-from sramongo import sra_xml
-from sramongo import models
-
-
-@pytest.fixture(scope='session')
-def sra_xml_root():
-    fname = 'data/SRX971855.xml'
-    return sra_xml.xml_to_root(fname)
-
-
-@pytest.fixture(scope='session')
-def sra_xml_root2():
-    fname = 'data/SRR3001915.xml'
-    return sra_xml.xml_to_root(fname)
-
-
-def test_xml_to_root_from_file_handler():
-    fname = 'data/sra_ERR1662611.xml'
-    with open(fname) as fh:
-        root = sra_xml.xml_to_root(fh)
-    experiment = root.find('EXPERIMENT_PACKAGE/EXPERIMENT')
-    assert experiment.attrib['accession'] == 'ERX1732932'
-
-
-def test_xml_to_root_from_string():
-    fname = 'data/sra_ERR1662611.xml'
-    with open(fname) as fh:
-        xml = fh.read()
-    root = sra_xml.xml_to_root(xml)
-    experiment = root.find('EXPERIMENT_PACKAGE/EXPERIMENT')
-    assert experiment.attrib['accession'] == 'ERX1732932'
-
-
-def test_xml_get_text(sra_xml_root):
-    root = sra_xml_root
-    srx = sra_xml.get_xml_text(root, 'EXPERIMENT/IDENTIFIERS/PRIMARY_ID')
-    assert srx == 'SRX971855'
-
-
-def test_xml_get_text_invalid_path(sra_xml_root):
-    root = sra_xml_root
-    result = sra_xml.get_xml_text(root, 'EXPERIMENT/IDENTIFIERS/PRIMARY_ID/NOT_REALLY_HERE')
-    assert result == ''
+from sramongo import parsers_sra_xml, models
 
 
 def test_add_library_layout(sra_xml_root):
     root = sra_xml_root
     sra = models.SraDocument()
-    sra_xml.add_library_layout(root, sra)
+    parsers_sra_xml.add_library_layout(root, sra)
     assert sra.library_layout == 'SINGLE'
 
 
 def test_add_platform_information(sra_xml_root):
     root = sra_xml_root
     sra = models.SraDocument()
-    sra_xml.add_platform_information(root, sra)
+    parsers_sra_xml.add_platform_information(root, sra)
     assert sra.platform == 'ILLUMINA'
     assert sra.instrument_model == 'Illumina Genome Analyzer IIx'
 
 
 def test_parse_sra_study(sra_xml_root):
     root = sra_xml_root
-    study = sra_xml.parse_sra_study(root)
+    study = parsers_sra_xml.parse_sra_study(root)
     assert study.accn == 'SRP056660'
     assert study.center_name == 'GEO'
 
 
 def test_parse_sra_organization(sra_xml_root2):
     root = sra_xml_root2
-    organization = sra_xml.parse_sra_organization(root)
+    organization = parsers_sra_xml.parse_sra_organization(root)
     assert organization.organization_type == 'center'
 
 
 def test_add_sample_attributes(sra_xml_root2):
     root = sra_xml_root2
     sample = models.Sample()
-    sra_xml.add_sample_attributes(root, sample)
+    parsers_sra_xml.add_sample_attributes(root, sample)
     assert sample.attributes[0]['name'] == 'source_name'
     assert sample.attributes[0]['value'] == 'Whole body'
+
+
+def test_parse_sra_run_single_end(sra_xml_root):
+    root = sra_xml_root
+    runs = parsers_sra_xml.parse_sra_run(root)
+    run = runs[0]
+    assert len(runs) == 1
+    assert run.accn == 'SRR1945105'
+    assert run.nspots == 7_018_100
+    assert run.nbases == 533_375_600
+    assert run.nreads == 1
+    assert run.read_count_r1 == 7_018_100
+    assert run.read_len_r1 == 76
+
+
+def test_parse_sra_run_paired_end(sra_xml_root_PE):
+    root = sra_xml_root_PE
+    runs = parsers_sra_xml.parse_sra_run(root)
+    run = runs[0]
+    assert run.nreads == 2
+    assert run.read_count_r1 == 12_314_272
+    assert run.read_len_r1 == 99
+    assert run.read_count_r2 == 12_314_272
+    assert run.read_len_r2 == 99
+
+
+def test_parse_sra_experiment(sra_xml_root):
+    root = sra_xml_root
+    sra = parsers_sra_xml.parse_sra_experiment(root)
+    assert sra.accn == 'SRX971855'
+    assert sra.title == 'GSM1646282: AH_dsxNullM_3; Drosophila melanogaster; RNA-Seq'
+    assert sra.design == None
+    assert sra.library_name == ''
+    assert sra.library_strategy == 'RNA-Seq'
+    assert sra.library_source == 'TRANSCRIPTOMIC'
+    assert sra.library_selection == 'cDNA'
+    assert sra.library_construction_protocol[:5] == 'Total'
+    assert sra.library_layout == 'SINGLE'
+    assert sra.platform == 'ILLUMINA'
+    assert sra.instrument_model == 'Illumina Genome Analyzer IIx'
+    assert sra.study.accn == 'SRP056660'
+    assert sra.organization.organization_type == 'center'
+    assert sra.run[0].accn == 'SRR1945105'
+    assert sra.sample.attributes[0]['name'] == 'source_name'
+    assert sra.sample.attributes[0]['value'] == 'Adult Head Tissue'

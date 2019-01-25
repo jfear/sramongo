@@ -1,31 +1,6 @@
 """Parse parts of the SRA XML into JSON."""
-from typing import Union, IO
-from xml.etree import cElementTree as ElementTree
-
+from sramongo.xml_helpers import get_xml_text, get_xml_attribute
 from .models import SraDocument, Study, Organization, Sample, Run
-
-
-def xml_to_root(xml: Union[str, IO]) -> ElementTree.Element:
-    """Parse XML into an ElemeTree object.
-
-    Parameters
-    ----------
-    xml : str or file-like object
-        A filename, file object or string version of xml can be passed.
-
-    Returns
-    -------
-    Elementree.Element
-
-    """
-    if isinstance(xml, str):
-        if '<' in xml:
-            return ElementTree.fromstring(xml)
-        else:
-            with open(xml) as fh:
-                xml_to_root(fh)
-    tree = ElementTree.parse(xml)
-    return tree.getroot()
 
 
 def parse_sra_experiment(root):
@@ -43,11 +18,13 @@ def parse_sra_experiment(root):
     add_library_layout(root, sra)
     add_platform_information(root, sra)
 
-    # Embeded Documents
+    # Embedded Documents
     sra.study = parse_sra_study(root)
     sra.organization = parse_sra_organization(root)
     sra.sample = parse_sra_sample(root)
     sra.run = parse_sra_run(root)
+
+    return sra
 
 
 def parse_sra_study(root):
@@ -90,39 +67,24 @@ def parse_sra_run(root):
     runs = []
     for run in root.findall('RUN_SET/RUN'):
         sra_run = Run()
-        run.accn = get_xml_text(root, 'RUN/IDENTIFIERS/PRIMARY_ID')
-        run.nspots = int(get_xml_attribute(run, 'RUN', 'total_spots'))
-        run.nbases = int(get_xml_attribute(run, 'RUN', 'total_bases'))
-        run.nreads = int(get_xml_attribute(run, 'RUN/Bases', 'count'))
+        sra_run.accn = get_xml_text(run, 'IDENTIFIERS/PRIMARY_ID')
+        sra_run.nspots = int(run.attrib['total_spots'])
+        sra_run.nbases = int(run.attrib['total_bases'])
+        sra_run.nreads = int(get_xml_attribute(run, 'Statistics', 'nreads'))
 
-        # # if single ended then just use _r1
-        # read_count_r1 = FloatField()
-        # read_len_r1 = FloatField()
-        #
-        # read_count_r2 = FloatField()
-        # read_len_r2 = FloatField()
-        #
-        # # NOTE: Additional Fields not in the SRA XML but in summary table
-        # release_date = DateTimeField()
-        # load_date = DateTimeField()
-        # size_MB = IntField()
+        for read in run.findall('Statistics/Read'):
+            idx = read.attrib['index']
+            count = read.attrib['count']
+            length = read.attrib['average']
+
+            if idx == '0':
+                sra_run.read_count_r1 = int(count)
+                sra_run.read_len_r1 = int(length)
+            elif idx == '1':
+                sra_run.read_count_r2 = int(count)
+                sra_run.read_len_r2 = int(length)
         runs.append(sra_run)
-
     return runs
-
-
-def get_xml_text(root, path):
-    try:
-        return root.find(path).text
-    except:
-        return ''
-
-
-def get_xml_attribute(root, path, attribute):
-    try:
-        return root.find(path).attrib[attribute]
-    except:
-        return ''
 
 
 def add_library_layout(root, sra):
@@ -130,8 +92,10 @@ def add_library_layout(root, sra):
         sra.library_layout = 'SINGLE'
     else:
         sra.library_layout = 'PARIED'
-        sra.library_layout_length = int(get_xml_attribute(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_LENGTH'))
-        sra.library_layout_sdev = float(get_xml_attribute(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_SDEV'))
+        sra.library_layout_length = int(
+            get_xml_attribute(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_LENGTH'))
+        sra.library_layout_sdev = float(
+            get_xml_attribute(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_SDEV'))
     return sra
 
 
@@ -147,4 +111,8 @@ def add_sample_attributes(root, sample):
         value = attribute.find('VALUE').text
         sample.attributes.append({'name': tag, 'value': value})
 
-
+# TODO add parser somewhere to run table.
+# # NOTE: Additional Fields not in the SRA XML but in summary table
+# run.release_date = DateTimeField()
+# run.load_date = DateTimeField()
+# run.size_MB = IntField()
