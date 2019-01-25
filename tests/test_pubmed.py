@@ -4,6 +4,7 @@ from xml.etree import ElementTree
 import pytest
 
 from sramongo.pubmed import PubmedParse
+from sramongo import parsers_pubmed_xml
 
 
 class TestPMID26732976:
@@ -30,3 +31,17 @@ class TestPMID26732976:
         assert pubTree.pubmed['abstract'].strip().split('\n')[1].split(' ')[0] == 'We'
         assert pubTree.pubmed['abstract'].strip().split('\n')[2].split(' ')[1] == 'best'
         assert pubTree.pubmed['authors'][0]['last_name'] == 'Lin'
+
+
+def test_parse_pubmed(pubmed_xml):
+    root = pubmed_xml
+    pubmed = parsers_pubmed_xml.parse_pubmed(root)
+    assert pubmed.accn == ''
+    assert pubmed.title == ''
+    assert pubmed.abstract == ''
+    assert pubmed.authors == ''
+    assert pubmed.citation == ''
+    assert pubmed.date_created == ''
+    assert pubmed.date_completed == ''
+    assert pubmed.date_revised == ''
+
