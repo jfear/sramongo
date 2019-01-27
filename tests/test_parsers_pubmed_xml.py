@@ -36,12 +36,22 @@ class TestPMID26732976:
 def test_parse_pubmed(pubmed_xml):
     root = pubmed_xml
     pubmed = parsers_pubmed_xml.parse_pubmed(root)
-    assert pubmed.accn == ''
-    assert pubmed.title == ''
-    assert pubmed.abstract == ''
-    assert pubmed.authors == ''
-    assert pubmed.citation == ''
-    assert pubmed.date_created == ''
-    assert pubmed.date_completed == ''
-    assert pubmed.date_revised == ''
+    assert pubmed.accn == '26732976'
+    assert pubmed.title[:10] == 'Comparison'
+    assert pubmed.journal == 'BMC Genomics'
+    assert pubmed.year == 2016
+    assert pubmed.volume == 17
+    assert pubmed.page == 28
+    assert pubmed.abstract[:11] == 'A generally'
+    assert pubmed.abstract[-11:] == 'count data.'
+    assert len(pubmed.authors) == 8
+    assert pubmed.authors[0]['first_name'] == 'Yanzhu'
+    assert pubmed.authors[0]['last_name'] == 'Lin'
+    assert pubmed.authors[-1]['first_name'] == 'Susan T'
+    assert pubmed.authors[-1]['last_name'] == 'Harbison'
+    assert pubmed.authors[0]['affiliation'][:30] == 'Laboratory of Systems Genetics'
+    assert pubmed.citation == 'Lin, Yanzhu, et al. BMC Genomics 17 (2016): 28.'
+    assert pubmed.date_created == '2016-01-06'
+    assert pubmed.date_completed == '2016-09-28'
+    assert pubmed.date_revised == '2016-10-19'
 
