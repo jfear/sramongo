@@ -49,3 +49,15 @@ def sra_xml_root_PE():
 def pubmed_xml():
     fname = 'data/pubmed_26732976.xml'
     return xml_to_root(fname)
+
+
+@pytest.fixture(scope='session')
+def bioproject_xml():
+    fname = 'data/bioproject_PRJNA258012.xml'
+    return xml_to_root(fname)
+
+
+@pytest.fixture(scope='session')
+def biosample_xml():
+    fname = 'data/biosample_SAMN02981965.xml'
+    return xml_to_root(fname)

@@ -296,6 +296,7 @@ class BioSample(EmbeddedDocument):
     description = StringField()
     last_update = StringField()
     submission_date = StringField()
+    contacts = ListField(DictField(), default=list)
     attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
 
 
