@@ -82,7 +82,7 @@ def test_esummary_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     esummary_results = entrez.esummary(DB, ids, api_key=API_KEY)
     assert len(esummary_results) == RETMAX
-    assert esummary_results[0].srx != ''
+    assert esummary_results[0].accn != ''
     assert esummary_results[0].id != ''
     assert type(esummary_results[0].create_date) == datetime.datetime
     assert type(esummary_results[0].update_date) == datetime.datetime
@@ -93,7 +93,7 @@ def test_esummary_with_history_retmax(small_esearch_results):
     query_key = small_esearch_results.query_key
     esummary_results = entrez.esummary(DB, webenv=webenv, query_key=query_key, retmax=600, api_key=API_KEY)
     assert len(esummary_results) == 600
-    assert esummary_results[0].srx != ''
+    assert esummary_results[0].accn != ''
     assert esummary_results[0].id != ''
     assert type(esummary_results[0].create_date) == datetime.datetime
     assert type(esummary_results[0].update_date) == datetime.datetime

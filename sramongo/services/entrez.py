@@ -133,7 +133,7 @@ def parse_epost(xml: str) -> EpostResult:
     return EpostResult(webenv, query_key)
 
 
-EsummaryResult = namedtuple('EsummaryResult', 'id srx create_date update_date')
+EsummaryResult = namedtuple('EsummaryResult', 'id accn create_date update_date')
 
 
 def esummary(database: str, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
@@ -188,6 +188,7 @@ def esummary(database: str, ids=False, webenv=False, query_key=False, count=Fals
     return results
 
 
+# TODO need to generalize this more. Probably just return the XML/JSON object and leave the parsing elsewhere.
 def parse_esummary(json: dict) -> List[EsummaryResult]:
     uids = json['result']['uids']
 
@@ -195,11 +196,17 @@ def parse_esummary(json: dict) -> List[EsummaryResult]:
 
     results = []
     for uid in uids:
-        xml: str = json['result'][uid].get('expxml', '')
-        srx = re.findall(srx_pattern, xml)[0]
-        create_date = parse(json['result'][uid].get('createdate', ''))
-        update_date = parse(json['result'][uid].get('updatedate', ''))
-        results.append(EsummaryResult(uid, srx, create_date, update_date))
+        expxml: str = json['result'][uid].get('expxml', '')
+
+        if expxml:
+            accn = re.findall(srx_pattern, expxml)[0]
+            create_date = parse(json['result'][uid].get('createdate', ''))
+            update_date = parse(json['result'][uid].get('updatedate', ''))
+        else:
+            accn = parse(json['results'][uid].get('accession', ''))
+            create_date = parse(json['result'][uid].get('publicationdate', ''))
+            update_date = parse(json['result'][uid].get('modificationdate', ''))
+        results.append(EsummaryResult(uid, accn, create_date, update_date))
 
     return results
 
