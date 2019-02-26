@@ -5,7 +5,6 @@ from .models import SraDocument, Study, Organization, Sample, Run
 
 def parse_sra_experiment(root):
     sra = SraDocument()
-
     # Experiment information
     sra.accn = get_xml_text(root, 'EXPERIMENT/IDENTIFIERS/PRIMARY_ID')
     sra.title = get_xml_text(root, 'EXPERIMENT/TITLE')
@@ -23,7 +22,6 @@ def parse_sra_experiment(root):
     sra.organization = parse_sra_organization(root)
     sra.sample = parse_sra_sample(root)
     sra.run = parse_sra_run(root)
-
     return sra
 
 
