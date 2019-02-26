@@ -141,7 +141,7 @@ class Run(EmbeddedDocument):
 
     Attributes
     ----------
-    accn: mongoengine.StringField
+    srr: mongoengine.StringField
         The primary identifier for a run. Identifiers begin with
         SRR/ERR/DRR depending on which database they originate from.
 
@@ -184,7 +184,7 @@ class Run(EmbeddedDocument):
 
     """
     # SRR/DRR/ERR
-    accn = StringField()
+    srr = StringField()
 
     # Attributes
     nspots = IntField()
@@ -344,14 +344,17 @@ class Pubmed(EmbeddedDocument):
 
 
 class SraDocument(Document):
-    accn = StringField(primary_key=True)
+    srx = StringField(primary_key=True)
     id = StringField()
     title = StringField()
     design = StringField()
 
     # TODO: look up how to automate date added and date updated fields
-    sra_mongo_date_added = DateTimeField()
-    sra_mongo_date_updated = DateTimeField()
+    sramongo_date_added = DateTimeField()
+    sramongo_date_updated = DateTimeField()
+
+    sra_create_date = DateTimeField()
+    sra_update_date = DateTimeField()
 
     # Technical Attributes
     library_name = StringField()
@@ -414,7 +417,6 @@ class TaxAnalysis(Document):
         ...
     """
     srr = StringField(primary_key=True)
-    srx = StringField(primary_key=True)
     nspot_analyze = IntField()
     total_spots = IntField()
     mapped_spots = IntField()

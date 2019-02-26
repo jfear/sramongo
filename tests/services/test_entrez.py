@@ -4,6 +4,7 @@ from textwrap import dedent
 
 import pytest
 
+from sramongo import parsers_pubmed_xml, parsers_biosample_xml, parsers_bioproject_xml, parsers_sra_xml
 from sramongo.services import entrez
 
 DB = 'sra'
@@ -82,7 +83,7 @@ def test_esummary_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     esummary_results = entrez.esummary(DB, ids, api_key=API_KEY)
     assert len(esummary_results) == RETMAX
-    assert esummary_results[0].accn != ''
+    assert esummary_results[0].srx != ''
     assert esummary_results[0].id != ''
     assert type(esummary_results[0].create_date) == datetime.datetime
     assert type(esummary_results[0].update_date) == datetime.datetime
@@ -93,7 +94,7 @@ def test_esummary_with_history_retmax(small_esearch_results):
     query_key = small_esearch_results.query_key
     esummary_results = entrez.esummary(DB, webenv=webenv, query_key=query_key, retmax=600, api_key=API_KEY)
     assert len(esummary_results) == 600
-    assert esummary_results[0].accn != ''
+    assert esummary_results[0].srx != ''
     assert esummary_results[0].id != ''
     assert type(esummary_results[0].create_date) == datetime.datetime
     assert type(esummary_results[0].update_date) == datetime.datetime
@@ -107,8 +108,8 @@ def test_esummary_with_history_count(small_esearch_results):
 
 
 def test_parse_efetch_experiment_set(experiment_set_xml):
-    for experiment in entrez.parse_efetch_experiment_set(experiment_set_xml):
-        if experiment.srx == 'SRX5231949':
+    for experiment in parsers_sra_xml.parse_sra_experiment_set(experiment_set_xml):
+        if experiment.accn == 'SRX5231949':
             assert 'Library_2' in experiment.xml
         else:
             assert 'Library_1' in experiment.xml
@@ -116,5 +117,59 @@ def test_parse_efetch_experiment_set(experiment_set_xml):
 
 def test_efetch_no_history(small_esearch_results):
     ids = small_esearch_results.ids
-    for results in entrez.efetch(DB, ids, api_key=API_KEY):
-        assert results.srx.startswith('SRX') | results.srx.startswith('DRX') | results.srx.startswith('ERX')
+    for result in entrez.efetch(DB, ids, api_key=API_KEY):
+        for experiment in parsers_sra_xml.parse_sra_experiment_set(result):
+            assert experiment.accn.startswith('SRX') | experiment.accn.startswith('DRX') | experiment.accn.startswith(
+                'ERX')
+
+
+def test_elink_no_hisotry(small_esearch_results):
+    ids = small_esearch_results.ids
+    result = entrez.elink(db='biosample', dbfrom='sra', ids=ids)
+    assert result.dbfrom == 'sra'
+    assert result.dbto == 'biosample'
+    assert result.query_key == '1'
+
+
+def test_elink_with_hisotry(small_esearch_results):
+    webenv = small_esearch_results.webenv
+    query_key = small_esearch_results.query_key
+    result = entrez.elink(db='biosample', dbfrom='sra', webenv=webenv, query_key=query_key)
+    assert result.dbfrom == 'sra'
+    assert result.dbto == 'biosample'
+
+
+def test_elink_no_hisotry_no_results(small_esearch_results):
+    ids = small_esearch_results.ids
+    result = entrez.elink(db='pubmed', dbfrom='sra', ids=ids)
+    assert result.dbfrom == 'sra'
+    assert result.dbto == ''
+    assert result.query_key == ''
+
+
+def test_efetch_bioproject(small_esearch_results):
+    webenv = small_esearch_results.webenv
+    query_key = small_esearch_results.query_key
+    link = entrez.elink('bioproject', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
+    for result in entrez.efetch('bioproject', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY,
+                                retmax=RETMAX):
+        for document in parsers_bioproject_xml.parse_bioproject_set(result):
+            assert document.accn.startswith('PRJ')
+
+
+def test_efetch_biosample(small_esearch_results):
+    webenv = small_esearch_results.webenv
+    query_key = small_esearch_results.query_key
+    link = entrez.elink('biosample', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
+    for result in entrez.efetch('biosample', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
+        for document in parsers_biosample_xml.parse_biosample_set(result):
+            assert document.accn.startswith('SAMN')
+
+
+def test_efetch_pubmed(small_esearch_results):
+    webenv = small_esearch_results.webenv
+    query_key = small_esearch_results.query_key
+    link = entrez.elink('pubmed', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
+    for result in entrez.efetch('pubmed', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
+        for document in parsers_pubmed_xml.parse_pubmed_set(result):
+            assert isinstance(document.accn, int)

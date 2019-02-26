@@ -1,3 +1,7 @@
+from typing import List
+from xml.etree import cElementTree as ElementTree
+
+from sramongo.services.entrez import EfetchPackage
 from .models import BioProject
 from .xml_helpers import get_xml_text, get_xml_attribute
 
@@ -13,3 +17,11 @@ def parse_bioproject(root):
     bioproject.last_update = get_xml_attribute(root, 'DocumentSummary/Submission', 'last_update')
     bioproject.submission_date = get_xml_attribute(root, 'DocumentSummary/Submission', 'submitted')
     return bioproject
+
+
+def parse_bioproject_set(xml: str) -> List[EfetchPackage]:
+    root = ElementTree.fromstring(xml)
+    for record in root.findall('DocumentSummary'):
+        accn = record.find('Project/ProjectID/ArchiveID').attrib['accession']
+        record_xml = ElementTree.tostring(record).decode()
+        yield EfetchPackage(accn, record_xml)

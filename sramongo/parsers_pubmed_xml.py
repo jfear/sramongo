@@ -1,3 +1,7 @@
+from typing import List
+from xml.etree import cElementTree as ElementTree
+
+from sramongo.services.entrez import EfetchPackage
 from .models import Pubmed
 from .xml_helpers import get_xml_text, get_xml_attribute
 
@@ -64,3 +68,10 @@ def create_citation(pubmed):
     return (f'{pubmed.authors[0]["last_name"]}, {pubmed.authors[0]["first_name"]}, '
             f'et al. {pubmed.journal} {pubmed.volume} ({pubmed.year}): {pubmed.page}.')
 
+
+def parse_pubmed_set(xml: str) -> List[EfetchPackage]:
+    root = ElementTree.fromstring(xml)
+    for record in root.findall('PubmedArticleSet'):
+        accn = record.find('PubmedArticle/PMID').text
+        record_xml = ElementTree.tostring(record).decode()
+        yield EfetchPackage(accn, record_xml)

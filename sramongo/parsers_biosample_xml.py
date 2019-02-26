@@ -1,3 +1,7 @@
+from typing import List
+from xml.etree import cElementTree as ElementTree
+
+from sramongo.services.entrez import EfetchPackage
 from .models import BioSample
 from .xml_helpers import get_xml_attribute, get_xml_text
 
@@ -47,3 +51,11 @@ def get_biosample_contacts(root):
             }
         )
     return contacts
+
+
+def parse_biosample_set(xml: str) -> List[EfetchPackage]:
+    root = ElementTree.fromstring(xml)
+    for record in root.findall('BioSampleSet'):
+        accn = record.find('BioSample').attrib['accession']
+        record_xml = ElementTree.tostring(record).decode()
+        yield EfetchPackage(accn, record_xml)

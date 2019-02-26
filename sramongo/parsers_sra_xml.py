@@ -1,4 +1,8 @@
 """Parse parts of the SRA XML into JSON."""
+from typing import List
+from xml.etree import cElementTree as ElementTree
+
+from sramongo.services.entrez import EfetchPackage
 from sramongo.xml_helpers import get_xml_text, get_xml_attribute
 from .models import SraDocument, Study, Organization, Sample, Run
 
@@ -6,7 +10,7 @@ from .models import SraDocument, Study, Organization, Sample, Run
 def parse_sra_experiment(root):
     sra = SraDocument()
     # Experiment information
-    sra.accn = get_xml_text(root, 'EXPERIMENT/IDENTIFIERS/PRIMARY_ID')
+    sra.srx = get_xml_text(root, 'EXPERIMENT/IDENTIFIERS/PRIMARY_ID')
     sra.title = get_xml_text(root, 'EXPERIMENT/TITLE')
     sra.design = get_xml_text(root, 'EXPERIMENT/DESIGN/DESIGN_DESCRIPTION')
     sra.library_name = get_xml_text(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_NAME')
@@ -21,7 +25,7 @@ def parse_sra_experiment(root):
     sra.study = parse_sra_study(root)
     sra.organization = parse_sra_organization(root)
     sra.sample = parse_sra_sample(root)
-    sra.run = parse_sra_run(root)
+    sra.runs = parse_sra_run(root)
     return sra
 
 
@@ -65,7 +69,7 @@ def parse_sra_run(root):
     runs = []
     for run in root.findall('RUN_SET/RUN'):
         sra_run = Run()
-        sra_run.accn = get_xml_text(run, 'IDENTIFIERS/PRIMARY_ID')
+        sra_run.srr = get_xml_text(run, 'IDENTIFIERS/PRIMARY_ID')
         sra_run.nspots = int(run.attrib['total_spots'])
         sra_run.nbases = int(run.attrib['total_bases'])
         sra_run.nreads = int(get_xml_attribute(run, 'Statistics', 'nreads'))
@@ -114,3 +118,10 @@ def add_sample_attributes(root, sample):
 # run.release_date = DateTimeField()
 # run.load_date = DateTimeField()
 # run.size_MB = IntField()
+
+def parse_sra_experiment_set(xml: str) -> List[EfetchPackage]:
+    root = ElementTree.fromstring(xml)
+    for experiment in root.findall('EXPERIMENT_PACKAGE'):
+        srx = experiment.find('EXPERIMENT').attrib['accession']
+        experiment_xml = ElementTree.tostring(experiment).decode()
+        yield EfetchPackage(srx, experiment_xml)
