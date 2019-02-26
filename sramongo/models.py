@@ -1,7 +1,7 @@
 """Document models for MongoDB"""
 
 from mongoengine import Document, EmbeddedDocument
-from mongoengine import StringField, IntField, FloatField, ListField, DictField, DateTimeField
+from mongoengine import StringField, IntField, FloatField, ListField, DictField, DateTimeField, MapField
 from mongoengine import EmbeddedDocumentField
 
 
@@ -376,35 +376,46 @@ class SraDocument(Document):
     geo = EmbeddedDocumentField(Geo)
 
 
+class TaxRecord(EmbeddedDocument):
+    parent = StringField()
+    total_count = IntField()
+    self_count = IntField()
+    tax_id = StringField()
+    name = StringField()
 
-# TODO move tax_analysis to a new collection
-"""
-    tax_analysis = EmbeddedDocumentField(TaxAnalysis)
-    A dictionary containing results from a taxonomic analysis. Some Runs are
-    analyzed and the number of reads that align to different taxa are
-    recorded. The taxanomic analysis is stored in the SRA as a hierarchy,
-    but it is stored here as a flattend dictionary for easier access to
-    different classes. Basic structure is:
 
-    'nspoot_analyze': The number of spots analyzed,
-    'total_spots': The total number of spots,
-    'mapped_spots': The number of spots that were able to be mapped,
-    'tax_count': A dictionary containing actual taxonomic counts
-    organized by level in the tree of life
+class TaxAnalysis(Document):
+    """
+        A dictionary containing results from a taxonomic analysis. Some Runs are
+        analyzed and the number of reads that align to different taxa are
+        recorded. The taxanomic analysis is stored in the SRA as a hierarchy,
+        but it is stored here as a flattend dictionary for easier access to
+        different classes. Basic structure is:
 
-    'kingdom':
-    ...
-'species':
-'parent':
-Name of parent level.
-'total_count':
-Number of mapped spots at this level and below.
-'self_count':
-Number of mapped spots at this level.
-'tax_id':
-taxonomic identifier.
-'name':
-of this taxonomy.
-'subspeciies':
-...
-"""
+        'nspoot_analyze': The number of spots analyzed,
+        'total_spots': The total number of spots,
+        'mapped_spots': The number of spots that were able to be mapped,
+        'tax_count': A dictionary containing actual taxonomic counts organized by level in the tree of life
+
+        'kingdom':
+        ...
+        'species':
+            'parent':
+                Name of parent level.
+            'total_count':
+                Number of mapped spots at this level and below.
+            'self_count':
+                Number of mapped spots at this level.
+            'tax_id':
+                taxonomic identifier.
+            'name':
+                of this taxonomy.
+        'subspeciies':
+        ...
+    """
+    srr = StringField(primary_key=True)
+    srx = StringField(primary_key=True)
+    nspot_analyze = IntField()
+    total_spots = IntField()
+    mapped_spots = IntField()
+    tax_counts = MapField(ListField(EmbeddedDocumentField(TaxRecord), default=list))
