@@ -1,4 +1,5 @@
 """Document models for MongoDB"""
+from datetime import datetime
 
 from mongoengine import Document, EmbeddedDocument
 from mongoengine import StringField, IntField, FloatField, ListField, DictField, DateTimeField, MapField
@@ -358,9 +359,7 @@ class SraDocument(Document):
     title = StringField()
     design = StringField()
 
-    # TODO: look up how to automate date added and date updated fields
-    sramongo_date_added = DateTimeField()
-    sramongo_date_updated = DateTimeField()
+    sramongo_last_updated = DateTimeField(datetime.now())
 
     sra_create_date = DateTimeField()
     sra_update_date = DateTimeField()
