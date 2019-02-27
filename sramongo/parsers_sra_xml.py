@@ -62,6 +62,7 @@ def parse_sra_sample(root):
     sample.scientific_name = get_xml_text(root, 'SAMPLE/SAMPLE_NAME/SCIENTIFIC_NAME')
     sample.common_name = get_xml_text(root, 'SAMPLE/SAMPLE_NAME/COMMON_NAME')
     add_sample_attributes(root, sample)
+    add_sample_external_links(root, sample)
     return sample
 
 
@@ -112,6 +113,15 @@ def add_sample_attributes(root, sample):
         tag = attribute.find('TAG').text
         value = attribute.find('VALUE').text
         sample.attributes.append({'name': tag, 'value': value})
+
+
+def add_sample_external_links(root, sample):
+    for external_id in root.findall('SAMPLE/IDENTIFIERS/EXTERNAL_ID'):
+        namespace = external_id.attrib.get('namespace')
+        if namespace == 'BioSample':
+            sample.biosample = external_id.text
+        elif namespace == 'GEO':
+            sample.geo = external_id.text
 
 # TODO add parser somewhere to run table.
 # # NOTE: Additional Fields not in the SRA XML but in summary table

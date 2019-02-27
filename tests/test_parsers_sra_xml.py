@@ -37,6 +37,14 @@ def test_add_sample_attributes(sra_xml_root2):
     assert sample.attributes[0]['value'] == 'Whole body'
 
 
+def test_add_sample_external_links(sra_xml_root2):
+    root = sra_xml_root2
+    sample = models.Sample()
+    parsers_sra_xml.add_sample_external_links(root, sample)
+    assert sample.biosample == 'SAMN02981965'
+    assert sample.geo == 'GSM1471477'
+
+
 def test_parse_sra_run_single_end(sra_xml_root):
     root = sra_xml_root
     runs = parsers_sra_xml.parse_sra_run(root)

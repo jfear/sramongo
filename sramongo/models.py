@@ -90,7 +90,6 @@ class Study(EmbeddedDocument):
 
 
 class Sample(EmbeddedDocument):
-    pass
     """The contents of a SRA sample.
 
     A sample is the biological unit. An individual sample or a pool of samples
@@ -104,10 +103,16 @@ class Sample(EmbeddedDocument):
         The primary identifier for a sample. Identifiers begin with
         SRS/ERS/DRS depending on which database they originate from.
 
+    biosample: mongoengine.StringField
+        The associated BioSample identifier.
+
+    geo: mongoengine.StringField
+        The associated GEO identifier.
+
     title: mongoengine.StringField
         The title of the sample.
 
-    taxon_id: mongoengine.StringField
+    taxon_id: mongoengine.IntField
         The NCBI taxon id.
 
     scientific_name: mongoengine.StringField
@@ -124,9 +129,13 @@ class Sample(EmbeddedDocument):
     # SRS/DRS/ERS
     accn = StringField()
 
+    # External IDs
+    biosample = StringField()
+    geo = StringField()
+
     # Attributes
     title = StringField()
-    taxon_id = StringField()
+    taxon_id = IntField()
     scientific_name = StringField()
     common_name = StringField()
     attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
@@ -224,7 +233,7 @@ class BioProject(EmbeddedDocument):
         The primary identifier for a BioProject. These are the accession number
         which begin with PRJ.
 
-    id: mongoengine.StringField
+    id: mongoengine.IntField
         The primary identifier for a BioProject. These are the id numbers.
 
     name: mongoengine.StringField
@@ -244,7 +253,7 @@ class BioProject(EmbeddedDocument):
 
     """
     accn = StringField()
-    id = StringField()
+    id = IntField()
     name = StringField()
     title = StringField()
     description = StringField()
@@ -266,7 +275,7 @@ class BioSample(EmbeddedDocument):
         The primary identifier for a BioSample. These are the accession number
         which begin with SAM.
 
-    id: mongoengine.StringField
+    id: mongoengine.IntField
         The primary identifier for a BioSample. These are the id number.
 
     title: mongoengine.StringField
@@ -291,7 +300,7 @@ class BioSample(EmbeddedDocument):
 
     """
     accn = StringField()
-    id = StringField()
+    id = IntField()
     title = StringField()
     description = StringField()
     last_update = StringField()
@@ -344,8 +353,8 @@ class Pubmed(EmbeddedDocument):
 
 
 class SraDocument(Document):
-    srx = StringField(primary_key=True)
-    id = StringField()
+    srx = StringField()
+    id = IntField()
     title = StringField()
     design = StringField()
 
@@ -416,7 +425,7 @@ class TaxAnalysis(Document):
         'subspeciies':
         ...
     """
-    srr = StringField(primary_key=True)
+    srr = StringField()
     nspot_analyze = IntField()
     total_spots = IntField()
     mapped_spots = IntField()
