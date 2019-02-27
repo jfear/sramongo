@@ -11,7 +11,9 @@ from collections import namedtuple
 import re
 from xml.etree import cElementTree as ElementTree
 
-from dateutil.parser import parse
+from dateutil.parser import parse as dateutil_parse
+
+from sramongo.xml_helpers import xml_to_root
 
 BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
 PAUSE = .3
@@ -21,57 +23,6 @@ EpostResult = namedtuple('EpostResult', 'webenv query_key')
 EsummaryResult = namedtuple('EsummaryResult', 'id srx create_date update_date')
 EfetchPackage = namedtuple('EfetchPackage', 'accn xml')
 ElinkResult = namedtuple('EpostResult', 'dbfrom dbto webenv query_key')
-
-
-def check_userhistory(userhistory, url):
-    if userhistory:
-        return url + '&usehistory=y'
-
-    return url
-
-
-def check_webenv(webenv, url):
-    if webenv:
-        return url + f'&WebEnv={webenv}'
-
-    return url
-
-
-def check_query_key(query_key, url):
-    if query_key:
-        return url + f'&query_key={query_key}'
-
-    return url
-
-
-def check_retstart(retstart, url):
-    if retstart:
-        return url + f'&retstart={retstart}'
-
-    return url
-
-
-def check_retmax(retmax, url):
-    if retmax:
-        return url + f'&retmax={retmax}'
-
-    return url
-
-
-def check_api_key(api_key, url):
-    if api_key:
-        global PAUSE
-        PAUSE = .1
-        return url + f'&api_key={api_key}'
-
-    return url
-
-
-def check_email(email, url):
-    if email:
-        return url + f'&email={retmax}'
-
-    return url
 
 
 def esearch(database, query, userhistory=True, webenv=False, query_key=False, retstart=False, retmax=False,
@@ -163,13 +114,6 @@ def epost(database, ids: List[str], webenv=False, api_key=False, email=False, **
     return parse_epost(resp.text)
 
 
-def parse_epost(xml: str) -> EpostResult:
-    root = ElementTree.fromstring(xml)
-    webenv = root.find('WebEnv').text
-    query_key = root.find('QueryKey').text
-    return EpostResult(webenv, query_key)
-
-
 def esummary(database: str, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
              api_key=False, email=False, **kwargs) -> Optional[List[EsummaryResult]]:
     """Get document summaries using the Entrez ESearch API.
@@ -201,7 +145,7 @@ def esummary(database: str, ids=False, webenv=False, query_key=False, count=Fals
         A list of EsummaryResults with values [id, srx, create_date, update_date]
 
     """
-    url = BASE_URL + f'esummary.fcgi?db={database}&retmode=json'
+    url = BASE_URL + f'esummary.fcgi?db={database}&retmode=xml'
     url = check_webenv(webenv, url)
     url = check_query_key(query_key, url)
     url = check_api_key(api_key, url)
@@ -217,31 +161,8 @@ def esummary(database: str, ids=False, webenv=False, query_key=False, count=Fals
 
     results = []
     for resp in entrez_sets_of_results(url, retstart, retmax, count):
-        text = resp.json()
+        text = resp.text
         results.extend(parse_esummary(text))
-
-    return results
-
-
-# TODO need to generalize this more. Probably just return the XML/JSON object and leave the parsing elsewhere.
-def parse_esummary(json: dict) -> List[EsummaryResult]:
-    uids = json['result']['uids']
-
-    srx_pattern = re.compile(r';Experiment acc=\"([SED]RX\d+)\"')
-
-    results = []
-    for uid in uids:
-        expxml: str = json['result'][uid].get('expxml', '')
-
-        if expxml:
-            accn = re.findall(srx_pattern, expxml)[0]
-            create_date = parse(json['result'][uid].get('createdate', ''))
-            update_date = parse(json['result'][uid].get('updatedate', ''))
-        else:
-            accn = parse(json['results'][uid].get('accession', ''))
-            create_date = parse(json['result'][uid].get('publicationdate', ''))
-            update_date = parse(json['result'][uid].get('modificationdate', ''))
-        results.append(EsummaryResult(uid, accn, create_date, update_date))
 
     return results
 
@@ -354,6 +275,86 @@ def elink(db: str, dbfrom: str, ids=False, webenv=False, query_key=False, api_ke
         text['linksets'][0].get('webenv', ''),
         text['linksets'][0].get('linksetdbhistories', [{'querykey': ''}])[0].get('querykey', ''),
     )
+
+
+def check_userhistory(userhistory, url):
+    if userhistory:
+        return url + '&usehistory=y'
+
+    return url
+
+
+def check_webenv(webenv, url):
+    if webenv:
+        return url + f'&WebEnv={webenv}'
+
+    return url
+
+
+def check_query_key(query_key, url):
+    if query_key:
+        return url + f'&query_key={query_key}'
+
+    return url
+
+
+def check_retstart(retstart, url):
+    if retstart:
+        return url + f'&retstart={retstart}'
+
+    return url
+
+
+def check_retmax(retmax, url):
+    if retmax:
+        return url + f'&retmax={retmax}'
+
+    return url
+
+
+def check_api_key(api_key, url):
+    if api_key:
+        global PAUSE
+        PAUSE = .1
+        return url + f'&api_key={api_key}'
+
+    return url
+
+
+def check_email(email, url):
+    if email:
+        return url + f'&email={retmax}'
+
+    return url
+
+
+def parse_epost(xml: str) -> EpostResult:
+    root = ElementTree.fromstring(xml)
+    webenv = root.find('WebEnv').text
+    query_key = root.find('QueryKey').text
+    return EpostResult(webenv, query_key)
+
+
+def parse_esummary(xml: str) -> List[EsummaryResult]:
+    root = xml_to_root(xml)
+    srx_pattern = re.compile(r'Experiment acc=\"([SED]RX\d+)\"')
+
+    results = []
+    for doc in root.findall('DocSum'):
+        expxml: str = doc.find("Item[@Name='ExpXml']").text
+        uid = doc.find('Id').text
+
+        if expxml:
+            accn = re.findall(srx_pattern, expxml)[0]
+            create_date = dateutil_parse(doc.find("Item[@Name='CreateDate']").text)
+            update_date = dateutil_parse(doc.find("Item[@Name='UpdateDate']").text)
+        else:
+            accn = doc.find("Item[@Name='accession']").text
+            create_date = dateutil_parse(doc.find("Item[@Name='publicationdate']").text)
+            update_date = dateutil_parse(doc.find("Item[@Name='modificationdate']").text)
+        results.append(EsummaryResult(uid, accn, create_date, update_date))
+
+    return results
 
 
 def entrez_sets_of_results(url, retstart=False, retmax=False, count=False) -> Optional[List[requests.Response]]:
