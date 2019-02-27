@@ -36,7 +36,7 @@ def parse_sra_study(root):
     study.abstract = get_xml_text(root, 'STUDY/DESCRIPTOR/STUDY_ABSTRACT')
     study.center_name = get_xml_attribute(root, 'STUDY', 'center_name')
     study.center_project_name = get_xml_text(root, 'STUDY/DESCRIPTOR/CENTER_PROJECT_NAME')
-
+    add_study_external_links(root, study)
     description = get_xml_text(root, 'STUDY/DESCRIPTOR/STUDY_DESCRIPTION')
     if description is not None and description != study.abstract:
         study.description = get_xml_text(root, '')
@@ -122,6 +122,16 @@ def add_sample_external_links(root, sample):
             sample.biosample = external_id.text
         elif namespace == 'GEO':
             sample.geo = external_id.text
+
+
+def add_study_external_links(root, study):
+    for external_id in root.findall('STUDY/IDENTIFIERS/EXTERNAL_ID'):
+        namespace = external_id.attrib.get('namespace')
+        if namespace == 'BioProject':
+            study.bioproject = external_id.text
+        elif namespace == 'GEO':
+            study.geo = external_id.text
+
 
 # TODO add parser somewhere to run table.
 # # NOTE: Additional Fields not in the SRA XML but in summary table

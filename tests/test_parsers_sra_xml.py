@@ -23,6 +23,14 @@ def test_parse_sra_study(sra_xml_root):
     assert study.center_name == 'GEO'
 
 
+def test_add_study_external_links(sra_xml_root2):
+    root = sra_xml_root2
+    study = models.Study()
+    parsers_sra_xml.add_study_external_links(root, study)
+    assert study.bioproject == 'PRJNA258012'
+    assert study.geo == 'GSE60314'
+
+
 def test_parse_sra_organization(sra_xml_root2):
     root = sra_xml_root2
     organization = parsers_sra_xml.parse_sra_organization(root)
