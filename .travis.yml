@@ -11,9 +11,8 @@ deploy:
   user: 'jfear'
   password:
     secure: "DB2uFxyBj5f1DgTbKOU2RYJamSvc9QmqLzm4g2SD71lULLxVqP4e889g3qiUGH60HGc8hP8ln5VdxPLR2wi5CKFAi0rjfs3UgbBRwVRxcXnAD/jJmpfakMfGJV5TD573THhRJLHsm/2ZTYLZI/XWOfdMr6DnO0P15+oIhnzDAAuEfcW/Xmn+8SD6qa1L+SlD1SJ/s+F/o+HfcRdup2yMIBUw0P7KN5kiNViKWhJMQe8ijpajeoQEmYumSaYgXbPWELzeko+9g8dKB9QFkaBUkdPNFJOAZ3WSM6l16Mzwdd621656yZxmRKRI6qqp6z1Iuqqm4IV8mIgMoffCWp/Ql3di8+osdLFFYpDap6Rqvc0b7N/4MUJCfoAQJJgOo/rseH0HvYJN8jS8Tm+Tmhv2geG/eQXEU/bWHxnNXkW1JAQigIJf9YYPrrXxqxqmKV65Jau+udRV4kNe9Bdc49zqQjSkk+SAH9Yb27A4IA+Xey07EfQDWiyOcAgENl0vuy/jUfNLFTH5bxO9eCP/M0bghlPy2LmviiVWoPh4SRxAUhkFEq87W8MBLFifacuxVF2dAfh7FtfwEHsYEWgQ6hhxcyZYOSDLsveRQXKYVbjB83SkA7byHXVmgm+Ab5Kz6z4bcLEDuvU1Sgp8iL8odr8DQu4E9doxtGU1vA0QJW5KyFM="
-  server: https://test.pypi.org/legacy/
   on:
-    branch: master
+    tags: true
   skip_existing: true
 env:
   global:
