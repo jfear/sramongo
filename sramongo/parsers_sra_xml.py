@@ -115,7 +115,7 @@ def add_library_layout(root, sra):
 
 
 def add_platform_information(root, sra):
-    sra.platform = root.find('EXPERIMENT/PLATFORM').getchildren()[0].tag
+    sra.platform = list(root.find('EXPERIMENT/PLATFORM'))[0].tag
     sra.instrument_model = get_xml_text(root, f'EXPERIMENT/PLATFORM/{sra.platform}/INSTRUMENT_MODEL')
     return sra
 
@@ -149,10 +149,15 @@ def add_study_external_links(root, study):
 
 
 def add_study_pubmed(root, study):
-    for xref in root.findall('STUDY/STUDY_LINKS/XREF_LINK'):
-        db = get_xml_attribute(xref, 'DB')
+    pmids = []
+    for xref in root.findall('STUDY/STUDY_LINKS/STUDY_LINK/XREF_LINK'):
+        db = xref.find('DB').text
         if db == 'pubmed':
-            study.pubmed.append(get_xml_attribute(xref, 'ID'))
+            id = xref.find('ID').text
+            pmids.append(id)
+    if len(pmids) > 0:
+        study.pubmed = list(set(pmids))
+
 
 def parse_sra_efetch_result(xml: str) -> List[EfetchPackage]:
     root = ElementTree.fromstring(xml)

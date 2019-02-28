@@ -17,7 +17,7 @@ from sramongo.services import entrez
 from sramongo.utils import chunked
 
 _DEBUG = False
-DEBUG_SIZE = 2000
+DEBUG_SIZE = 20
 BATCH_SIZE = 200
 
 
@@ -93,7 +93,11 @@ def check_sra_for_updated_ids(query, collection, defaults):
     esearch_result = entrez.esearch('sra', query, **defaults)
     webenv = esearch_result.webenv
     query_key = esearch_result.query_key
-    count = esearch_result.count
+
+    if _DEBUG:
+        count = DEBUG_SIZE
+    else:
+        count = esearch_result.count
 
     logger.info('SRA - Checking for Updates')
     ids_to_update = []
@@ -293,13 +297,13 @@ def update_sramongo_biosample_records(docs, collection):
 def get_pubmed_ids(collection):
     logger.info('Pubmed - Getting IDs from SraMongo')
     ids = set()
-    for record in collection.find({'study.pubmed': {'$exists': True}, 'Pubmed': {'$exists': False}},
+    for record in collection.find({'study.pubmed': {'$exists': True}, 'Pubmed': {'$eq': []}},
                                   {'study.pubmed': True}):
         ids |= set(record['study']['pubmed'])
 
     # If Pubmed is already there, don't update if it was added today.
     now = datetime.now()
-    for record in collection.find({'Pubmed': {'$exists': True}}, {'Pubmed': True}):
+    for record in collection.find({'Pubmed': {'$ne': []}}, {'Pubmed': True}):
         for rec in record['Pubmed']:
             accn = rec['accn']
             dt = rec['sramongo_last_updated']
@@ -307,7 +311,7 @@ def get_pubmed_ids(collection):
                 ids.add(accn)
 
     logger.info(f'Pubmed - {len(ids):,} IDs.')
-    return ids
+    return [str(_id) for _id in ids]
 
 
 def download_pubmed_xml(pubmed_ids, defaults):
@@ -335,9 +339,16 @@ def update_sramongo_pubmed_records(docs, collection):
     db_operations = []
     for doc in docs:
         db_operations.append(
-            pymongo.UpdateMany(
-                {'study.pubmed': doc.accn, 'Pubmed.date_revised': {'$ne': doc.date_revised}},
-                {'$set': {'Pubmed': doc.to_mongo()}}
+            pymongo.UpdateMany({
+                'study.pubmed': doc.accn,
+                '$or': [
+                    {'Pubmed': {'$eq': []}},
+                    {'Pubmed.date_revised': {'$elemMatch': {'$ne': doc.date_revised}}}
+                ]
+            },
+                {
+                    '$addToSet': {'Pubmed': doc.to_mongo()}
+                }
             )
         )
 

@@ -31,6 +31,13 @@ def test_add_study_external_links(sra_xml_root2):
     assert study.geo == 'GSE60314'
 
 
+def test_add_study_pubmed(sra_xml_root):
+    root = sra_xml_root
+    study = models.Study()
+    parsers_sra_xml.add_study_pubmed(root, study)
+    assert study.pubmed[0] == '26335107'
+
+
 def test_parse_sra_organization(sra_xml_root2):
     root = sra_xml_root2
     organization = parsers_sra_xml.parse_sra_organization(root)
