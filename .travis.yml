@@ -1,15 +1,19 @@
 language: python
+python:
   - "3.5"
   - "3.6"
-install: bash travis-setup.sh
-before_script:
-  - export PATH=~/mongo/bin:$PATH
-  - export PATH=~/anaconda/bin:$PATH
+  - "3.7"
+install:
+  - pip install -r requirements.txt
+  - pip install .
 script:
-  - which python
-  - python -c 'import sramongo; print(sramongo.__file__)'
-  - which mongod
-  - mongod --version
-  - pytest -v tests
-  - ./conda-build-and-upload.sh
-  - ./pypi-build-and-upload.sh
+  - pytest
+deploy:
+  provider: pypi
+  user: ''
+  password:
+    secure: ''
+  server: https://test.pypi.org/legacy/
+  on:
+    branch: master
+  skip_existing: true

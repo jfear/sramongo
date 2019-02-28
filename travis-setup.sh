@@ -1,10 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# Download and set up mongo
-curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1204-3.4.1.tgz
-tar -zxf mongodb-linux-x86_64-ubuntu1204-3.4.1.tgz && mv mongodb-linux-x86_64-ubuntu1204-3.4.1  ~/mongo
-
 # Download and set up conda
 curl -O https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/anaconda
