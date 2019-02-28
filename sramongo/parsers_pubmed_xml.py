@@ -1,9 +1,11 @@
 from typing import List
 from xml.etree import cElementTree as ElementTree
 
-from sramongo.services.entrez import EfetchPackage
+from dateutil.parser import parse as dateutil_parse
+
+from sramongo.services.entrez import EfetchPackage, EsummaryResult
 from .models import Pubmed
-from .xml_helpers import get_xml_text, get_xml_attribute
+from .xml_helpers import get_xml_text, get_xml_attribute, xml_to_root
 
 
 def parse_pubmed(root):
@@ -69,9 +71,18 @@ def create_citation(pubmed):
             f'et al. {pubmed.journal} {pubmed.volume} ({pubmed.year}): {pubmed.page}.')
 
 
-def parse_pubmed_set(xml: str) -> List[EfetchPackage]:
+def parse_pubmed_efetch_result(xml: str) -> List[EfetchPackage]:
     root = ElementTree.fromstring(xml)
     for record in root.findall('PubmedArticleSet'):
         accn = record.find('PubmedArticle/PMID').text
         record_xml = ElementTree.tostring(record).decode()
         yield EfetchPackage(accn, record_xml)
+
+
+def parse_pubmed_esummary_result(xml: str) -> List[EsummaryResult]:
+    root = xml_to_root(xml)
+    for doc in root.findall('DocumentSummary'):
+        uid = doc.find('Id').text
+        accn = f'PMID{uid}'
+        create_date = dateutil_parse(doc.find("PubDate").text)
+        yield EsummaryResult(uid, accn, create_date, '')

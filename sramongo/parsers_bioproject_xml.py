@@ -1,27 +1,38 @@
 from typing import List
 from xml.etree import cElementTree as ElementTree
 
-from sramongo.services.entrez import EfetchPackage
+from dateutil.parser import parse as dateutil_parse
+
+from .services.entrez import EfetchPackage, EsummaryResult
 from .models import BioProject
-from .xml_helpers import get_xml_text, get_xml_attribute
+from .xml_helpers import get_xml_text, get_xml_attribute, xml_to_root
+from .utils import make_number
 
 
 def parse_bioproject(root):
     bioproject = BioProject()
-    bioproject.accn = get_xml_attribute(root, 'DocumentSummary/Project/ProjectID/ArchiveID', 'accession')
-    bioproject.id = int(get_xml_attribute(root, 'DocumentSummary/Project/ProjectID/ArchiveID', 'id'))
-    bioproject.name = get_xml_text(root, 'DocumentSummary/Project/ProjectDescr/Name')
-    bioproject.title = get_xml_text(root, 'DocumentSummary/Project/ProjectDescr/Title')
-    bioproject.description = get_xml_text(root, 'DocumentSummary/Project/ProjectDescr/Description')
-    # TODO make dates using datetime
-    bioproject.last_update = get_xml_attribute(root, 'DocumentSummary/Submission', 'last_update')
-    bioproject.submission_date = get_xml_attribute(root, 'DocumentSummary/Submission', 'submitted')
+    bioproject.accn = get_xml_attribute(root, 'Project/ProjectID/ArchiveID', 'accession')
+    bioproject.id = make_number(get_xml_attribute(root, 'Project/ProjectID/ArchiveID', 'id'), int)
+    bioproject.name = get_xml_text(root, 'Project/ProjectDescr/Name')
+    bioproject.title = get_xml_text(root, 'Project/ProjectDescr/Title')
+    bioproject.description = get_xml_text(root, 'Project/ProjectDescr/Description')
+    bioproject.last_update = dateutil_parse(get_xml_attribute(root, 'Submission', 'last_update'))
+    bioproject.submission_date = dateutil_parse(get_xml_attribute(root, 'Submission', 'submitted'))
     return bioproject
 
 
-def parse_bioproject_set(xml: str) -> List[EfetchPackage]:
+def parse_bioproject_efetch_result(xml: str) -> List[EfetchPackage]:
     root = ElementTree.fromstring(xml)
     for record in root.findall('DocumentSummary'):
         accn = record.find('Project/ProjectID/ArchiveID').attrib['accession']
         record_xml = ElementTree.tostring(record).decode()
         yield EfetchPackage(accn, record_xml)
+
+
+def parse_bioproject_esummary_result(xml: str) -> List[EsummaryResult]:
+    root = xml_to_root(xml)
+    for doc in root.findall('*DocumentSummary'):
+        uid = doc.find('Project_Id').text
+        accn = doc.find("Project_Acc").text
+        create_date = dateutil_parse(doc.find("Registration_Date").text)
+        yield EsummaryResult(uid, accn, create_date, '')

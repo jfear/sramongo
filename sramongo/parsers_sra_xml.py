@@ -1,9 +1,13 @@
 """Parse parts of the SRA XML into JSON."""
+import re
 from typing import List
 from xml.etree import cElementTree as ElementTree
 
-from sramongo.services.entrez import EfetchPackage
-from sramongo.xml_helpers import get_xml_text, get_xml_attribute
+from dateutil.parser import parse as dateutil_parse
+
+from sramongo.services.entrez import EfetchPackage, EsummaryResult
+from sramongo.utils import make_number
+from sramongo.xml_helpers import get_xml_text, get_xml_attribute, xml_to_root
 from .models import SraDocument, Study, Organization, Sample, Run
 
 
@@ -37,6 +41,7 @@ def parse_sra_study(root):
     study.center_name = get_xml_attribute(root, 'STUDY', 'center_name')
     study.center_project_name = get_xml_text(root, 'STUDY/DESCRIPTOR/CENTER_PROJECT_NAME')
     add_study_external_links(root, study)
+    add_study_pubmed(root, study)
     description = get_xml_text(root, 'STUDY/DESCRIPTOR/STUDY_DESCRIPTION')
     if description is not None and description != study.abstract:
         study.description = get_xml_text(root, '')
@@ -71,9 +76,9 @@ def parse_sra_run(root):
     for run in root.findall('RUN_SET/RUN'):
         sra_run = Run()
         sra_run.srr = get_xml_text(run, 'IDENTIFIERS/PRIMARY_ID')
-        sra_run.nspots = int(run.attrib['total_spots'])
-        sra_run.nbases = int(run.attrib['total_bases'])
-        sra_run.nreads = int(get_xml_attribute(run, 'Statistics', 'nreads'))
+        sra_run.nspots = make_number(run.attrib.get('total_spots', ''), int)
+        sra_run.nbases = make_number(run.attrib.get('total_bases', ''), int)
+        sra_run.nreads = make_number(get_xml_attribute(run, 'Statistics', 'nreads'), int)
 
         for read in run.findall('Statistics/Read'):
             idx = read.attrib['index']
@@ -81,11 +86,11 @@ def parse_sra_run(root):
             length = read.attrib['average']
 
             if idx == '0':
-                sra_run.read_count_r1 = int(count)
-                sra_run.read_len_r1 = int(length)
+                sra_run.read_count_r1 = float(count)
+                sra_run.read_len_r1 = float(length)
             elif idx == '1':
-                sra_run.read_count_r2 = int(count)
-                sra_run.read_len_r2 = int(length)
+                sra_run.read_count_r2 = float(count)
+                sra_run.read_len_r2 = float(length)
         runs.append(sra_run)
     return runs
 
@@ -95,10 +100,17 @@ def add_library_layout(root, sra):
         sra.library_layout = 'SINGLE'
     else:
         sra.library_layout = 'PARIED'
-        sra.library_layout_length = int(
-            get_xml_attribute(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_LENGTH'))
-        sra.library_layout_sdev = float(
-            get_xml_attribute(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_SDEV'))
+
+        sra.library_layout_length = make_number(
+            get_xml_attribute(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_LENGTH'),
+            int
+        )
+
+        sra.library_layout_sdev = make_number(
+            get_xml_attribute(root, 'EXPERIMENT/DESIGN/LIBRARY_DESCRIPTOR/LIBRARY_LAYOUT/PAIRED', 'NOMINAL_SDEV'),
+            float
+        )
+
     return sra
 
 
@@ -110,9 +122,12 @@ def add_platform_information(root, sra):
 
 def add_sample_attributes(root, sample):
     for attribute in root.findall('SAMPLE/SAMPLE_ATTRIBUTES/SAMPLE_ATTRIBUTE'):
-        tag = attribute.find('TAG').text
-        value = attribute.find('VALUE').text
-        sample.attributes.append({'name': tag, 'value': value})
+        try:
+            tag = attribute.find('TAG').text
+            value = attribute.find('VALUE').text
+            sample.attributes.append({'name': tag, 'value': value})
+        except AttributeError:
+            pass
 
 
 def add_sample_external_links(root, sample):
@@ -133,15 +148,36 @@ def add_study_external_links(root, study):
             study.geo = external_id.text
 
 
+def add_study_pubmed(root, study):
+    for xref in root.findall('STUDY/STUDY_LINKS/XREF_LINK'):
+        db = get_xml_attribute(xref, 'DB')
+        if db == 'pubmed':
+            study.pubmed.append(get_xml_attribute(xref, 'ID'))
+
+def parse_sra_efetch_result(xml: str) -> List[EfetchPackage]:
+    root = ElementTree.fromstring(xml)
+    for experiment in root.findall('EXPERIMENT_PACKAGE'):
+        srx = experiment.find('EXPERIMENT').attrib['accession']
+        experiment_xml = ElementTree.tostring(experiment).decode()
+        yield EfetchPackage(srx, experiment_xml)
+
+
+def parse_sra_esummary_result(xml: str) -> List[EsummaryResult]:
+    root = xml_to_root(xml)
+    srx_pattern = re.compile(r'Experiment acc=\"([SED]RX\d+)\"')
+
+    for doc in root.findall('DocSum'):
+        expxml: str = doc.find("Item[@Name='ExpXml']").text
+        uid = doc.find('Id').text
+        accn = re.findall(srx_pattern, expxml)[0]
+        create_date = dateutil_parse(doc.find("Item[@Name='CreateDate']").text)
+        update_date = dateutil_parse(doc.find("Item[@Name='UpdateDate']").text)
+        yield EsummaryResult(uid, accn, create_date, update_date)
+
+
 # TODO add parser somewhere to run table.
 # # NOTE: Additional Fields not in the SRA XML but in summary table
 # run.release_date = DateTimeField()
 # run.load_date = DateTimeField()
 # run.size_MB = IntField()
 
-def parse_sra_experiment_set(xml: str) -> List[EfetchPackage]:
-    root = ElementTree.fromstring(xml)
-    for experiment in root.findall('EXPERIMENT_PACKAGE'):
-        srx = experiment.find('EXPERIMENT').attrib['accession']
-        experiment_xml = ElementTree.tostring(experiment).decode()
-        yield EfetchPackage(srx, experiment_xml)
