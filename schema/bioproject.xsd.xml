@@ -1,0 +1,1885 @@
+<Project schema_version="string">
+  <ProjectID>
+    <!--Optional:-->
+    <PrimaryId db="string" id="100">string</PrimaryId>
+    <!--Optional:-->
+    <SPUID submitter_id="string" spuid_namespace="string">string</SPUID>
+    <!--Optional:-->
+    <LocalId submission_id="string">string</LocalId>
+  </ProjectID>
+  <Descriptor>
+    <!--Optional:-->
+    <Title>string</Title>
+    <!--Optional:-->
+    <Description>
+      <!--You have a CHOICE of the next 4 items at this level-->
+      <p>
+        e
+        <!--You have a CHOICE of the next 5 items at this level-->
+        <a href="http://www.company.org/sonoras/aeoliam" type="string">
+          quae
+          <!--You have a CHOICE of the next 4 items at this level-->
+          <i/>
+          <b/>
+          <sub/>
+          <sup/>
+          ventos
+        </a>
+        <i/>
+        <b/>
+        <sub/>
+        <sup/>
+        verrantque
+      </p>
+      <ul>
+        <!--1 or more repetitions:-->
+        <li>
+          temperat
+          <!--You have a CHOICE of the next 9 items at this level-->
+          <p>
+            per
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.test.com/regemque/nimborum" type="string">
+              fremunt
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              foedere
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            ferant
+          </p>
+          <ul/>
+          <ol/>
+          <table>
+            <!--Optional:-->
+            <caption>
+              profundum
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a href="http://www.corp.com/turbine/iovis" type="string">
+                flammato
+                <!--You have a CHOICE of the next 4 items at this level-->
+                <i>
+                  speluncis
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a/>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  profundum
+                </i>
+                <b>
+                  bella
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a/>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  nubibus
+                </b>
+                <sub>
+                  flammas
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a/>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  ac
+                </sub>
+                <sup>
+                  hoc
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a/>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  rapidum
+                </sup>
+                ac
+              </a>
+              <i>
+                caelumque
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a href="http://www.sample.com/aris/coniunx" type="string">
+                  praeterea
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  arce
+                </a>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                claustra
+              </i>
+              <b>
+                circum
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a href="http://www.any.com/quisquam/et" type="string">
+                  ac
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  feta
+                </a>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                ac
+              </b>
+              <sub>
+                sed
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a href="http://www.test.org/pectore/austris" type="string">
+                  annos
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  sciret
+                </a>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                certo
+              </sub>
+              <sup>
+                dare
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a href="http://www.any.com/volutans/dedit" type="string">
+                  faciat
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  magno
+                </a>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                et
+              </sup>
+              ac
+            </caption>
+            <!--1 or more repetitions:-->
+            <tr>
+              <!--You have a CHOICE of the next 2 items at this level-->
+              <th rowspan="1" colspan="1">
+                et
+                <!--You have a CHOICE of the next 9 items at this level-->
+                <p>
+                  regemque
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.your.com/ventos/tenens" type="string">
+                    regina
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    montis
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  rapidum
+                </p>
+                <ul/>
+                <ol/>
+                <table/>
+                <a href="http://www.any.com/mollitque/cum" type="string">
+                  iovisque
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i>
+                    in
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    soror
+                  </i>
+                  <b>
+                    abdidit
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iunonis
+                  </b>
+                  <sub>
+                    coniunx
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    adorat
+                  </sub>
+                  <sup>
+                    ipsa
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    illum
+                  </sup>
+                  frenat
+                </a>
+                <i>
+                  aris
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.my.com/mollitque/premere" type="string">
+                    montis
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    insuper
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  molemque
+                </i>
+                <b>
+                  ferant
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.sample.edu/circum/vasto" type="string">
+                    montis
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    flammato
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  aris
+                </b>
+                <sub>
+                  tempestatesque
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.sample.com/incedo/premit" type="string">
+                    ac
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iras
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  acuto
+                </sub>
+                <sup>
+                  nubibus
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.gov/dedit/qui" type="string">
+                    profundum
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    atris
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  imposuit
+                </sup>
+                atris
+              </th>
+              <td rowspan="1" colspan="1">
+                magno
+                <!--You have a CHOICE of the next 9 items at this level-->
+                <p>
+                  animos
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.test.org/verrantque/patriam" type="string">
+                    metuens
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    montis
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  dare
+                </p>
+                <ul/>
+                <ol/>
+                <table/>
+                <a href="http://www.test.org/e/sceptra" type="string">
+                  volutans
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i>
+                    vasto
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    murmure
+                  </i>
+                  <b>
+                    coniunx
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    vinclis
+                  </b>
+                  <sub>
+                    rapidum
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    rapidi
+                  </sub>
+                  <sup>
+                    turbine
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    antro
+                  </sup>
+                  auras
+                </a>
+                <i>
+                  sciret
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.org/aequora/ipsa" type="string">
+                    et
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    aris
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  incedo
+                </i>
+                <b>
+                  imperio
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.gov/ego/ni" type="string">
+                    tempestatesque
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    circum
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  ego
+                </b>
+                <sub>
+                  corde
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.my.com/molemque/temperat" type="string">
+                    rapidum
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    magno
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  nimborum
+                </sub>
+                <sup>
+                  gero
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.any.org/aeoliam/premere" type="string">
+                    hic
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iovisque
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  et
+                </sup>
+                nubibus
+              </td>
+            </tr>
+          </table>
+          <a href="http://www.my.edu/murmure/rates" type="string">
+            maria
+            <!--You have a CHOICE of the next 4 items at this level-->
+            <i>
+              supplex
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              imponet
+            </i>
+            <b>
+              ipsa
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              numen
+            </b>
+            <sub>
+              volutans
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              per
+            </sub>
+            <sup>
+              maria
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              et
+            </sup>
+            foedere
+          </a>
+          <i>
+            tempestatesque
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.company.edu/rapidi/iaculata" type="string">
+              montis
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              omnipotens
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            et
+          </i>
+          <b>
+            premere
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.your.com/numen/terras" type="string">
+              vasto
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              et
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            profundum
+          </b>
+          <sub>
+            dare
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.company.com/illi/arce" type="string">
+              dea
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              luctantis
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            rapidum
+          </sub>
+          <sup>
+            bella
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.any.edu/rapidi/imposuit" type="string">
+              e
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              ignem
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            tenens
+          </sup>
+          et
+        </li>
+      </ul>
+      <ol>
+        <!--1 or more repetitions:-->
+        <li>
+          vinclis
+          <!--You have a CHOICE of the next 9 items at this level-->
+          <p>
+            murmure
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.corp.com/sonoras/rapidi" type="string">
+              soror
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              rapidum
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            imperio
+          </p>
+          <ul/>
+          <ol/>
+          <table>
+            <!--Optional:-->
+            <caption>
+              premere
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a href="http://www.corp.org/ego/maria" type="string">
+                cum
+                <!--You have a CHOICE of the next 4 items at this level-->
+                <i>
+                  rates
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a/>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  arce
+                </i>
+                <b>
+                  iovis
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a/>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  austris
+                </b>
+                <sub>
+                  indignantes
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a/>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  ventis
+                </sub>
+                <sup>
+                  sonoras
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a/>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  ni
+                </sup>
+                rapidum
+              </a>
+              <i>
+                secum
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a href="http://www.company.com/iovisque/magno" type="string">
+                  flammato
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  secum
+                </a>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                hic
+              </i>
+              <b>
+                et
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a href="http://www.company.com/altos/rex" type="string">
+                  profundum
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  magno
+                </a>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                premit
+              </b>
+              <sub>
+                certo
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a href="http://www.test.com/luctantis/terras" type="string">
+                  nubibus
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  altos
+                </a>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                et
+              </sub>
+              <sup>
+                sonoras
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a href="http://www.company.org/ignem/gente" type="string">
+                  iovisque
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  supplex
+                </a>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                molemque
+              </sup>
+              quisquam
+            </caption>
+            <!--1 or more repetitions:-->
+            <tr>
+              <!--You have a CHOICE of the next 2 items at this level-->
+              <th rowspan="1" colspan="1">
+                montis
+                <!--You have a CHOICE of the next 9 items at this level-->
+                <p>
+                  ipsa
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.corp.org/bella/omnipotens" type="string">
+                    incedo
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    animos
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  iovis
+                </p>
+                <ul/>
+                <ol/>
+                <table/>
+                <a href="http://www.corp.gov/secum/faciat" type="string">
+                  dea
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i>
+                    transfixo
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    hic
+                  </i>
+                  <b>
+                    claustra
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    imposuit
+                  </b>
+                  <sub>
+                    una
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iunonis
+                  </sub>
+                  <sup>
+                    corde
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    sceptra
+                  </sup>
+                  et
+                </a>
+                <i>
+                  sciret
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.com/caelumque/regina" type="string">
+                    sceptra
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    sceptra
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  volutans
+                </i>
+                <b>
+                  terras
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.test.com/et/regemque" type="string">
+                    ferant
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iras
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  arce
+                </b>
+                <sub>
+                  austris
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.corp.com/pater/regina" type="string">
+                    sedet
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    vasto
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  scopuloque
+                </sub>
+                <sup>
+                  sciret
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.org/bella/et" type="string">
+                    ast
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iaculata
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  nubibus
+                </sup>
+                divum
+              </th>
+              <td rowspan="1" colspan="1">
+                aut
+                <!--You have a CHOICE of the next 9 items at this level-->
+                <p>
+                  insuper
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.corp.com/dare/hic" type="string">
+                    imposuit
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    murmure
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  claustra
+                </p>
+                <ul/>
+                <ol/>
+                <table/>
+                <a href="http://www.my.com/tot/quippe" type="string">
+                  profundum
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i>
+                    regina
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    feta
+                  </i>
+                  <b>
+                    exspirantem
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    murmure
+                  </b>
+                  <sub>
+                    honorem
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    numen
+                  </sub>
+                  <sup>
+                    mollitque
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    ventos
+                  </sup>
+                  rates
+                </a>
+                <i>
+                  in
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.org/quippe/sedet" type="string">
+                    sonoras
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    et
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  illi
+                </i>
+                <b>
+                  ventos
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.test.com/molemque/celsa" type="string">
+                    mollitque
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    scopuloque
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  tenens
+                </b>
+                <sub>
+                  ventos
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.your.com/circum/magno" type="string">
+                    acuto
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iaculata
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  honorem
+                </sub>
+                <sup>
+                  sciret
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.my.com/premere/aeolus" type="string">
+                    flammas
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    profundum
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  ipsa
+                </sup>
+                venit
+              </td>
+            </tr>
+          </table>
+          <a href="http://www.corp.gov/frenat/dare" type="string">
+            vinclis
+            <!--You have a CHOICE of the next 4 items at this level-->
+            <i>
+              supplex
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              in
+            </i>
+            <b>
+              aeolus
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              talia
+            </b>
+            <sub>
+              indignantes
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              auras
+            </sub>
+            <sup>
+              ventis
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              ventis
+            </sup>
+            carcere
+          </a>
+          <i>
+            rapidum
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.test.org/habenas/ignem" type="string">
+              caelumque
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              in
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            tenens
+          </i>
+          <b>
+            evertitque
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.my.gov/laxas/qui" type="string">
+              gente
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              incedo
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            speluncis
+          </b>
+          <sub>
+            abdidit
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.any.org/molemque/exspirantem" type="string">
+              animos
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              dare
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            animos
+          </sub>
+          <sup>
+            aut
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.my.gov/ventos/aris" type="string">
+              et
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              metuens
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            foedere
+          </sup>
+          venit
+        </li>
+      </ol>
+      <table>
+        <!--Optional:-->
+        <caption>
+          verrantque
+          <!--You have a CHOICE of the next 5 items at this level-->
+          <a href="http://www.company.com/quisquam/per" type="string">
+            disiecitque
+            <!--You have a CHOICE of the next 4 items at this level-->
+            <i>
+              vinclis
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              iovisque
+            </i>
+            <b>
+              montis
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              ego
+            </b>
+            <sub>
+              acuto
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              flammas
+            </sub>
+            <sup>
+              secum
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a/>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              ventos
+            </sup>
+            iras
+          </a>
+          <i>
+            rapidi
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.my.com/carcere/faciat" type="string">
+              iras
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              sedet
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            iras
+          </i>
+          <b>
+            soror
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.corp.org/austris/quisquam" type="string">
+              divum
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              sciret
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            et
+          </b>
+          <sub>
+            montis
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.company.gov/tempestatesque/talia" type="string">
+              soror
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              caelumque
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            murmure
+          </sub>
+          <sup>
+            aeoliam
+            <!--You have a CHOICE of the next 5 items at this level-->
+            <a href="http://www.my.org/corripuit/rapidi" type="string">
+              infixit
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              et
+            </a>
+            <i/>
+            <b/>
+            <sub/>
+            <sup/>
+            nimborum
+          </sup>
+          austris
+        </caption>
+        <!--1 or more repetitions:-->
+        <tr>
+          <!--You have a CHOICE of the next 2 items at this level-->
+          <th rowspan="1" colspan="1">
+            caelumque
+            <!--You have a CHOICE of the next 9 items at this level-->
+            <p>
+              claustra
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a href="http://www.your.com/insuper/magno" type="string">
+                et
+                <!--You have a CHOICE of the next 4 items at this level-->
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                gero
+              </a>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              laxas
+            </p>
+            <ul>
+              <!--1 or more repetitions:-->
+              <li>
+                rapidum
+                <!--You have a CHOICE of the next 9 items at this level-->
+                <p>
+                  infixit
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.test.com/laxas/magno" type="string">
+                    auras
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    annos
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  regina
+                </p>
+                <ul/>
+                <ol/>
+                <table/>
+                <a href="http://www.my.org/annos/corripuit" type="string">
+                  qui
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i>
+                    patriam
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    gero
+                  </i>
+                  <b>
+                    infixit
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    speluncis
+                  </b>
+                  <sub>
+                    frenat
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    per
+                  </sub>
+                  <sup>
+                    montis
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    altos
+                  </sup>
+                  iaculata
+                </a>
+                <i>
+                  aeolus
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.com/animos/altos" type="string">
+                    dea
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    ventis
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  tempestatesque
+                </i>
+                <b>
+                  iussus
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.test.org/et/ignem" type="string">
+                    flammas
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    gente
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  transfixo
+                </b>
+                <sub>
+                  imponet
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.my.com/frenat/altos" type="string">
+                    premere
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    scopuloque
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  iras
+                </sub>
+                <sup>
+                  ni
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.test.com/cum/speluncis" type="string">
+                    vinclis
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    aeolus
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  dea
+                </sup>
+                imperio
+              </li>
+            </ul>
+            <ol>
+              <!--1 or more repetitions:-->
+              <li>
+                transfixo
+                <!--You have a CHOICE of the next 9 items at this level-->
+                <p>
+                  ni
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.gov/cum/faciat" type="string">
+                    et
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    ignem
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  cum
+                </p>
+                <ul/>
+                <ol/>
+                <table/>
+                <a href="http://www.my.org/et/aeolus" type="string">
+                  volutans
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i>
+                    sonoras
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    feta
+                  </i>
+                  <b>
+                    feta
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    et
+                  </b>
+                  <sub>
+                    ni
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    habenas
+                  </sub>
+                  <sup>
+                    imposuit
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iras
+                  </sup>
+                  laxas
+                </a>
+                <i>
+                  fremunt
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.test.edu/furentibus/aris" type="string">
+                    corde
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    aeolus
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  disiecitque
+                </i>
+                <b>
+                  tempestatesque
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.your.com/aut/vasto" type="string">
+                    atris
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    imposuit
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  flammato
+                </b>
+                <sub>
+                  ignem
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.your.gov/fremunt/evertitque" type="string">
+                    aut
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    pater
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  et
+                </sub>
+                <sup>
+                  foedere
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.company.com/iras/vasto" type="string">
+                    coniunx
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iussus
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  quae
+                </sup>
+                supplex
+              </li>
+            </ol>
+            <table/>
+            <a href="http://www.my.org/et/et" type="string">
+              speluncis
+              <!--You have a CHOICE of the next 4 items at this level-->
+              <i>
+                iunonis
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a/>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                rapidi
+              </i>
+              <b>
+                fremunt
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a/>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                disiecitque
+              </b>
+              <sub>
+                foedere
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a/>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                dea
+              </sub>
+              <sup>
+                molemque
+                <!--You have a CHOICE of the next 5 items at this level-->
+                <a/>
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                ferant
+              </sup>
+              patriam
+            </a>
+            <i>
+              abdidit
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a href="http://www.my.com/exspirantem/secum" type="string">
+                coniunx
+                <!--You have a CHOICE of the next 4 items at this level-->
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                nubibus
+              </a>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              aequora
+            </i>
+            <b>
+              rapidi
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a href="http://www.your.org/supplex/ipsa" type="string">
+                atris
+                <!--You have a CHOICE of the next 4 items at this level-->
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                feta
+              </a>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              abdidit
+            </b>
+            <sub>
+              adorat
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a href="http://www.test.edu/et/et" type="string">
+                ignem
+                <!--You have a CHOICE of the next 4 items at this level-->
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                certo
+              </a>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              rex
+            </sub>
+            <sup>
+              e
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a href="http://www.test.com/imperio/ferant" type="string">
+                secum
+                <!--You have a CHOICE of the next 4 items at this level-->
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                bella
+              </a>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              regemque
+            </sup>
+            profundum
+          </th>
+          <td rowspan="1" colspan="1">
+            corde
+            <!--You have a CHOICE of the next 9 items at this level-->
+            <p>
+              altos
+              <!--You have a CHOICE of the next 5 items at this level-->
+              <a href="http://www.your.com/circum/ferant" type="string">
+                circum
+                <!--You have a CHOICE of the next 4 items at this level-->
+                <i/>
+                <b/>
+                <sub/>
+                <sup/>
+                ferant
+              </a>
+              <i/>
+              <b/>
+              <sub/>
+              <sup/>
+              pectore
+            </p>
+            <ul>
+              <!--1 or more repetitions:-->
+              <li>
+                dare
+                <!--You have a CHOICE of the next 9 items at this level-->
+                <p>
+                  quae
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.sample.org/ni/circum" type="string">
+                    talia
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    imperio
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  nimborum
+                </p>
+                <ul/>
+                <ol/>
+                <table/>
+                <a href="http://www.company.com/ni/rapidi" type="string">
+                  caelumque
+                  <!--You have a CHOICE of the next 4 items at this level-->
+                  <i>
+                    illi
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    aeolus
+                  </i>
+                  <b>
+                    claustra
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    illi
+                  </b>
+                  <sub>
+                    praeterea
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    ac
+                  </sub>
+                  <sup>
+                    rapidum
+                    <!--You have a CHOICE of the next 5 items at this level-->
+                    <a/>
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    habenas
+                  </sup>
+                  quisquam
+                </a>
+                <i>
+                  sed
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.corp.org/rates/ni" type="string">
+                    flammato
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    iussus
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  infixit
+                </i>
+                <b>
+                  ipsa
+                  <!--You have a CHOICE of the next 5 items at this level-->
+                  <a href="http://www.your.org/insuper/ipsa" type="string">
+                    auras
+                    <!--You have a CHOICE of the next 4 items at this level-->
+                    <i/>
+                    <b/>
+                    <sub/>
+                    <sup/>
+                    patriam
+                  </a>
+                  <i/>
+                  <b/>
+                  <sub/>
+                  <sup/>
+                  scopuloque
+                </b>
+                <sub>auras indignantes</sub>
+                <sup>tenens altos</sup>
+                exspirantem
+              </li>
+            </ul>
+            <ol>
+              <!--1 or more repetitions:-->
+              <li>per exspirantem</li>
+            </ol>
+            <table/>
+            <a href="http://www.corp.org/illum/divum" type="string">premere furentibus</a>
+            <i>illum volutans</i>
+            <b>soror claustra</b>
+            <sub>e et</sub>
+            <sup>secum habenas</sup>
+            adorat
+          </td>
+        </tr>
+      </table>
+    </Description>
+    <!--Zero or more repetitions:-->
+    <!--Optional:-->
+    <!--Zero or more repetitions:-->
+    <!--Optional:-->
+    <!--Zero or more repetitions:-->
+    <!--Zero or more repetitions:-->
+    <!--Zero or more repetitions:-->
+  </Descriptor>
+  <ProjectType>
+    <!--You have a CHOICE of the next 2 items at this level-->
+    <ProjectTypeTopAdmin subtype="eAccounting">
+      <!--Optional:-->
+      <!--Optional:-->
+    </ProjectTypeTopAdmin>
+    <ProjectTypeSubmission sample_scope="eOther">
+      <!--Optional:-->
+      <!--Optional:-->
+      <IntendedDataTypeSet>
+        <!--1 or more repetitions:-->
+        <DataType>exome</DataType>
+      </IntendedDataTypeSet>
+    </ProjectTypeSubmission>
+  </ProjectType>
+</Project>

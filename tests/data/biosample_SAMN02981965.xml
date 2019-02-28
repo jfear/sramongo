@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<BioSampleSet>
   <BioSample access="public" publication_date="2015-12-22T01:15:47.477" last_update="2015-12-22T01:19:06.303" submission_date="2014-08-11T13:36:38.303" id="2981965" accession="SAMN02981965">
     <Ids>
       <Id db="BioSample" is_primary="1">SAMN02981965</Id>
@@ -40,4 +39,3 @@
     </Links>
     <Status status="live" when="2015-12-22T01:15:47.495"/>
   </BioSample>
-</BioSampleSet>

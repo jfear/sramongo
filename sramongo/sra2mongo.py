@@ -1,98 +1,24 @@
 #!/usr/bin/env python
 """Downloads and parses various Entrez databases."""
-import os
 import sys
+import time
 import argparse
 from argparse import RawDescriptionHelpFormatter as Raw
-from urllib.error import HTTPError, URLError
-from http.client import IncompleteRead
-from xml.etree import ElementTree
 from logging import INFO, DEBUG
-import pandas as pd
-import time
-from shutil import rmtree
-from glob import glob
-from io import StringIO
+from datetime import datetime
 
-from Bio import Entrez
+import pymongo
 from mongoengine import connect
-from mongoengine.errors import ValidationError
 
+from sramongo import parsers_sra_xml, parsers_bioproject_xml, parsers_biosample_xml, parsers_pubmed_xml
+from sramongo.xml_helpers import xml_to_root
 from sramongo.logger import logger
-from sramongo.mongo import MongoDB2
-from sramongo.sra import SraExperiment, XMLSchemaException
-from sramongo.biosample import BioSampleParse
-from sramongo.bioproject import BioProjectParse
-from sramongo.pubmed import PubmedParse
-from sramongo.mongo_schema import Ncbi
+from sramongo.services import entrez
+from sramongo.utils import chunked
 
 _DEBUG = False
-
-class Cache(object):
-    def __init__(self, directory='', clean=False):
-
-        # Clean cache if option given
-        if clean & os.path.exists(directory):
-            logger.info('Clearing cache: {}.'.format(directory))
-            self.clear()
-
-        # Make cach directory
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        self.cachedir = os.path.abspath(directory)
-
-        # Scan cache and make list of names.
-        self.cached = set([x.replace('.xml', '') for x in os.listdir(path=self.cachedir) if x.endswith('.xml')])
-
-    def add_to_cache(self, name, _type, data):
-        """Add downloaded data to the cache."""
-        self.cached.add(str(name))
-
-        if _type == 'xml':
-            ext = 'xml'
-        else:
-            ext = 'csv'
-
-        fname = '{}.{}'.format(name, ext)
-
-        with open(os.path.join(self.cachedir, fname), 'w') as fh:
-            fh.write(data)
-
-    def remove_from_cache(self, name):
-        """Remove file from cache."""
-        self.cached.discard(str(name))
-        for fn in glob(os.path.join(self.cachedir, str(name) + '*')):
-            if os.path.exists(fn):
-                os.remove(fn)
-
-    def get_cache(self, name, _type):
-        """Get file contents from cache."""
-        if _type == 'xml':
-            ext = 'xml'
-        else:
-            ext = 'csv'
-
-        fname = os.path.join(self.cachedir, '{}.{}'.format(name, ext))
-
-        if os.path.exists(fname):
-            with open(fname, 'r') as fh:
-                return fh.read()
-        else:
-            return None
-
-    def __iter__(self):
-        for f in sorted(self.cached):
-            xml = os.path.join(self.cachedir, '{}.{}'.format(f, 'xml'))
-            csv = os.path.join(self.cachedir, '{}.{}'.format(f, 'csv'))
-            if os.path.exists(csv):
-                yield xml, csv
-            else:
-                yield xml
-
-    def clear(self):
-        rmtree(self.cachedir)
-        self.cached = set()
+DEBUG_SIZE = 20
+BATCH_SIZE = 200
 
 
 def arguments():
@@ -103,25 +29,22 @@ def arguments():
 
     parser = argparse.ArgumentParser(description=DESCRIPTION, formatter_class=Raw)
 
-    parser.add_argument("--email", dest="email", action='store', required=True,
+    parser.add_argument("--email", dest="email", action='store', required=False, default=False,
                         help="An email address is required for querying Entrez databases.")
+
+    parser.add_argument("--api", dest="api_key", action='store', required=False, default=False,
+                        help="A users ENTREZ API Key. Will speed up download.")
 
     parser.add_argument("--query", dest="query", action='store', required=True,
                         help="Query to submit to Entrez.")
 
-    parser.add_argument("--host", dest="host", action='store', required=False,
-                        help="Location of an already running database. If provided ignores --dbpath and --logDir.")
-
-    parser.add_argument("--dbpath", dest="dbDir", action='store', required=False,
-                        help="Folder containing mongo database.")
-
-    parser.add_argument("--logDir", dest="logDir", action='store', required=False, default=None,
-                        help="Folder in which to store log.")
+    parser.add_argument("--host", dest="host", action='store', required=False, default='localhost',
+                        help="Location of an already running database.")
 
     parser.add_argument("--port", dest="port", action='store', type=int, required=False, default=27017,
                         help="Mongo database port.")
 
-    parser.add_argument("--db", dest="db", action='store', required=False, default='sra',
+    parser.add_argument("--db", dest="db", action='store', required=False, default='sramongo',
                         help="Name of the database.")
 
     parser.add_argument("--debug", dest="debug", action='store_true', required=False,
@@ -132,323 +55,335 @@ def arguments():
 
     args = parser.parse_args()
 
-    if args.host and (args.dbDir or args.logDir):
-        logger.warning('Both --host and --dbpath/--logDir were provided; going to try using running mongo server.')
-
-    if not (args.host or args.dbDir or args.logDir):
-        logger.warning('You must provide either a `--host hostname` with a running database or '
-                '`--dbpath <path to db> --logDir <path to log>`')
+    if not (args.email or args.api_key):
+        logger.error('You must provide either an `--email` or `--api`.')
+        sys.exit()
 
     return args
 
 
-def iter_query(query):
-    batch_size = 5000
-    for start in range(0, len(query), batch_size):
-        end = min(len(query), start+batch_size)
-        if query[0].startswith('SAM'):
-            yield '[accn] OR '.join(query[start:end]) + '[accn]'
-        elif query[0].startswith('PRJ'):
-            # For some reason you cannot query BioProject using the [accn]
-            # keyword.
-            yield ' OR '.join(query[start:end])
+def run_sra2mongo(args, collection):
+    defaults = dict(api_key=args.api_key, email=args.email)
+
+    if _DEBUG:
+        defaults['retmax'] = DEBUG_SIZE
+
+    ids_to_update = check_sra_for_updated_ids(args.query, collection, defaults)
+    docs = download_sra_xml(ids_to_update, defaults)
+    update_sramongo_sra_records(docs, collection)
+
+    ids = get_bioproject_ids(collection)
+    docs = download_bioproject_xml(ids, defaults)
+    update_sramongo_bioproject_records(docs, collection)
+
+    ids = get_biosample_ids(collection)
+    docs = download_biosample_xml(ids, defaults)
+    update_sramongo_biosample_records(docs, collection)
+
+    ids = get_pubmed_ids(collection)
+    docs = download_pubmed_xml(ids, defaults)
+    update_sramongo_pubmed_records(docs, collection)
 
 
-def ncbi_query(query, **kwargs):
-    options = {'term': query, 'db': 'sra'}
-    options.update(kwargs)
+def check_sra_for_updated_ids(query, collection, defaults):
+    logger.info(f'SRA - Querying SraMongo for last update')
+    last_srx_update = get_sramongo_last_srx_update(collection)
 
-    if isinstance(query, str):
-        # Simple query
-        options['usehistory'] = 'y'
-        handle = Entrez.esearch(**options)
-        records = Entrez.read(handle)
-        records['Count'] = int(records['Count'])
-        logger.info('There are {:,} records.'.format(records['Count']))
-        return records
-    elif isinstance(query, list):
-        logger.debug('Using list of accessions.')
-        # This is used when there is a list of accession numbers to query.
-        options['retmax'] = 100000          # the highest valid value
+    logger.info(f'SRA - Querying SRA for: {query}')
+    esearch_result = entrez.esearch('sra', query, **defaults)
+    webenv = esearch_result.webenv
+    query_key = esearch_result.query_key
 
-        # Some of accn are actually IDs lets pull those out.
-        ids = []
-        accn = []
-        for _id in set(query):
-            if _id.startswith('SAM') or _id.startswith('PRJ'):
-                accn.append(_id)
-            elif _id.startswith('PMID'):
-                ids.append(_id.replce('PMID', ''))
-            else:
-                ids.append(_id)
-
-        for q in iter_query(accn):
-            options['term'] = q
-            handle = Entrez.esearch(**options)
-            records = Entrez.read(handle)
-            ids.extend(records['IdList'])
-            handle.close()
-
-        ids = list(set(ids))
-        handle = Entrez.epost(options['db'], id=','.join(ids))
-        records = Entrez.read(handle)
-        handle.close()
-        records['Count'] = len(ids)
-        logger.info('There are {:,} records.'.format(records['Count']))
-        return records
+    if _DEBUG:
+        count = DEBUG_SIZE
     else:
-        logger.debug(query[:10])
-        raise ValueError('Query should be a string or list of Accession numbers.')
+        count = esearch_result.count
+
+    logger.info('SRA - Checking for Updates')
+    ids_to_update = []
+    for esummary_result in sra_esummary(webenv, query_key, count, defaults):
+        srx = esummary_result.accn
+        if esummary_result.update_date != last_srx_update.get(srx, None):
+            ids_to_update.append(esummary_result.id)
+
+    logger.info(f'SRA - {len(ids_to_update):,} IDs to Update')
+    return ids_to_update
 
 
-def catch_xml_error(xml):
-    try:
-        tree = ElementTree.parse(xml)
-    except ElementTree.ParseError:
-        logger.debug('Current XML file appears to be empty; re-download.')
-        return True
+def download_sra_xml(ids_to_update, defaults):
+    logger.info(f'SRA - Downloading XML Records')
+    for i, ids in enumerate(chunked(ids_to_update, BATCH_SIZE)):
+        start, end = i * BATCH_SIZE, (i + 1) * BATCH_SIZE
+        logger.info(f'SRA - Downloading XML Records [Batch {start:,}-{end:,}]')
 
-    res = tree.find('ERROR')
-    if res is None:
-        return False
-    else:
-        logger.debug('Current XML has an ERROR tag; re-download.')
-        return True
+        epost_result = entrez.epost('sra', ids=ids, **defaults)
+        webenv = epost_result.webenv
+        query_key = epost_result.query_key
+        count = len(ids)
 
+        esummary_results = {
+            result.accn: result
+            for result in sra_esummary(webenv, query_key, count, defaults)
+        }
 
-def fetch_ncbi(records, cache, runinfo_retmode='text', **kwargs):
-    count = records['Count']
-    batch_size = 500
-
-    options = {'db': 'sra', 'webenv': records['WebEnv'],
-               'query_key': records['QueryKey'], 'retmax': batch_size}
-    options.update(kwargs)
-
-    for start in range(0, count, batch_size):
-        end = min(count, start+batch_size)
-
-        cache_xml = cache.get_cache(start, 'xml')
-        cache_runinfo = cache.get_cache(start, 'csv')
-
-        if (cache_xml is not None) & (catch_xml_error(StringIO(cache_xml)) is False):
-            logger.info('Using cached version for: {} to {}.'.format(start+1, end))
-        else:
-            logger.info("Downloading record %i to %i" % (start+1, end))
-            attempt = 0
-            while attempt < 3:
-                attempt += 1
-                try:
-                    xml_handle = Entrez.efetch(retmode='xml', retstart=start, **options)
-                    xml_data = xml_handle.read()
-                    cache.add_to_cache(start, 'xml', xml_data)
-                    xml_handle.close()
-
-                    if runinfo_retmode is not None:
-                        runinfo_handle = Entrez.efetch(rettype="runinfo", retmode=runinfo_retmode,
-                                                       retstart=start, **options)
-                        runinfo_data = runinfo_handle.read()
-                        cache.add_to_cache(start, 'csv', runinfo_data)
-                        runinfo_handle.close()
-
-                except HTTPError as err:
-                    if (500 <= err.code <= 599) & (attempt < 3):
-                        logger.warning("Received error from server %s" % err)
-                        logger.warning("Attempt %i of 3" % attempt)
-                        time.sleep(15)
-                    else:
-                        logger.error("Received error from server %s" % err)
-                        logger.error("Please re-run command latter.")
-                        cache.remove_from_cache(start)
-                        sys.exit(1)
-                except IncompleteRead as err:
-                    if attempt < 3:
-                        logger.warning("Received error from server %s" % err)
-                        logger.warning("Attempt %i of 3" % attempt)
-                        time.sleep(15)
-                    else:
-                        logger.error("Received error from server %s" % err)
-                        logger.error("Please re-run command latter.")
-                        cache.remove_from_cache(start)
-                        sys.exit(1)
-                except URLError as err:
-                    if (err.code == 60) & (attempt < 3):
-                        logger.warning("Received error from server %s" % err)
-                        logger.warning("Attempt %i of 3" % attempt)
-                        cache.remove_from_cache(start)
-                        time.sleep(15)
-                    else:
-                        logger.error("Received error from server %s" % err)
-                        logger.error("Please re-run command latter.")
-                        cache.remove_from_cache(start)
-                        sys.exit(1)
+        for srx, xml in sra_efetch(webenv, query_key, count, defaults):
+            root = xml_to_root(xml)
+            doc = parsers_sra_xml.parse_sra_experiment(root)
+            doc.sra_id = int(esummary_results[srx].id)
+            doc.sra_create_date = esummary_results[srx].create_date
+            doc.sra_update_date = esummary_results[srx].update_date
+            yield doc
+        time.sleep(1)
 
 
-def parse_sra(cache):
-    for xml, runinfo in cache:
-        logger.debug('Parsing: {}'.format(xml))
-        # Import XML
-        tree = ElementTree.parse(xml)
+def update_sramongo_sra_records(docs, collection):
+    db_operations = []
+    for doc in docs:
+        db_operations.append(pymongo.ReplaceOne({'srx': doc.srx}, doc.to_mongo(), upsert=True))
 
-        # Import runinfo
-        runinfo = pd.read_csv(runinfo, index_col='Run')
+        # Write intermediate results
+        if len(db_operations) > 500:
+            res = collection.bulk_write(db_operations)
+            logger.debug(res.bulk_api_result)
+            db_operations = []
 
-        # Iterate over experiments and parse
-        for exp_pkg in tree.findall('EXPERIMENT_PACKAGE'):
-            sraExperiment = SraExperiment(exp_pkg)
-            # Iterate over runs and update missing fields from runinfo
-            for i, run in enumerate(sraExperiment.sra['run']):
-                srr = run['run_id']
-                try:
-                    rinfo = runinfo.loc[srr].dropna().to_dict()
-                    if 'ReleaseDate' in rinfo:
-                        sraExperiment.sra['run'][i]['release_date'] = rinfo['ReleaseDate']
-                    if 'LoadDate' in rinfo:
-                        sraExperiment.sra['run'][i]['load_date'] = rinfo['LoadDate']
-                    if 'size_MB' in rinfo:
-                        sraExperiment.sra['run'][i]['size_MB'] = rinfo['size_MB']
-                    if 'download_path' in rinfo:
-                        sraExperiment.sra['run'][i]['download_path'] = rinfo['download_path']
-                except KeyError:
-                    pass
-
-            Ncbi.objects(pk=sraExperiment.srx).modify(upsert=True, sra=sraExperiment.sra)
+    if len(db_operations) > 0:
+        res = collection.bulk_write(db_operations)
+        logger.debug(res.bulk_api_result)
 
 
-def parse_biosample(cache):
-    for xml in cache:
-        logger.debug('Parsing: {}'.format(xml))
-        tree = ElementTree.parse(xml)
-        for pkg in tree.findall('BioSample'):
-            bs = BioSampleParse(pkg)
-            try:
-                Ncbi.objects(sra__sample__BioSample=bs.biosample['biosample_accn']).update(add_to_set__biosample=bs.biosample)
-            except KeyError:
-                pass
-
-            try:
-                Ncbi.objects(sra__sample__BioSample=bs.biosample['biosample_id']).update(add_to_set__biosample=bs.biosample)
-            except KeyError:
-                pass
+def sra_esummary(webenv, query_key, count, defaults):
+    for docs in entrez.esummary('sra', webenv=webenv, query_key=query_key, count=count, **defaults):
+        yield from parsers_sra_xml.parse_sra_esummary_result(docs)
 
 
-def parse_bioproject(cache):
-    for xml in cache:
-        logger.debug('Parsing: {}'.format(xml))
-        tree = ElementTree.parse(xml)
-        for pkg in tree.findall('DocumentSummary'):
-            bs = BioProjectParse(pkg)
-            Ncbi.objects(sra__study__BioProject=bs.bioproject['bioproject_accn']).update(bioproject=bs.bioproject)
-            Ncbi.objects(sra__study__BioProject=bs.bioproject['bioproject_id']).update(bioproject=bs.bioproject)
+def sra_efetch(webenv, query_key, count, defaults):
+    for docs in entrez.efetch('sra', webenv=webenv, query_key=query_key, count=count, **defaults):
+        yield from parsers_sra_xml.parse_sra_efetch_result(docs)
 
 
-def parse_pubmed(cache):
-    for xml in cache:
-        logger.debug('Parsing: {}'.format(xml))
-        tree = ElementTree.parse(xml)
-        for pkg in tree.findall('PubmedArticle/MedlineCitation'):
-            pm = PubmedParse(pkg)
-            Ncbi.objects(sra__study__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
-            Ncbi.objects(sra__sample__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
-            Ncbi.objects(sra__experiment__pubmed=pm.pubmed['pubmed_id']).update(add_to_set__pubmed=pm.pubmed)
+def get_sramongo_last_srx_update(collection):
+    return {
+        record['srx']: record['sra_update_date']
+        for record in collection.find({}, {'srx': True, 'sra_update_date': True})
+    }
+
+
+def get_bioproject_ids(collection):
+    logger.info('BioProject - Getting IDs from SraMongo')
+    bioproject_ids = set()
+    for record in collection.find({'study.bioproject': {'$exists': True}, 'BioProject': {'$exists': False}},
+                                  {'study.bioproject': True}):
+        bioproject_ids.add(record['study']['bioproject'])
+
+    # If BioProject is already there, don't update if it was added today.
+    now = datetime.now()
+    for record in collection.find({'BioProject': {'$exists': True}}, {'BioProject': True}):
+        accn = record['BioProject']['accn']
+        dt = record['BioProject']['sramongo_last_updated']
+        if (now - dt).days > 1:
+            bioproject_ids.add(accn)
+
+    logger.info(f'BioProject - {len(bioproject_ids):,} IDs.')
+    return bioproject_ids
+
+
+def download_bioproject_xml(bioproject_ids, defaults):
+    logger.info(f'BioProject - Downloading XML Records')
+    for i, ids in enumerate(chunked(bioproject_ids, BATCH_SIZE)):
+        start, end = i * BATCH_SIZE, (i + 1) * BATCH_SIZE
+        logger.info(f'BioProject - Downloading XML Records [Batch {start:,}-{end:,}]')
+        query = '+OR+'.join(ids)
+        esearch_result = entrez.esearch('bioproject', query, **defaults)
+        webenv = esearch_result.webenv
+        query_key = esearch_result.query_key
+        count = len(esearch_result.ids)
+
+        for accn, xml in bioproject_efetch(webenv, query_key, count, defaults):
+            root = xml_to_root(xml)
+            doc = parsers_bioproject_xml.parse_bioproject(root)
+            yield doc
+        time.sleep(1)
+
+
+def bioproject_efetch(webenv, query_key, count, defaults):
+    for result in entrez.efetch('bioproject', webenv=webenv, query_key=query_key, count=count, **defaults):
+        yield from parsers_bioproject_xml.parse_bioproject_efetch_result(result)
+
+
+def update_sramongo_bioproject_records(docs, collection):
+    db_operations = []
+    for doc in docs:
+        db_operations.append(
+            pymongo.UpdateMany(
+                {'study.bioproject': doc.accn, 'BioProject.last_update': {'$ne': doc.last_update}},
+                {'$set': {'BioProject': doc.to_mongo()}}
+            )
+        )
+
+        # Write intermediate results
+        if len(db_operations) > 500:
+            res = collection.bulk_write(db_operations)
+            logger.debug(res.bulk_api_result)
+            db_operations = []
+
+    if len(db_operations) > 0:
+        res = collection.bulk_write(db_operations)
+        logger.debug(res.bulk_api_result)
+
+
+def get_biosample_ids(collection):
+    logger.info('BioSample - Getting IDs from SraMongo')
+    ids = set()
+    for record in collection.find({'sample.biosample': {'$exists': True}, 'BioSample': {'$exists': False}},
+                                  {'sample.biosample': True}):
+        ids.add(record['sample']['biosample'])
+
+    # If BioSample is already there, don't update if it was added today.
+    now = datetime.now()
+    for record in collection.find({'BioSample': {'$exists': True}}, {'BioSample': True}):
+        accn = record['BioSample']['accn']
+        dt = record['BioSample']['sramongo_last_updated']
+        if (now - dt).days > 1:
+            ids.add(accn)
+
+    logger.info(f'BioSample - {len(ids):,} IDs.')
+    return ids
+
+
+def download_biosample_xml(biosample_ids, defaults):
+    logger.info(f'BioSample - Downloading XML Records')
+    for i, ids in enumerate(chunked(biosample_ids, BATCH_SIZE)):
+        start, end = i * BATCH_SIZE, (i + 1) * BATCH_SIZE
+        logger.info(f'BioSample - Downloading XML Records [Batch {start:,}-{end:,}]')
+        query = '+OR+'.join(ids)
+        esearch_result = entrez.esearch('biosample', query, **defaults)
+        webenv = esearch_result.webenv
+        query_key = esearch_result.query_key
+        count = len(esearch_result.ids)
+        for accn, xml in biosample_efetch(webenv, query_key, count, defaults):
+            root = xml_to_root(xml)
+            doc = parsers_biosample_xml.parse_biosample(root)
+            yield doc
+        time.sleep(1)
+
+
+def biosample_efetch(webenv, query_key, count, defaults):
+    for result in entrez.efetch('biosample', webenv=webenv, query_key=query_key, count=count, **defaults):
+        yield from parsers_biosample_xml.parse_biosample_efetch_result(result)
+
+
+def update_sramongo_biosample_records(docs, collection):
+    db_operations = []
+    for doc in docs:
+        db_operations.append(
+            pymongo.UpdateMany(
+                {'sample.biosample': doc.accn, 'BioSample.last_update': {'$ne': doc.last_update}},
+                {'$set': {'BioSample': doc.to_mongo()}}
+            )
+        )
+
+        # Write intermediate results
+        if len(db_operations) > 500:
+            res = collection.bulk_write(db_operations)
+            logger.debug(res.bulk_api_result)
+            db_operations = []
+
+    if len(db_operations) > 0:
+        res = collection.bulk_write(db_operations)
+        logger.debug(res.bulk_api_result)
+
+
+def get_pubmed_ids(collection):
+    logger.info('Pubmed - Getting IDs from SraMongo')
+    ids = set()
+    for record in collection.find({'study.pubmed': {'$exists': True}, 'Pubmed': {'$eq': []}},
+                                  {'study.pubmed': True}):
+        ids |= set(record['study']['pubmed'])
+
+    # If Pubmed is already there, don't update if it was added today.
+    now = datetime.now()
+    for record in collection.find({'Pubmed': {'$ne': []}}, {'Pubmed': True}):
+        for rec in record['Pubmed']:
+            accn = rec['accn']
+            dt = rec['sramongo_last_updated']
+            if (now - dt).days > 1:
+                ids.add(accn)
+
+    logger.info(f'Pubmed - {len(ids):,} IDs.')
+    return [str(_id) for _id in ids]
+
+
+def download_pubmed_xml(pubmed_ids, defaults):
+    logger.info(f'Pubmed - Downloading XML Records')
+    for i, ids in enumerate(chunked(pubmed_ids, BATCH_SIZE)):
+        start, end = i * BATCH_SIZE, (i + 1) * BATCH_SIZE
+        logger.info(f'Pubmed - Downloading XML Records [Batch {start:,}-{end:,}]')
+        epost_result = entrez.epost('pubmed', ids=ids, **defaults)
+        webenv = epost_result.webenv
+        query_key = epost_result.query_key
+        count = len(ids)
+        for accn, xml in pubmed_efetch(webenv, query_key, count, defaults):
+            root = xml_to_root(xml)
+            doc = parsers_pubmed_xml.parse_pubmed(root)
+            yield doc
+        time.sleep(1)
+
+
+def pubmed_efetch(webenv, query_key, count, defaults):
+    for result in entrez.efetch('pubmed', webenv=webenv, query_key=query_key, count=count, **defaults):
+        yield from parsers_pubmed_xml.parse_pubmed_efetch_result(result)
+
+
+def update_sramongo_pubmed_records(docs, collection):
+    db_operations = []
+    for doc in docs:
+        db_operations.append(
+            pymongo.UpdateMany({
+                'study.pubmed': doc.accn,
+                '$or': [
+                    {'Pubmed': {'$eq': []}},
+                    {'Pubmed.date_revised': {'$elemMatch': {'$ne': doc.date_revised}}}
+                ]
+            },
+                {
+                    '$addToSet': {'Pubmed': doc.to_mongo()}
+                }
+            )
+        )
+
+        # Write intermediate results
+        if len(db_operations) > 500:
+            res = collection.bulk_write(db_operations)
+            logger.debug(res.bulk_api_result)
+            db_operations = []
+
+    if len(db_operations) > 0:
+        res = collection.bulk_write(db_operations)
+        logger.debug(res.bulk_api_result)
 
 
 def main():
-    # Import commandline arguments.
     args = arguments()
 
-    # Set logging level
+    # Set logging levelA
     if args.debug:
-        logger.setLevel(DEBUG)
         global _DEBUG
         _DEBUG = True
+        logger.setLevel(DEBUG)
+        logger.debug(args)
     else:
         logger.setLevel(INFO)
 
-    # Set email for entrez so they can contact if abbuse. Required by
-    # biopython.
-    Entrez.email = args.email
-
-    # Connect to mongo server
-    if args.host:
-        logger.info('Connecting to running server at: mongodb://{}:{}'.format(args.host, args.port))
-        host = args.host
-        mongodb = False
-    else:
-        logger.info('Starting MongoDB')
-        mongodb = MongoDB2(dbDir=args.dbDir, logDir=args.logDir, port=args.port)
-        host = '127.0.0.1'
-        logger.info('Running server at: mongodb://{}:{}'.format(host, args.port))
-
-    logger.info('Connecting to: {}'.format(args.db))
-    client = connect(args.db, host=host, port=args.port)
-
     try:
-        # SRA
-        logger.info('Querying SRA: {}'.format(args.query))
-        sra_query = ncbi_query(args.query)
-
-        logger.info('Downloading documents')
-        cache = Cache(directory='.cache/sra2mongo/sra', clean=args.force)
-
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        fetch_ncbi(sra_query, cache)
-
-        logger.info('Parsing SRA XML')
-        parse_sra(cache)
-
-        # Query BioSample
-        cache = Cache(directory='.cache/sra2mongo/biosample')
-        accn = list(Ncbi.objects.distinct('sra.sample.BioSample'))
-
-        logger.info('Querying BioSample: with {:,} ids'.format(len(accn)))
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        query = ncbi_query(accn, db='biosample')
-
-        logger.info('Downloading BioSample documents')
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        fetch_ncbi(query, cache, runinfo_retmode=None, db='biosample')
-
-        logger.info('Adding documents to database')
-        parse_biosample(cache)
-
-        # Query BioProject
-        cache = Cache(directory='.cache/sra2mongo/bioproject')
-        accn = list(Ncbi.objects.distinct('sra.study.BioProject'))
-
-        logger.info('Querying BioProject: with {:,} ids'.format(len(accn)))
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        query = ncbi_query(accn, db='bioproject')
-
-        logger.info('Downloading BioProject documents')
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        fetch_ncbi(query, cache, runinfo_retmode=None, db='bioproject')
-
-        logger.info('Adding documents to database')
-        parse_bioproject(cache)
-
-        # Query Pubmed
-        cache = Cache(directory='.cache/sra2mongo/pubmed')
-        accn = list(Ncbi.objects.distinct('sra.study.pubmed'))
-        accn.extend(list(Ncbi.objects.distinct('sra.experiment.pubmed')))
-        accn.extend(list(Ncbi.objects.distinct('sra.sample.pubmed')))
-        accn = list(set(accn))
-
-        logger.info('Querying Pubmed: with {:,} ids'.format(len(accn)))
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        query = ncbi_query(accn, db='pubmed')
-
-        logger.info('Downloading Pubmed documents')
-        logger.info('Saving to cache: {}'.format(cache.cachedir))
-        fetch_ncbi(query, cache, runinfo_retmode=None, db='pubmed')
-
-        logger.info('Adding documents to database')
-        parse_pubmed(cache)
-    except Exception as err:
-        raise err
+        client = connect(args.db, host=args.host, port=args.port)
+        db = client[args.db]
+        collection: pymongo.mongo_client.database.Collection = db['ncbi']
+        logger.info('Connecting to database: %s', str(collection))
+        run_sra2mongo(args, collection)
     finally:
+        logger.info('Closing Database Connection')
         client.close()
-        if mongodb:
-            mongodb.close()
 
 
 if __name__ == '__main__':

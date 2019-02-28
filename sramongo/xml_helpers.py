@@ -1,6 +1,7 @@
 """Some small helpers for dealing with xml."""
 from functools import wraps
-from sramongo.logger import logger
+from typing import Union, IO
+from xml.etree import cElementTree as ElementTree
 
 
 class AmbiguousElementException(Exception):
@@ -69,3 +70,40 @@ def parse_tree_from_dict(node, locs):
             pass
 
     return d
+
+
+def xml_to_root(xml: Union[str, IO]) -> ElementTree.Element:
+    """Parse XML into an ElemeTree object.
+
+    Parameters
+    ----------
+    xml : str or file-like object
+        A filename, file object or string version of xml can be passed.
+
+    Returns
+    -------
+    Elementree.Element
+
+    """
+    if isinstance(xml, str):
+        if '<' in xml:
+            return ElementTree.fromstring(xml)
+        else:
+            with open(xml) as fh:
+                xml_to_root(fh)
+    tree = ElementTree.parse(xml)
+    return tree.getroot()
+
+
+def get_xml_text(root, path):
+    try:
+        return root.find(path).text
+    except:
+        return ''
+
+
+def get_xml_attribute(root, path, attribute):
+    try:
+        return root.find(path).attrib[attribute]
+    except:
+        return ''

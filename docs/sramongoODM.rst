@@ -36,44 +36,33 @@ This stores all from the Sra. There are also a couple of summary fields that are
 stored at this level. Each section of the SRA record are represented as
 subdocuments.
 
-.. autoclass:: sramongo.mongo_schema.Sra
+.. autoclass:: sramongo.models.SraDocument
 
 organization
 ++++++++++++
 
-.. autoclass:: sramongo.mongo_schema.Organization
+.. autoclass:: sramongo.models.Organization
 
 submission
 ++++++++++
 
-.. autoclass:: sramongo.mongo_schema.Submission
+.. autoclass:: sramongo.models.Submission
 
 study
 +++++
 
-.. autoclass:: sramongo.mongo_schema.Study
+.. autoclass:: sramongo.models.Study
 
-
-experiment
-++++++++++
-
-.. autoclass:: sramongo.mongo_schema.Experiment
 
 run
 +++
 
-.. autoclass:: sramongo.mongo_schema.Run
+.. autoclass:: sramongo.models.Run
 
 sample
 ++++++
 
-.. autoclass:: sramongo.mongo_schema.Sample
-
-pool
-++++
-
-This is just a list of samples that is found at the submission level of the SRA
-record. It should correspond to the list of samples at the Run level.
+.. autoclass:: sramongo.models.Sample
 
 
 biosample
@@ -81,7 +70,7 @@ biosample
 
 Information from the BioSample database is stored here.
 
-.. autoclass:: sramongo.mongo_schema.BioSample
+.. autoclass:: sramongo.models.BioSample
 
 
 bioproject
@@ -89,7 +78,7 @@ bioproject
 
 Information from the BioProject database is stored here.
 
-.. autoclass:: sramongo.mongo_schema.BioProject
+.. autoclass:: sramongo.models.BioProject
 
 
 pubmed
@@ -97,5 +86,5 @@ pubmed
 
 Information from the Pubmed is stored here.
 
-.. autoclass:: sramongo.mongo_schema.Pubmed
+.. autoclass:: sramongo.models.Pubmed
 
