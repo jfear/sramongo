@@ -40,7 +40,6 @@ class Organization(EmbeddedDocument):
         First name of the person who submitted the data.
 
     """
-    # TODO figure out where to get contact info from.
     organization_type = StringField()
     abbreviation = StringField()
     name = StringField()
@@ -277,8 +276,6 @@ class BioProject(EmbeddedDocument):
     submission_date = DateTimeField()
 
     sramongo_last_updated = DateTimeField(default=datetime.now())
-
-    # TODO is there related study info?
 
 
 class BioSample(EmbeddedDocument):

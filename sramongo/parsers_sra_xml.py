@@ -178,11 +178,3 @@ def parse_sra_esummary_result(xml: str) -> List[EsummaryResult]:
         create_date = dateutil_parse(doc.find("Item[@Name='CreateDate']").text)
         update_date = dateutil_parse(doc.find("Item[@Name='UpdateDate']").text)
         yield EsummaryResult(uid, accn, create_date, update_date)
-
-
-# TODO add parser somewhere to run table.
-# # NOTE: Additional Fields not in the SRA XML but in summary table
-# run.release_date = DateTimeField()
-# run.load_date = DateTimeField()
-# run.size_MB = IntField()
-
