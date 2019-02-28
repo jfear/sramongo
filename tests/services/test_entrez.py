@@ -59,7 +59,7 @@ def test_urlencode_query():
     assert cleaned_query == '%22Drosophila+melanogaster%22%5Borgn%5D'
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_esearch_sra_nohistory():
     esearch_results = entrez.esearch(DB, QUERY, userhistory=False, retmax=RETMAX, api_key=API_KEY)
     assert len(esearch_results.ids) == RETMAX
@@ -67,7 +67,7 @@ def test_esearch_sra_nohistory():
     assert esearch_results.query_key == ''
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_esearch_sra_withhistory():
     esearch_results = entrez.esearch(DB, QUERY, userhistory=True, retmax=RETMAX, api_key=API_KEY)
     assert len(esearch_results.ids) == RETMAX
@@ -75,14 +75,14 @@ def test_esearch_sra_withhistory():
     assert esearch_results.query_key != ''
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_epost(small_esearch_results):
     ids = small_esearch_results.ids[:2]
     epost_results = entrez.epost(DB, ids=ids, api_key=API_KEY)
     assert epost_results.query_key == '1'
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_esummary_sra_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     esummary_results = []
@@ -95,7 +95,7 @@ def test_esummary_sra_no_history(small_esearch_results):
     assert type(esummary_results[0].update_date) == datetime.datetime
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_esummary_sra_with_history_retmax(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
@@ -109,7 +109,7 @@ def test_esummary_sra_with_history_retmax(small_esearch_results):
     assert type(esummary_results[0].update_date) == datetime.datetime
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_esummary_sra_with_history_count(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
@@ -127,7 +127,7 @@ def test_parse_efetch_result(experiment_set_xml):
             assert 'Library_1' in experiment.xml
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_efetch_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     for result in entrez.efetch(DB, ids, api_key=API_KEY):
@@ -135,7 +135,7 @@ def test_efetch_no_history(small_esearch_results):
             assert experiment.accn.startswith('SRX') | experiment.accn.startswith('DRX') | experiment.accn.startswith('ERX')
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_elink_no_hisotry(small_esearch_results):
     ids = small_esearch_results.ids
     result = entrez.elink(db='biosample', dbfrom='sra', ids=ids)
@@ -144,7 +144,7 @@ def test_elink_no_hisotry(small_esearch_results):
     assert result.query_key == '1'
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_elink_with_hisotry(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
@@ -153,7 +153,7 @@ def test_elink_with_hisotry(small_esearch_results):
     assert result.dbto == 'biosample'
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_elink_no_hisotry_no_results(small_esearch_results):
     ids = small_esearch_results.ids
     result = entrez.elink(db='pubmed', dbfrom='sra', ids=ids)
@@ -162,7 +162,7 @@ def test_elink_no_hisotry_no_results(small_esearch_results):
     assert result.query_key == ''
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_efetch_bioproject(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
@@ -172,7 +172,7 @@ def test_efetch_bioproject(small_esearch_results):
             assert document.accn.startswith('PRJ')
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_efetch_biosample(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
@@ -182,7 +182,7 @@ def test_efetch_biosample(small_esearch_results):
             assert document.accn.startswith('SAMN')
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_efetch_pubmed(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
