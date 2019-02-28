@@ -1,11 +1,11 @@
 language: python
 python:
-  - "3.6"
+- '3.6'
 install:
-  - pip install -r requirements.txt
-  - pip install .
+- pip install -r requirements.txt
+- pip install .
 script:
-  - cd tests && pytest
+- cd tests && pytest
 deploy:
   provider: pypi
   user: ''
@@ -15,3 +15,6 @@ deploy:
   on:
     branch: master
   skip_existing: true
+env:
+  global:
+    secure: ovAgeNA8p6rwCGvlgLaEk6FRhMG9pqBP9WI68osaE2HqidX81NGw5N5yehHNlaVyHLDMXa9wG9szUC6yACCuyjk3TU09u+OnIOrcn4r7DT7hnB+N333hGk4tWZySZ9SREdoZs5+3VKAFawf3rXgZLo62MJhT5ZalxDJrXVpJ7Xw2Vxle5H/WzeB7ZznVbaf1HBrDpIXhJCUCJRnBMACtntsDnYWEett6ZqncVT1ZQO4wWikvyOlnIr/BNRBPsBb4TBNEV3x3e92SkOMjRLbJOgDb1KAEjWF/mCy9yJ07WHM1iumPOCBK1E4wIZAW3j4tqFCucefbpvXxKQTxxubwyiWYmRYLaK7QuoqKQloDdQ4N9Yf7rAviQU7smaPvTqL+cYltf8tscFnuPv5fj6TBgMiXwpyXWXtFxk9CTb34KxSZgo8DVQd0JQ7CrZZm84MthxKCfOTKKsgSXZ3KtzeJxTDHEEz6HchbvL3zt+D02iyyMK6zEDKtaBIX3fyzGcUKD1qCXP59bcBTrDmI1Ylav9WGGHaft01uhm7AgN7qTXhEzPAvY86Y0GCuPft0Px3na/yUgILuUFAaxBRAHK8UMLiZOMGx//GTc54dZpX3U20uHQp/oChZz8WdAHNpyN6xveSCnwh/nEErGPXvTRfk3ibrknHhAfbmMA5+G//EyCM=
