@@ -79,36 +79,42 @@ def test_epost(small_esearch_results):
     assert epost_results.query_key == '1'
 
 
-def test_esummary_no_history(small_esearch_results):
+def test_esummary_sra_no_history(small_esearch_results):
     ids = small_esearch_results.ids
-    esummary_results = entrez.esummary(DB, ids, api_key=API_KEY)
+    esummary_results = []
+    for docs in entrez.esummary(DB, ids, api_key=API_KEY):
+        esummary_results.extend(list(parsers_sra_xml.parse_sra_esummary_result(docs)))
     assert len(esummary_results) == RETMAX
-    assert esummary_results[0].srx != ''
-    assert esummary_results[0].id != ''
+    assert esummary_results[0].accn != ''
+    assert esummary_results[0].accn != ''
     assert type(esummary_results[0].create_date) == datetime.datetime
     assert type(esummary_results[0].update_date) == datetime.datetime
 
 
-def test_esummary_with_history_retmax(small_esearch_results):
+def test_esummary_sra_with_history_retmax(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
-    esummary_results = entrez.esummary(DB, webenv=webenv, query_key=query_key, retmax=600, api_key=API_KEY)
+    esummary_results = []
+    for docs in entrez.esummary(DB, webenv=webenv, query_key=query_key, retmax=600, api_key=API_KEY):
+        esummary_results.extend(list(parsers_sra_xml.parse_sra_esummary_result(docs)))
     assert len(esummary_results) == 600
-    assert esummary_results[0].srx != ''
-    assert esummary_results[0].id != ''
+    assert esummary_results[0].accn != ''
+    assert esummary_results[0].accn!= ''
     assert type(esummary_results[0].create_date) == datetime.datetime
     assert type(esummary_results[0].update_date) == datetime.datetime
 
 
-def test_esummary_with_history_count(small_esearch_results):
+def test_esummary_sra_with_history_count(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
-    esummary_results = entrez.esummary(DB, webenv=webenv, query_key=query_key, count=600, api_key=API_KEY)
+    esummary_results = []
+    for docs in entrez.esummary(DB, webenv=webenv, query_key=query_key, count=600, api_key=API_KEY):
+        esummary_results.extend(list(parsers_sra_xml.parse_sra_esummary_result(docs)))
     assert len(esummary_results) == 600
 
 
-def test_parse_efetch_experiment_set(experiment_set_xml):
-    for experiment in parsers_sra_xml.parse_sra_experiment_set(experiment_set_xml):
+def test_parse_efetch_result(experiment_set_xml):
+    for experiment in parsers_sra_xml.parse_sra_efetch_result(experiment_set_xml):
         if experiment.accn == 'SRX5231949':
             assert 'Library_2' in experiment.xml
         else:
@@ -118,7 +124,7 @@ def test_parse_efetch_experiment_set(experiment_set_xml):
 def test_efetch_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     for result in entrez.efetch(DB, ids, api_key=API_KEY):
-        for experiment in parsers_sra_xml.parse_sra_experiment_set(result):
+        for experiment in parsers_sra_xml.parse_sra_efetch_result(result):
             assert experiment.accn.startswith('SRX') | experiment.accn.startswith('DRX') | experiment.accn.startswith(
                 'ERX')
 
@@ -153,7 +159,7 @@ def test_efetch_bioproject(small_esearch_results):
     link = entrez.elink('bioproject', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
     for result in entrez.efetch('bioproject', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY,
                                 retmax=RETMAX):
-        for document in parsers_bioproject_xml.parse_bioproject_set(result):
+        for document in parsers_bioproject_xml.parse_bioproject_efetch_result(result):
             assert document.accn.startswith('PRJ')
 
 
@@ -162,7 +168,7 @@ def test_efetch_biosample(small_esearch_results):
     query_key = small_esearch_results.query_key
     link = entrez.elink('biosample', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
     for result in entrez.efetch('biosample', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
-        for document in parsers_biosample_xml.parse_biosample_set(result):
+        for document in parsers_biosample_xml.parse_biosample_efetch_result(result):
             assert document.accn.startswith('SAMN')
 
 
@@ -171,5 +177,5 @@ def test_efetch_pubmed(small_esearch_results):
     query_key = small_esearch_results.query_key
     link = entrez.elink('pubmed', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
     for result in entrez.efetch('pubmed', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
-        for document in parsers_pubmed_xml.parse_pubmed_set(result):
+        for document in parsers_pubmed_xml.parse_pubmed_efetch_result(result):
             assert isinstance(document.accn, int)
