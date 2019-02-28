@@ -3,16 +3,17 @@
 NCBI provides an API for querying and downloading data from their databases.
 
 """
-import time
-from typing import Optional, List
-import urllib.parse
-import requests
-from collections import namedtuple
 import re
+import time
+import urllib.parse
+from collections import namedtuple
+from typing import Optional, List
 from xml.etree import cElementTree as ElementTree
 
+import requests
 from dateutil.parser import parse as dateutil_parse
 
+from sramongo.utils import make_number
 from sramongo.xml_helpers import xml_to_root
 
 BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
@@ -20,7 +21,7 @@ PAUSE = .3
 
 EsearchResult = namedtuple('EsearchResult', 'ids count webenv query_key')
 EpostResult = namedtuple('EpostResult', 'webenv query_key')
-EsummaryResult = namedtuple('EsummaryResult', 'id srx create_date update_date')
+EsummaryResult = namedtuple('EsummaryResult', 'id accn create_date update_date')
 EfetchPackage = namedtuple('EfetchPackage', 'accn xml')
 ElinkResult = namedtuple('EpostResult', 'dbfrom dbto webenv query_key')
 
@@ -56,7 +57,7 @@ def esearch(database, query, userhistory=True, webenv=False, query_key=False, re
         A named tuple with values [ids, count, webenv, query_key]
 
     """
-    cleaned_query = urllib.parse.quote_plus(query)
+    cleaned_query = urllib.parse.quote_plus(query, safe='/+')
 
     url = BASE_URL + f'esearch.fcgi?db={database}&term={cleaned_query}&retmode=json'
     url = check_userhistory(userhistory, url)
@@ -74,10 +75,10 @@ def esearch(database, query, userhistory=True, webenv=False, query_key=False, re
         return
 
     text = resp.json()
-
+    time.sleep(.5)
     return EsearchResult(
         text['esearchresult'].get('idlist', []),
-        int(text['esearchresult'].get('count', '')),
+        make_number(text['esearchresult'].get('count', ''), int),
         text['esearchresult'].get('webenv', ''),
         text['esearchresult'].get('querykey', '')
     )
@@ -111,7 +112,64 @@ def epost(database, ids: List[str], webenv=False, api_key=False, email=False, **
     url_params = check_api_key(api_key, url_params)
     url_params = check_email(email, url_params)
     resp = entrez_try_put_multiple_times(url, url_params, num_tries=3)
+    time.sleep(.5)
     return parse_epost(resp.text)
+
+
+def elink(db: str, dbfrom: str, ids=False, webenv=False, query_key=False, api_key=False, email=False,
+          **kwargs) -> Optional[ElinkResult]:
+    """Get document summaries using the Entrez ESearch API.
+
+    Parameters
+    ----------
+    db : str
+        Entez database to get ids from.
+    dbfrom : str
+        Entez database the provided ids are from.
+    ids : list or str
+        List of IDs to submit to the server.
+    webenv : str
+        An Entrez WebEnv to use saved history.
+    query_key : str
+        An Entrez query_key to use saved history.
+    api_key : str
+        A users API key which allows more requests per second
+    email : str
+        A users email which is required if not using API.
+
+    Returns
+    -------
+    list
+        A list of ElinkResult with values [id, srx, create_date, update_date]
+
+    """
+    url = BASE_URL + f'elink.fcgi?dbfrom={dbfrom}&db={db}&retmode=json&cmd=neighbor_history'
+    url = check_webenv(webenv, url)
+    url = check_query_key(query_key, url)
+    url = check_api_key(api_key, url)
+    url = check_email(email, url)
+
+    if ids:
+        if isinstance(ids, str):
+            id = ids
+        else:
+            id = ','.join(ids)
+        url += f'&id={id}'
+
+    time.sleep(PAUSE)
+    resp = requests.get(url)
+    if resp.status_code != 200:
+        print('There was a server error')
+        return
+
+    text = resp.json()
+    time.sleep(.5)
+    return ElinkResult(
+        text['linksets'][0].get('dbfrom', ''),
+        text['linksets'][0].get('linksetdbhistories', [{'dbto': ''}])[0].get('dbto', ''),
+        text['linksets'][0].get('webenv', ''),
+        text['linksets'][0].get('linksetdbhistories', [{'querykey': ''}])[0].get('querykey', ''),
+    )
 
 
 def esummary(database: str, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
@@ -145,7 +203,7 @@ def esummary(database: str, ids=False, webenv=False, query_key=False, count=Fals
         A list of EsummaryResults with values [id, srx, create_date, update_date]
 
     """
-    url = BASE_URL + f'esummary.fcgi?db={database}&retmode=xml'
+    url = BASE_URL + f'esummary.fcgi?db={database}'
     url = check_webenv(webenv, url)
     url = check_query_key(query_key, url)
     url = check_api_key(api_key, url)
@@ -159,12 +217,8 @@ def esummary(database: str, ids=False, webenv=False, query_key=False, count=Fals
         url += f'&id={id}'
         count = len(id.split(','))
 
-    results = []
     for resp in entrez_sets_of_results(url, retstart, retmax, count):
-        text = resp.text
-        results.extend(parse_esummary(text))
-
-    return results
+        yield resp.text
 
 
 def efetch(database, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
@@ -220,61 +274,6 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
 
     for resp in entrez_sets_of_results(url, retstart, retmax, count):
         yield resp.text
-
-
-def elink(db: str, dbfrom: str, ids=False, webenv=False, query_key=False, api_key=False, email=False,
-          **kwargs) -> Optional[ElinkResult]:
-    """Get document summaries using the Entrez ESearch API.
-
-    Parameters
-    ----------
-    db : str
-        Entez database to get ids from.
-    dbfrom : str
-        Entez database the provided ids are from.
-    ids : list or str
-        List of IDs to submit to the server.
-    webenv : str
-        An Entrez WebEnv to use saved history.
-    query_key : str
-        An Entrez query_key to use saved history.
-    api_key : str
-        A users API key which allows more requests per second
-    email : str
-        A users email which is required if not using API.
-
-    Returns
-    -------
-    list
-        A list of ElinkResult with values [id, srx, create_date, update_date]
-
-    """
-    url = BASE_URL + f'elink.fcgi?dbfrom={dbfrom}&db={db}&retmode=json&cmd=neighbor_history'
-    url = check_webenv(webenv, url)
-    url = check_query_key(query_key, url)
-    url = check_api_key(api_key, url)
-    url = check_email(email, url)
-
-    if ids:
-        if isinstance(ids, str):
-            id = ids
-        else:
-            id = ','.join(ids)
-        url += f'&id={id}'
-
-    time.sleep(PAUSE)
-    resp = requests.get(url)
-    if resp.status_code != 200:
-        print('There was a server error')
-        return
-
-    text = resp.json()
-    return ElinkResult(
-        text['linksets'][0].get('dbfrom', ''),
-        text['linksets'][0].get('linksetdbhistories', [{'dbto': ''}])[0].get('dbto', ''),
-        text['linksets'][0].get('webenv', ''),
-        text['linksets'][0].get('linksetdbhistories', [{'querykey': ''}])[0].get('querykey', ''),
-    )
 
 
 def check_userhistory(userhistory, url):
@@ -413,6 +412,7 @@ def entrez_try_get_multiple_times(url, num_tries=3) -> Optional[requests.Respons
         time.sleep(PAUSE)
 
     print('There were multiple server errors')
+    raise TimeoutError
 
 
 def entrez_try_put_multiple_times(url: str, url_params: str, num_tries=3) -> Optional[requests.Response]:
