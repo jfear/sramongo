@@ -1,5 +1,4 @@
 import os
-from time import sleep
 import datetime
 from textwrap import dedent
 
@@ -60,33 +59,33 @@ def test_urlencode_query():
     assert cleaned_query == '%22Drosophila+melanogaster%22%5Borgn%5D'
 
 
+@pytest.skip
 def test_esearch_sra_nohistory():
-    sleep(1)
     esearch_results = entrez.esearch(DB, QUERY, userhistory=False, retmax=RETMAX, api_key=API_KEY)
     assert len(esearch_results.ids) == RETMAX
     assert esearch_results.webenv == ''
     assert esearch_results.query_key == ''
 
 
+@pytest.skip
 def test_esearch_sra_withhistory():
-    sleep(1)
     esearch_results = entrez.esearch(DB, QUERY, userhistory=True, retmax=RETMAX, api_key=API_KEY)
     assert len(esearch_results.ids) == RETMAX
     assert esearch_results.webenv != ''
     assert esearch_results.query_key != ''
 
 
+@pytest.skip
 def test_epost(small_esearch_results):
-    sleep(1)
     ids = small_esearch_results.ids[:2]
     epost_results = entrez.epost(DB, ids=ids, api_key=API_KEY)
     assert epost_results.query_key == '1'
 
 
+@pytest.skip
 def test_esummary_sra_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     esummary_results = []
-    sleep(1)
     for docs in entrez.esummary(DB, ids, api_key=API_KEY):
         esummary_results.extend(list(parsers_sra_xml.parse_sra_esummary_result(docs)))
     assert len(esummary_results) == RETMAX
@@ -96,11 +95,11 @@ def test_esummary_sra_no_history(small_esearch_results):
     assert type(esummary_results[0].update_date) == datetime.datetime
 
 
+@pytest.skip
 def test_esummary_sra_with_history_retmax(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
     esummary_results = []
-    sleep(1)
     for docs in entrez.esummary(DB, webenv=webenv, query_key=query_key, retmax=600, api_key=API_KEY):
         esummary_results.extend(list(parsers_sra_xml.parse_sra_esummary_result(docs)))
     assert len(esummary_results) == 600
@@ -110,11 +109,11 @@ def test_esummary_sra_with_history_retmax(small_esearch_results):
     assert type(esummary_results[0].update_date) == datetime.datetime
 
 
+@pytest.skip
 def test_esummary_sra_with_history_count(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
     esummary_results = []
-    sleep(1)
     for docs in entrez.esummary(DB, webenv=webenv, query_key=query_key, count=600, api_key=API_KEY):
         esummary_results.extend(list(parsers_sra_xml.parse_sra_esummary_result(docs)))
     assert len(esummary_results) == 600
@@ -128,68 +127,66 @@ def test_parse_efetch_result(experiment_set_xml):
             assert 'Library_1' in experiment.xml
 
 
+@pytest.skip
 def test_efetch_no_history(small_esearch_results):
     ids = small_esearch_results.ids
-    sleep(1)
     for result in entrez.efetch(DB, ids, api_key=API_KEY):
         for experiment in parsers_sra_xml.parse_sra_efetch_result(result):
             assert experiment.accn.startswith('SRX') | experiment.accn.startswith('DRX') | experiment.accn.startswith('ERX')
 
 
+@pytest.skip
 def test_elink_no_hisotry(small_esearch_results):
     ids = small_esearch_results.ids
-    sleep(1)
     result = entrez.elink(db='biosample', dbfrom='sra', ids=ids)
     assert result.dbfrom == 'sra'
     assert result.dbto == 'biosample'
     assert result.query_key == '1'
 
 
+@pytest.skip
 def test_elink_with_hisotry(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
-    sleep(1)
     result = entrez.elink(db='biosample', dbfrom='sra', webenv=webenv, query_key=query_key)
     assert result.dbfrom == 'sra'
     assert result.dbto == 'biosample'
 
 
+@pytest.skip
 def test_elink_no_hisotry_no_results(small_esearch_results):
     ids = small_esearch_results.ids
-    sleep(1)
     result = entrez.elink(db='pubmed', dbfrom='sra', ids=ids)
     assert result.dbfrom == 'sra'
     assert result.dbto == ''
     assert result.query_key == ''
 
 
+@pytest.skip
 def test_efetch_bioproject(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
     link = entrez.elink('bioproject', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
-    sleep(1)
     for result in entrez.efetch('bioproject', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
         for document in parsers_bioproject_xml.parse_bioproject_efetch_result(result):
             assert document.accn.startswith('PRJ')
 
 
+@pytest.skip
 def test_efetch_biosample(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
-    sleep(1)
     link = entrez.elink('biosample', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
-    sleep(1)
     for result in entrez.efetch('biosample', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
         for document in parsers_biosample_xml.parse_biosample_efetch_result(result):
             assert document.accn.startswith('SAMN')
 
 
+@pytest.skip
 def test_efetch_pubmed(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
-    sleep(1)
     link = entrez.elink('pubmed', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
-    sleep(1)
     for result in entrez.efetch('pubmed', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
         for document in parsers_pubmed_xml.parse_pubmed_efetch_result(result):
             assert isinstance(document.accn, str)
