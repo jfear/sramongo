@@ -65,7 +65,7 @@ def test_parse_sra_run_single_end(sra_xml_root):
     runs = parsers_sra_xml.parse_sra_run(root)
     run = runs[0]
     assert len(runs) == 1
-    assert run.accn == 'SRR1945105'
+    assert run.srr == 'SRR1945105'
     assert run.nspots == 7_018_100
     assert run.nbases == 533_375_600
     assert run.nreads == 1
@@ -87,7 +87,7 @@ def test_parse_sra_run_paired_end(sra_xml_root_PE):
 def test_parse_sra_experiment(sra_xml_root):
     root = sra_xml_root
     sra = parsers_sra_xml.parse_sra_experiment(root)
-    assert sra.accn == 'SRX971855'
+    assert sra.srx == 'SRX971855'
     assert sra.title == 'GSM1646282: AH_dsxNullM_3; Drosophila melanogaster; RNA-Seq'
     assert sra.design == None
     assert sra.library_name == ''
@@ -100,6 +100,6 @@ def test_parse_sra_experiment(sra_xml_root):
     assert sra.instrument_model == 'Illumina Genome Analyzer IIx'
     assert sra.study.accn == 'SRP056660'
     assert sra.organization.organization_type == 'center'
-    assert sra.run[0].accn == 'SRR1945105'
+    assert sra.runs[0].srr == 'SRR1945105'
     assert sra.sample.attributes[0]['name'] == 'source_name'
     assert sra.sample.attributes[0]['value'] == 'Adult Head Tissue'

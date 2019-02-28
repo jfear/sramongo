@@ -2,19 +2,19 @@ import sramongo.xml_helpers
 
 
 def test_xml_to_root_from_file_handler():
-    fname = 'data/sra_ERR1662611.xml'
+    fname = 'data/ERR1662611.xml'
     with open(fname) as fh:
         root = sramongo.xml_helpers.xml_to_root(fh)
-    experiment = root.find('EXPERIMENT_PACKAGE/EXPERIMENT')
+    experiment = root.find('EXPERIMENT')
     assert experiment.attrib['accession'] == 'ERX1732932'
 
 
 def test_xml_to_root_from_string():
-    fname = 'data/sra_ERR1662611.xml'
+    fname = 'data/ERR1662611.xml'
     with open(fname) as fh:
         xml = fh.read()
     root = sramongo.xml_helpers.xml_to_root(xml)
-    experiment = root.find('EXPERIMENT_PACKAGE/EXPERIMENT')
+    experiment = root.find('EXPERIMENT')
     assert experiment.attrib['accession'] == 'ERX1732932'
 
 

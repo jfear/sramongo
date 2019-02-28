@@ -55,7 +55,7 @@ def experiment_set_xml() -> str:
 
 def test_urlencode_query():
     import urllib.parse
-    cleaned_query = urllib.parse.quote_plus(QUERY)
+    cleaned_query = urllib.parse.quote_plus(QUERY, safe='/+')
     assert cleaned_query == '%22Drosophila+melanogaster%22%5Borgn%5D'
 
 
@@ -125,8 +125,7 @@ def test_efetch_no_history(small_esearch_results):
     ids = small_esearch_results.ids
     for result in entrez.efetch(DB, ids, api_key=API_KEY):
         for experiment in parsers_sra_xml.parse_sra_efetch_result(result):
-            assert experiment.accn.startswith('SRX') | experiment.accn.startswith('DRX') | experiment.accn.startswith(
-                'ERX')
+            assert experiment.accn.startswith('SRX') | experiment.accn.startswith('DRX') | experiment.accn.startswith('ERX')
 
 
 def test_elink_no_hisotry(small_esearch_results):
@@ -157,8 +156,7 @@ def test_efetch_bioproject(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
     link = entrez.elink('bioproject', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
-    for result in entrez.efetch('bioproject', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY,
-                                retmax=RETMAX):
+    for result in entrez.efetch('bioproject', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
         for document in parsers_bioproject_xml.parse_bioproject_efetch_result(result):
             assert document.accn.startswith('PRJ')
 
@@ -178,4 +176,4 @@ def test_efetch_pubmed(small_esearch_results):
     link = entrez.elink('pubmed', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
     for result in entrez.efetch('pubmed', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
         for document in parsers_pubmed_xml.parse_pubmed_efetch_result(result):
-            assert isinstance(document.accn, int)
+            assert isinstance(document.accn, str)
