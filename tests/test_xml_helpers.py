@@ -1,8 +1,9 @@
 import sramongo.xml_helpers
+from pathlib import Path
 
 
 def test_xml_to_root_from_file_handler():
-    fname = 'data/ERR1662611.xml'
+    fname = Path(__file__).parent / 'data/ERR1662611.xml'
     with open(fname) as fh:
         root = sramongo.xml_helpers.xml_to_root(fh)
     experiment = root.find('EXPERIMENT')
@@ -10,7 +11,7 @@ def test_xml_to_root_from_file_handler():
 
 
 def test_xml_to_root_from_string():
-    fname = 'data/ERR1662611.xml'
+    fname = Path(__file__).parent / 'data/ERR1662611.xml'
     with open(fname) as fh:
         xml = fh.read()
     root = sramongo.xml_helpers.xml_to_root(xml)
