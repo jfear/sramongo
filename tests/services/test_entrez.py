@@ -176,6 +176,7 @@ def test_efetch_bioproject(small_esearch_results):
 def test_efetch_biosample(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
+    sleep(1)
     link = entrez.elink('biosample', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
     sleep(1)
     for result in entrez.efetch('biosample', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
@@ -186,6 +187,7 @@ def test_efetch_biosample(small_esearch_results):
 def test_efetch_pubmed(small_esearch_results):
     webenv = small_esearch_results.webenv
     query_key = small_esearch_results.query_key
+    sleep(1)
     link = entrez.elink('pubmed', 'sra', webenv=webenv, query_key=query_key, api_key=API_KEY, retmax=RETMAX)
     sleep(1)
     for result in entrez.efetch('pubmed', webenv=link.webenv, query_key=link.query_key, api_key=API_KEY, retmax=RETMAX):
