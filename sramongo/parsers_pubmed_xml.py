@@ -42,6 +42,10 @@ def get_abstract(root):
         paragraph.text
         for paragraph in root.findall('MedlineCitation/Article/Abstract/AbstractText')
     ]
+
+    if len(text) == 0 or text[0] is None:
+        return ''
+
     return '\n'.join(text)
 
 
