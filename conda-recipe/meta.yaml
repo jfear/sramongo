@@ -1,6 +1,6 @@
 package:
   name: sramongo
-  version: 1.0.2
+  version: 1.0.3
 source:
   git_url: https://github.com/jfear/sramongo.git
   git_rev: master
