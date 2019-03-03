@@ -197,8 +197,7 @@ def download_bioproject_xml(bioproject_ids, defaults):
         esearch_result = entrez.esearch('bioproject', query, **defaults)
         webenv = esearch_result.webenv
         query_key = esearch_result.query_key
-        count = len(esearch_result.ids)
-
+        count = esearch_result.count
         for accn, xml in bioproject_efetch(webenv, query_key, count, defaults):
             root = xml_to_root(xml)
             doc = parsers_bioproject_xml.parse_bioproject(root)
@@ -216,7 +215,13 @@ def update_sramongo_bioproject_records(docs, collection):
     for doc in docs:
         db_operations.append(
             pymongo.UpdateMany(
-                {'study.bioproject': doc.accn, 'BioProject.last_update': {'$ne': doc.last_update}},
+                {
+                    'study.bioproject': doc.accn,
+                    '$or': [
+                        {'BioProject': {'$exists': False}},
+                        {'BioProject.last_update': {'$ne': doc.last_update}},
+                    ]
+                },
                 {'$set': {'BioProject': doc.to_mongo()}}
             )
         )
@@ -246,7 +251,6 @@ def get_biosample_ids(collection):
         dt = record['BioSample']['sramongo_last_updated']
         if (now - dt).days > 1:
             ids.add(accn)
-
     logger.info(f'BioSample - {len(ids):,} IDs.')
     return ids
 
@@ -260,7 +264,7 @@ def download_biosample_xml(biosample_ids, defaults):
         esearch_result = entrez.esearch('biosample', query, **defaults)
         webenv = esearch_result.webenv
         query_key = esearch_result.query_key
-        count = len(esearch_result.ids)
+        count = esearch_result.count
         for accn, xml in biosample_efetch(webenv, query_key, count, defaults):
             root = xml_to_root(xml)
             doc = parsers_biosample_xml.parse_biosample(root)
@@ -278,7 +282,13 @@ def update_sramongo_biosample_records(docs, collection):
     for doc in docs:
         db_operations.append(
             pymongo.UpdateMany(
-                {'sample.biosample': doc.accn, 'BioSample.last_update': {'$ne': doc.last_update}},
+                {
+                    'sample.biosample': doc.accn,
+                    '$or': [
+                        {'BioSample.accn': {'$exists': False}},
+                        {'BioSample.last_update': {'$ne': doc.last_update}},
+                    ]
+                },
                 {'$set': {'BioSample': doc.to_mongo()}}
             )
         )
@@ -339,16 +349,15 @@ def update_sramongo_pubmed_records(docs, collection):
     db_operations = []
     for doc in docs:
         db_operations.append(
-            pymongo.UpdateMany({
-                'study.pubmed': doc.accn,
-                '$or': [
-                    {'Pubmed': {'$eq': []}},
-                    {'Pubmed.date_revised': {'$elemMatch': {'$ne': doc.date_revised}}}
-                ]
-            },
+            pymongo.UpdateMany(
                 {
-                    '$addToSet': {'Pubmed': doc.to_mongo()}
-                }
+                    'study.pubmed': doc.accn,
+                    '$or': [
+                        {'Pubmed': {'$eq': []}},
+                        {'Pubmed.date_revised': {'$elemMatch': {'$ne': doc.date_revised}}}
+                    ]
+                },
+                {'$addToSet': {'Pubmed': doc.to_mongo()}}
             )
         )
 
