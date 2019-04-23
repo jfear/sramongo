@@ -7,7 +7,7 @@ requirements = [i.strip() for i in open('requirements.txt').readlines()]
 
 setup(
     name='sramongo',
-    version='1.0.3',
+    version='1.1.0',
     description="A package to download metadata from SRA/Biosample/Geo and dump into a mongo database.",
     author="Justin M Fear",
     author_email='justin.m.fear@gmail.com',
