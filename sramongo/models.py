@@ -400,7 +400,7 @@ class SraDocument(Document):
     runs = ListField(EmbeddedDocumentField(Run))
     BioProject = EmbeddedDocumentField(BioProject)
     BioSmaple = EmbeddedDocumentField(BioSample)
-    Pubmed = ListField(EmbeddedDocumentField(Pubmed))
+    papers = ListField(EmbeddedDocumentField(Pubmed))
     Geo = EmbeddedDocumentField(Geo)
 
 

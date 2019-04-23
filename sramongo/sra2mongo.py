@@ -17,7 +17,7 @@ from sramongo.services import entrez
 from sramongo.utils import chunked
 
 _DEBUG = False
-DEBUG_SIZE = 20
+DEBUG_SIZE = 2_000
 BATCH_SIZE = 200
 
 
@@ -307,14 +307,14 @@ def update_sramongo_biosample_records(docs, collection):
 def get_pubmed_ids(collection):
     logger.info('Pubmed - Getting IDs from SraMongo')
     ids = set()
-    for record in collection.find({'study.pubmed': {'$exists': True}, 'Pubmed': {'$eq': []}},
+    for record in collection.find({'study.pubmed': {'$exists': True}, 'papers': {'$eq': []}},
                                   {'study.pubmed': True}):
         ids |= set(record['study']['pubmed'])
 
     # If Pubmed is already there, don't update if it was added today.
     now = datetime.now()
-    for record in collection.find({'Pubmed': {'$ne': []}}, {'Pubmed': True}):
-        for rec in record['Pubmed']:
+    for record in collection.find({'papers': {'$ne': []}}, {'papers': True}):
+        for rec in record['papers']:
             accn = rec['accn']
             dt = rec['sramongo_last_updated']
             if (now - dt).days > 1:
@@ -353,11 +353,11 @@ def update_sramongo_pubmed_records(docs, collection):
                 {
                     'study.pubmed': doc.accn,
                     '$or': [
-                        {'Pubmed': {'$eq': []}},
-                        {'Pubmed.date_revised': {'$elemMatch': {'$ne': doc.date_revised}}}
+                        {'papers': {'$eq': []}},
+                        {'papers.date_revised': {'$elemMatch': {'$ne': doc.date_revised}}}
                     ]
                 },
-                {'$addToSet': {'Pubmed': doc.to_mongo()}}
+                {'$addToSet': {'papers': doc.to_mongo()}}
             )
         )
 
