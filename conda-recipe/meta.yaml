@@ -10,22 +10,22 @@ build:
 
 requirements:
   build:
+    - python
     - mongoengine >=0.11.0
     - pymongo >=3.3.0
     - pytest >=3.0.5
+    - requests >=2.21.0
+    - py-dateutil >=2.2
     - pytest-runner >=2.11
-    - setuptools >=27.2.0
-    - sphinx >=1.5.1
-    - sphinx_rtd_theme >=0.1.9
 
   run:
+    - python
     - mongoengine >=0.11.0
     - pymongo >=3.3.0
+    - requests >=2.21.0
+    - py-dateutil >=2.2
     - pytest >=3.0.5
     - pytest-runner >=2.11
-    - setuptools >=27.2.0
-    - sphinx >=1.5.1
-    - sphinx_rtd_theme >=0.1.9
 
 test:
   imports:
