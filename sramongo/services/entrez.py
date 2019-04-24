@@ -11,9 +11,8 @@ from typing import Optional, List
 from xml.etree import cElementTree as ElementTree
 
 import requests
-from dateutil.parser import parse as dateutil_parse
 
-from sramongo.utils import make_number
+from sramongo.utils import make_number, date_parse
 from sramongo.xml_helpers import xml_to_root
 
 BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
@@ -345,12 +344,12 @@ def parse_esummary(xml: str) -> List[EsummaryResult]:
 
         if expxml:
             accn = re.findall(srx_pattern, expxml)[0]
-            create_date = dateutil_parse(doc.find("Item[@Name='CreateDate']").text)
-            update_date = dateutil_parse(doc.find("Item[@Name='UpdateDate']").text)
+            create_date = date_parse(doc.find("Item[@Name='CreateDate']").text)
+            update_date = date_parse(doc.find("Item[@Name='UpdateDate']").text)
         else:
             accn = doc.find("Item[@Name='accession']").text
-            create_date = dateutil_parse(doc.find("Item[@Name='publicationdate']").text)
-            update_date = dateutil_parse(doc.find("Item[@Name='modificationdate']").text)
+            create_date = date_parse(doc.find("Item[@Name='publicationdate']").text)
+            update_date = date_parse(doc.find("Item[@Name='modificationdate']").text)
         results.append(EsummaryResult(uid, accn, create_date, update_date))
 
     return results

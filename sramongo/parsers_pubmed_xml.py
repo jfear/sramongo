@@ -1,12 +1,10 @@
 from typing import List
 from xml.etree import cElementTree as ElementTree
 
-from dateutil.parser import parse as dateutil_parse
-
 from sramongo.services.entrez import EfetchPackage, EsummaryResult
 from .models import Pubmed
-from .xml_helpers import get_xml_text, get_xml_attribute, xml_to_root
-from .utils import make_number
+from .utils import make_number, date_parse
+from .xml_helpers import get_xml_text, xml_to_root
 
 
 def parse_pubmed(root):
@@ -71,7 +69,7 @@ def get_date(root, path):
     year = curr_path.find('Year').text
     month = curr_path.find('Month').text
     day = curr_path.find('Day').text
-    return dateutil_parse(f'{year}-{month}-{day}')
+    return date_parse(f'{year}-{month}-{day}')
 
 
 def create_citation(pubmed):
@@ -92,5 +90,5 @@ def parse_pubmed_esummary_result(xml: str) -> List[EsummaryResult]:
     for doc in root.findall('DocumentSummary'):
         uid = doc.find('Id').text
         accn = f'PMID{uid}'
-        create_date = dateutil_parse(doc.find("PubDate").text)
+        create_date = date_parse(doc.find("PubDate").text)
         yield EsummaryResult(uid, accn, create_date, '')

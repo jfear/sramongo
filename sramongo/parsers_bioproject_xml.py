@@ -1,12 +1,10 @@
 from typing import List
 from xml.etree import cElementTree as ElementTree
 
-from dateutil.parser import parse as dateutil_parse
-
 from .services.entrez import EfetchPackage, EsummaryResult
 from .models import BioProject
 from .xml_helpers import get_xml_text, get_xml_attribute, xml_to_root
-from .utils import make_number
+from .utils import make_number, date_parse
 
 
 def parse_bioproject(root):
@@ -16,8 +14,8 @@ def parse_bioproject(root):
     bioproject.name = get_xml_text(root, 'Project/ProjectDescr/Name')
     bioproject.title = get_xml_text(root, 'Project/ProjectDescr/Title')
     bioproject.description = get_xml_text(root, 'Project/ProjectDescr/Description')
-    bioproject.last_update = dateutil_parse(get_xml_attribute(root, 'Submission', 'last_update'))
-    bioproject.submission_date = dateutil_parse(get_xml_attribute(root, 'Submission', 'submitted'))
+    bioproject.last_update = date_parse(get_xml_attribute(root, 'Submission', 'last_update'))
+    bioproject.submission_date = date_parse(get_xml_attribute(root, 'Submission', 'submitted'))
     return bioproject
 
 
@@ -34,5 +32,5 @@ def parse_bioproject_esummary_result(xml: str) -> List[EsummaryResult]:
     for doc in root.findall('*DocumentSummary'):
         uid = doc.find('Project_Id').text
         accn = doc.find("Project_Acc").text
-        create_date = dateutil_parse(doc.find("Registration_Date").text)
+        create_date = date_parse(doc.find("Registration_Date").text)
         yield EsummaryResult(uid, accn, create_date, '')
