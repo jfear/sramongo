@@ -39,14 +39,14 @@ def chunked(iterable, n):
 
 
 def make_number(value, _type):
-    if value and value != 'variable':
+    if value and value != "variable":
         return _type(value)
 
-    return ''
+    return ""
 
 
 def date_parse(txt):
     try:
         return dateutil_parse(txt)
     except ValueError:
-        return ''
+        return ""

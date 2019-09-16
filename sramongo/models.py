@@ -2,7 +2,15 @@
 from datetime import datetime
 
 from mongoengine import Document, EmbeddedDocument
-from mongoengine import StringField, IntField, FloatField, ListField, DictField, DateTimeField, MapField
+from mongoengine import (
+    StringField,
+    IntField,
+    FloatField,
+    ListField,
+    DictField,
+    DateTimeField,
+    MapField,
+)
 from mongoengine import EmbeddedDocumentField
 
 
@@ -40,6 +48,7 @@ class Organization(EmbeddedDocument):
         First name of the person who submitted the data.
 
     """
+
     organization_type = StringField()
     abbreviation = StringField()
     name = StringField()
@@ -88,6 +97,7 @@ class Study(EmbeddedDocument):
         Additional text describing the study.
 
     """
+
     accn = StringField()
 
     # External IDs
@@ -140,6 +150,7 @@ class Sample(EmbeddedDocument):
         or sex:female.
 
     """
+
     # SRS/DRS/ERS
     accn = StringField()
 
@@ -206,6 +217,7 @@ class Run(EmbeddedDocument):
         the XML.
 
     """
+
     # SRR/DRR/ERR
     srr = StringField()
 
@@ -267,6 +279,7 @@ class BioProject(EmbeddedDocument):
         Date the BioProject was submitted.
 
     """
+
     accn = StringField()
     bioproject_id = IntField()
     name = StringField()
@@ -315,6 +328,7 @@ class BioSample(EmbeddedDocument):
         'value': value}. This was done to make querying easier.
 
     """
+
     accn = StringField()
     biosample_id = IntField()
     title = StringField()
@@ -359,6 +373,7 @@ class Pubmed(EmbeddedDocument):
         Date the pubmed entry was last updated.
 
     """
+
     accn = StringField()
     title = StringField()
     abstract = StringField()
@@ -441,6 +456,7 @@ class TaxAnalysis(Document):
         'subspeciies':
         ...
     """
+
     srr = StringField()
     nspot_analyze = IntField()
     total_spots = IntField()

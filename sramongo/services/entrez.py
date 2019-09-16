@@ -15,18 +15,28 @@ import requests
 from sramongo.utils import make_number, date_parse
 from sramongo.xml_helpers import xml_to_root
 
-BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'
-PAUSE = .3
+BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
+PAUSE = 0.3
 
-EsearchResult = namedtuple('EsearchResult', 'ids count webenv query_key')
-EpostResult = namedtuple('EpostResult', 'webenv query_key')
-EsummaryResult = namedtuple('EsummaryResult', 'id accn create_date update_date')
-EfetchPackage = namedtuple('EfetchPackage', 'accn xml')
-ElinkResult = namedtuple('EpostResult', 'dbfrom dbto webenv query_key')
+EsearchResult = namedtuple("EsearchResult", "ids count webenv query_key")
+EpostResult = namedtuple("EpostResult", "webenv query_key")
+EsummaryResult = namedtuple("EsummaryResult", "id accn create_date update_date")
+EfetchPackage = namedtuple("EfetchPackage", "accn xml")
+ElinkResult = namedtuple("EpostResult", "dbfrom dbto webenv query_key")
 
 
-def esearch(database, query, userhistory=True, webenv=False, query_key=False, retstart=False, retmax=False,
-            api_key=False, email=False, **kwargs) -> Optional[EsearchResult]:
+def esearch(
+    database,
+    query,
+    userhistory=True,
+    webenv=False,
+    query_key=False,
+    retstart=False,
+    retmax=False,
+    api_key=False,
+    email=False,
+    **kwargs,
+) -> Optional[EsearchResult]:
     """Search for a query using the Entrez ESearch API.
 
     Parameters
@@ -56,9 +66,9 @@ def esearch(database, query, userhistory=True, webenv=False, query_key=False, re
         A named tuple with values [ids, count, webenv, query_key]
 
     """
-    cleaned_query = urllib.parse.quote_plus(query, safe='/+')
+    cleaned_query = urllib.parse.quote_plus(query, safe="/+")
 
-    url = BASE_URL + f'esearch.fcgi?db={database}&term={cleaned_query}&retmode=json'
+    url = BASE_URL + f"esearch.fcgi?db={database}&term={cleaned_query}&retmode=json"
     url = check_userhistory(userhistory, url)
     url = check_webenv(webenv, url)
     url = check_query_key(query_key, url)
@@ -70,20 +80,22 @@ def esearch(database, query, userhistory=True, webenv=False, query_key=False, re
     time.sleep(PAUSE)
     resp = requests.get(url)
     if resp.status_code != 200:
-        print('There was a server error')
+        print("There was a server error")
         return
 
     text = resp.json()
-    time.sleep(.5)
+    time.sleep(0.5)
     return EsearchResult(
-        text['esearchresult'].get('idlist', []),
-        make_number(text['esearchresult'].get('count', ''), int),
-        text['esearchresult'].get('webenv', ''),
-        text['esearchresult'].get('querykey', '')
+        text["esearchresult"].get("idlist", []),
+        make_number(text["esearchresult"].get("count", ""), int),
+        text["esearchresult"].get("webenv", ""),
+        text["esearchresult"].get("querykey", ""),
     )
 
 
-def epost(database, ids: List[str], webenv=False, api_key=False, email=False, **kwargs) -> Optional[EpostResult]:
+def epost(
+    database, ids: List[str], webenv=False, api_key=False, email=False, **kwargs
+) -> Optional[EpostResult]:
     """Post IDs using the Entrez ESearch API.
 
     Parameters
@@ -104,19 +116,27 @@ def epost(database, ids: List[str], webenv=False, api_key=False, email=False, **
     requests.Response
 
     """
-    url = BASE_URL + f'epost.fcgi'
-    id = ','.join(ids)
-    url_params = f'db={database}&id={id}'
+    url = BASE_URL + f"epost.fcgi"
+    id = ",".join(ids)
+    url_params = f"db={database}&id={id}"
     url_params = check_webenv(webenv, url_params)
     url_params = check_api_key(api_key, url_params)
     url_params = check_email(email, url_params)
     resp = entrez_try_put_multiple_times(url, url_params, num_tries=3)
-    time.sleep(.5)
+    time.sleep(0.5)
     return parse_epost(resp.text)
 
 
-def elink(db: str, dbfrom: str, ids=False, webenv=False, query_key=False, api_key=False, email=False,
-          **kwargs) -> Optional[ElinkResult]:
+def elink(
+    db: str,
+    dbfrom: str,
+    ids=False,
+    webenv=False,
+    query_key=False,
+    api_key=False,
+    email=False,
+    **kwargs,
+) -> Optional[ElinkResult]:
     """Get document summaries using the Entrez ESearch API.
 
     Parameters
@@ -142,7 +162,7 @@ def elink(db: str, dbfrom: str, ids=False, webenv=False, query_key=False, api_ke
         A list of ElinkResult with values [id, srx, create_date, update_date]
 
     """
-    url = BASE_URL + f'elink.fcgi?dbfrom={dbfrom}&db={db}&retmode=json&cmd=neighbor_history'
+    url = BASE_URL + f"elink.fcgi?dbfrom={dbfrom}&db={db}&retmode=json&cmd=neighbor_history"
     url = check_webenv(webenv, url)
     url = check_query_key(query_key, url)
     url = check_api_key(api_key, url)
@@ -152,27 +172,37 @@ def elink(db: str, dbfrom: str, ids=False, webenv=False, query_key=False, api_ke
         if isinstance(ids, str):
             id = ids
         else:
-            id = ','.join(ids)
-        url += f'&id={id}'
+            id = ",".join(ids)
+        url += f"&id={id}"
 
     time.sleep(PAUSE)
     resp = requests.get(url)
     if resp.status_code != 200:
-        print('There was a server error')
+        print("There was a server error")
         return
 
     text = resp.json()
-    time.sleep(.5)
+    time.sleep(0.5)
     return ElinkResult(
-        text['linksets'][0].get('dbfrom', ''),
-        text['linksets'][0].get('linksetdbhistories', [{'dbto': ''}])[0].get('dbto', ''),
-        text['linksets'][0].get('webenv', ''),
-        text['linksets'][0].get('linksetdbhistories', [{'querykey': ''}])[0].get('querykey', ''),
+        text["linksets"][0].get("dbfrom", ""),
+        text["linksets"][0].get("linksetdbhistories", [{"dbto": ""}])[0].get("dbto", ""),
+        text["linksets"][0].get("webenv", ""),
+        text["linksets"][0].get("linksetdbhistories", [{"querykey": ""}])[0].get("querykey", ""),
     )
 
 
-def esummary(database: str, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
-             api_key=False, email=False, **kwargs) -> Optional[List[EsummaryResult]]:
+def esummary(
+    database: str,
+    ids=False,
+    webenv=False,
+    query_key=False,
+    count=False,
+    retstart=False,
+    retmax=False,
+    api_key=False,
+    email=False,
+    **kwargs,
+) -> Optional[List[EsummaryResult]]:
     """Get document summaries using the Entrez ESearch API.
 
     Parameters
@@ -202,7 +232,7 @@ def esummary(database: str, ids=False, webenv=False, query_key=False, count=Fals
         A list of EsummaryResults with values [id, srx, create_date, update_date]
 
     """
-    url = BASE_URL + f'esummary.fcgi?db={database}'
+    url = BASE_URL + f"esummary.fcgi?db={database}"
     url = check_webenv(webenv, url)
     url = check_query_key(query_key, url)
     url = check_api_key(api_key, url)
@@ -212,16 +242,28 @@ def esummary(database: str, ids=False, webenv=False, query_key=False, count=Fals
         if isinstance(ids, str):
             id = ids
         else:
-            id = ','.join(ids)
-        url += f'&id={id}'
-        count = len(id.split(','))
+            id = ",".join(ids)
+        url += f"&id={id}"
+        count = len(id.split(","))
 
     for resp in entrez_sets_of_results(url, retstart, retmax, count):
         yield resp.text
 
 
-def efetch(database, ids=False, webenv=False, query_key=False, count=False, retstart=False, retmax=False,
-           rettype='full', retmode='xml', api_key=False, email=False, **kwargs) -> str:
+def efetch(
+    database,
+    ids=False,
+    webenv=False,
+    query_key=False,
+    count=False,
+    retstart=False,
+    retmax=False,
+    rettype="full",
+    retmode="xml",
+    api_key=False,
+    email=False,
+    **kwargs,
+) -> str:
     """Get documents using the Entrez ESearch API.gg
 
     Parameters
@@ -257,7 +299,7 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
         Text from effect results. Format depends on parameters passed to retmode
 
     """
-    url = BASE_URL + f'efetch.fcgi?db={database}&retmode={retmode}&rettype={rettype}'
+    url = BASE_URL + f"efetch.fcgi?db={database}&retmode={retmode}&rettype={rettype}"
     url = check_webenv(webenv, url)
     url = check_query_key(query_key, url)
     url = check_api_key(api_key, url)
@@ -267,9 +309,9 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
         if isinstance(ids, str):
             id = ids
         else:
-            id = ','.join(ids)
-        url += f'&id={id}'
-        count = len(id.split(','))
+            id = ",".join(ids)
+        url += f"&id={id}"
+        count = len(id.split(","))
 
     for resp in entrez_sets_of_results(url, retstart, retmax, count):
         yield resp.text
@@ -277,35 +319,35 @@ def efetch(database, ids=False, webenv=False, query_key=False, count=False, rets
 
 def check_userhistory(userhistory, url):
     if userhistory:
-        return url + '&usehistory=y'
+        return url + "&usehistory=y"
 
     return url
 
 
 def check_webenv(webenv, url):
     if webenv:
-        return url + f'&WebEnv={webenv}'
+        return url + f"&WebEnv={webenv}"
 
     return url
 
 
 def check_query_key(query_key, url):
     if query_key:
-        return url + f'&query_key={query_key}'
+        return url + f"&query_key={query_key}"
 
     return url
 
 
 def check_retstart(retstart, url):
     if retstart:
-        return url + f'&retstart={retstart}'
+        return url + f"&retstart={retstart}"
 
     return url
 
 
 def check_retmax(retmax, url):
     if retmax:
-        return url + f'&retmax={retmax}'
+        return url + f"&retmax={retmax}"
 
     return url
 
@@ -313,34 +355,34 @@ def check_retmax(retmax, url):
 def check_api_key(api_key, url):
     if api_key:
         global PAUSE
-        PAUSE = .1
-        return url + f'&api_key={api_key}'
+        PAUSE = 0.1
+        return url + f"&api_key={api_key}"
 
     return url
 
 
 def check_email(email, url):
     if email:
-        return url + f'&email={email}'
+        return url + f"&email={email}"
 
     return url
 
 
 def parse_epost(xml: str) -> EpostResult:
     root = ElementTree.fromstring(xml)
-    webenv = root.find('WebEnv').text
-    query_key = root.find('QueryKey').text
+    webenv = root.find("WebEnv").text
+    query_key = root.find("QueryKey").text
     return EpostResult(webenv, query_key)
 
 
 def parse_esummary(xml: str) -> List[EsummaryResult]:
     root = xml_to_root(xml)
-    srx_pattern = re.compile(r'Experiment acc=\"([SED]RX\d+)\"')
+    srx_pattern = re.compile(r"Experiment acc=\"([SED]RX\d+)\"")
 
     results = []
-    for doc in root.findall('DocSum'):
+    for doc in root.findall("DocSum"):
         expxml: str = doc.find("Item[@Name='ExpXml']").text
-        uid = doc.find('Id').text
+        uid = doc.find("Id").text
 
         if expxml:
             accn = re.findall(srx_pattern, expxml)[0]
@@ -355,7 +397,9 @@ def parse_esummary(xml: str) -> List[EsummaryResult]:
     return results
 
 
-def entrez_sets_of_results(url, retstart=False, retmax=False, count=False) -> Optional[List[requests.Response]]:
+def entrez_sets_of_results(
+    url, retstart=False, retmax=False, count=False
+) -> Optional[List[requests.Response]]:
     """Gets sets of results back from Entrez.
 
     Entrez can only return 500 results at a time. This creates a generator that gets results by incrementing
@@ -392,7 +436,7 @@ def entrez_sets_of_results(url, retstart=False, retmax=False, count=False) -> Op
         if diff < 500:
             retmax = diff
 
-        _url = url + f'&retstart={retstart}&retmax={retmax}'
+        _url = url + f"&retstart={retstart}&retmax={retmax}"
         resp = entrez_try_get_multiple_times(_url)
         if resp is None:
             return
@@ -410,11 +454,13 @@ def entrez_try_get_multiple_times(url, num_tries=3) -> Optional[requests.Respons
         attempt += 1
         time.sleep(PAUSE)
 
-    print('There were multiple server errors')
+    print("There were multiple server errors")
     raise TimeoutError
 
 
-def entrez_try_put_multiple_times(url: str, url_params: str, num_tries=3) -> Optional[requests.Response]:
+def entrez_try_put_multiple_times(
+    url: str, url_params: str, num_tries=3
+) -> Optional[requests.Response]:
     attempt = 0
     while attempt < num_tries:
         resp = requests.post(url, url_params)
@@ -423,4 +469,4 @@ def entrez_try_put_multiple_times(url: str, url_params: str, num_tries=3) -> Opt
         num_tries += 1
         time.sleep(PAUSE)
 
-    print('There were multiple server errors')
+    print("There were multiple server errors")
