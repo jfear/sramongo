@@ -4,12 +4,11 @@ from typing import List
 from xml.etree import cElementTree as ElementTree
 from datetime import datetime
 
-from dateutil.parser import parse as dateutil_parse
-
 from sramongo.services.entrez import EfetchPackage, EsummaryResult
 from sramongo.utils import make_number
 from sramongo.xml_helpers import get_xml_text, get_xml_attribute, xml_to_root
 from .models import SraDocument, Study, Organization, Sample, Run
+from .utils import date_parse
 
 
 def parse_sra_experiment(root):
@@ -177,6 +176,6 @@ def parse_sra_esummary_result(xml: str) -> List[EsummaryResult]:
         expxml: str = doc.find("Item[@Name='ExpXml']").text
         uid = doc.find('Id').text
         accn = re.findall(srx_pattern, expxml)[0]
-        create_date = dateutil_parse(doc.find("Item[@Name='CreateDate']").text)
-        update_date = dateutil_parse(doc.find("Item[@Name='UpdateDate']").text)
+        create_date = date_parse(doc.find("Item[@Name='CreateDate']").text)
+        update_date = date_parse(doc.find("Item[@Name='UpdateDate']").text)
         yield EsummaryResult(uid, accn, create_date, update_date)

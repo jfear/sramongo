@@ -2,12 +2,10 @@ from typing import List
 from xml.etree import cElementTree as ElementTree
 from datetime import datetime
 
-from dateutil.parser import parse as dateutil_parse
-
 from sramongo.services.entrez import EfetchPackage, EsummaryResult
 from .models import BioSample
-from .xml_helpers import get_xml_attribute, get_xml_text, xml_to_root
-from .utils import make_number
+from .utils import make_number, date_parse
+from .xml_helpers import get_xml_text, xml_to_root
 
 
 def parse_biosample(root):
@@ -15,8 +13,8 @@ def parse_biosample(root):
     attributes = root.attrib
     biosample.accn = attributes['accession']
     biosample.id = make_number(attributes['id'], int)
-    biosample.last_update = dateutil_parse(attributes['last_update'])
-    biosample.submission_date = dateutil_parse(attributes['submission_date'])
+    biosample.last_update = date_parse(attributes['last_update'])
+    biosample.submission_date = date_parse(attributes['submission_date'])
 
     biosample.title = get_xml_text(root, 'Description/Title')
     biosample.description = get_biosample_description(root)
@@ -76,6 +74,6 @@ def parse_biosample_esummary_result(xml: str) -> List[EsummaryResult]:
     for doc in root.findall('DocumentSummary'):
         uid = doc.find('Id').text
         accn = doc.find("Accession").text
-        create_date = dateutil_parse(doc.find("PublicationDate").text)
-        update_date = dateutil_parse(doc.find("ModificationDate").text)
+        create_date = date_parse(doc.find("PublicationDate").text)
+        update_date = date_parse(doc.find("ModificationDate").text)
         yield EsummaryResult(uid, accn, create_date, update_date)

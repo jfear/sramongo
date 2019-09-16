@@ -1,6 +1,9 @@
 from itertools import islice
 from functools import partial
 
+from dateutil.parser import parse as dateutil_parse
+
+
 def take(n, iterable):
     """Return first *n* items of the iterable as a list.
         >>> take(3, range(10))
@@ -40,3 +43,10 @@ def make_number(value, _type):
         return _type(value)
 
     return ''
+
+
+def date_parse(txt):
+    try:
+        return dateutil_parse(txt)
+    except ValueError:
+        return ''
