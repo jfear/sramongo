@@ -181,7 +181,7 @@ def get_bioproject_ids(collection):
     for record in collection.find({'BioProject': {'$exists': True}}, {'BioProject': True}):
         accn = record['BioProject']['accn']
         dt = record['BioProject']['sramongo_last_updated']
-        if (now - dt).days > 1:
+        if (now - dt).days > 7:
             bioproject_ids.add(accn)
 
     logger.info(f'BioProject - {len(bioproject_ids):,} IDs.')
@@ -249,7 +249,7 @@ def get_biosample_ids(collection):
     for record in collection.find({'BioSample': {'$exists': True}}, {'BioSample': True}):
         accn = record['BioSample']['accn']
         dt = record['BioSample']['sramongo_last_updated']
-        if (now - dt).days > 1:
+        if (now - dt).days > 7:
             ids.add(accn)
     logger.info(f'BioSample - {len(ids):,} IDs.')
     return ids
@@ -317,7 +317,7 @@ def get_pubmed_ids(collection):
         for rec in record['papers']:
             accn = rec['accn']
             dt = rec['sramongo_last_updated']
-            if (now - dt).days > 1:
+            if (now - dt).days > 7:
                 ids.add(accn)
 
     logger.info(f'Pubmed - {len(ids):,} IDs.')
