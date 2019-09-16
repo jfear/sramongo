@@ -322,7 +322,7 @@ def check_api_key(api_key, url):
 
 def check_email(email, url):
     if email:
-        return url + f'&email={retmax}'
+        return url + f'&email={email}'
 
     return url
 
