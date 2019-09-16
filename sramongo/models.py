@@ -231,7 +231,7 @@ class Geo(EmbeddedDocument):
     # TODO add geo parser
     accn = StringField()
     GEO_Dataset = StringField()
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
 
 class BioProject(EmbeddedDocument):
@@ -275,7 +275,7 @@ class BioProject(EmbeddedDocument):
     last_update = DateTimeField()
     submission_date = DateTimeField()
 
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
 
 class BioSample(EmbeddedDocument):
@@ -323,7 +323,7 @@ class BioSample(EmbeddedDocument):
     submission_date = StringField()
     contacts = ListField(DictField(), default=list)
     attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
 
 class Pubmed(EmbeddedDocument):
@@ -367,7 +367,7 @@ class Pubmed(EmbeddedDocument):
     date_created = DateTimeField()
     date_completed = DateTimeField()
     date_revised = DateTimeField()
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
 
 class SraDocument(Document):
@@ -376,7 +376,7 @@ class SraDocument(Document):
     title = StringField()
     design = StringField()
 
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
     sra_create_date = DateTimeField()
     sra_update_date = DateTimeField()
