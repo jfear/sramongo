@@ -2,6 +2,7 @@
 import re
 from typing import List
 from xml.etree import cElementTree as ElementTree
+from datetime.datetime import utcnow
 
 from dateutil.parser import parse as dateutil_parse
 
@@ -30,6 +31,7 @@ def parse_sra_experiment(root):
     sra.organization = parse_sra_organization(root)
     sra.sample = parse_sra_sample(root)
     sra.runs = parse_sra_run(root)
+    sra.sra_update_date = utcnow()
     return sra
 
 

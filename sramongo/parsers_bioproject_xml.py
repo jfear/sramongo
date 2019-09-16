@@ -1,5 +1,6 @@
 from typing import List
 from xml.etree import cElementTree as ElementTree
+from datetime.datetime import utcnow
 
 from dateutil.parser import parse as dateutil_parse
 
@@ -18,6 +19,7 @@ def parse_bioproject(root):
     bioproject.description = get_xml_text(root, 'Project/ProjectDescr/Description')
     bioproject.last_update = dateutil_parse(get_xml_attribute(root, 'Submission', 'last_update'))
     bioproject.submission_date = dateutil_parse(get_xml_attribute(root, 'Submission', 'submitted'))
+    bioproject.sramongo_last_updated = utcnow()
     return bioproject
 
 
