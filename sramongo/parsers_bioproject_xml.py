@@ -15,8 +15,8 @@ def parse_bioproject(root):
     bioproject.name = get_xml_text(root, 'Project/ProjectDescr/Name')
     bioproject.title = get_xml_text(root, 'Project/ProjectDescr/Title')
     bioproject.description = get_xml_text(root, 'Project/ProjectDescr/Description')
-    bioproject.last_update = dateutil_parse(get_xml_attribute(root, 'Submission', 'last_update'))
-    bioproject.submission_date = dateutil_parse(get_xml_attribute(root, 'Submission', 'submitted'))
+    bioproject.last_update = date_parse(get_xml_attribute(root, 'Submission', 'last_update'))
+    bioproject.submission_date = date_parse(get_xml_attribute(root, 'Submission', 'submitted'))
     bioproject.sramongo_last_updated = datetime.utcnow()
 
     return bioproject
