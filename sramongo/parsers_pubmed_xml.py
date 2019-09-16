@@ -1,6 +1,6 @@
 from typing import List
 from xml.etree import cElementTree as ElementTree
-from datetime.datetime import utcnow
+from datetime import datetime
 
 from dateutil.parser import parse as dateutil_parse
 
@@ -36,7 +36,7 @@ def parse_pubmed(root):
 
     pubmed.citation = create_citation(pubmed)
 
-    pubmed.sramongo_last_updated = utcnow()
+    pubmed.sramongo_last_updated = datetime.utcnow()
 
     return pubmed
 

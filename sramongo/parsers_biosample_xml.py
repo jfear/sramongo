@@ -1,6 +1,6 @@
 from typing import List
 from xml.etree import cElementTree as ElementTree
-from datetime.datetime import utcnow
+from datetime import datetime
 
 from dateutil.parser import parse as dateutil_parse
 
@@ -22,7 +22,7 @@ def parse_biosample(root):
     biosample.description = get_biosample_description(root)
     biosample.attributes = get_biosample_attributes(root)
     biosample.contacts = get_biosample_contacts(root)
-    biosample.sramongo_last_updated = utcnow()
+    biosample.sramongo_last_updated = datetime.utcnow()
 
     return biosample
 
