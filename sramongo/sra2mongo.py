@@ -177,7 +177,7 @@ def get_bioproject_ids(collection):
         bioproject_ids.add(record['study']['bioproject'])
 
     # If BioProject is already there, don't update if it was added today.
-    now = datetime.now()
+    now = datetime.utcnow()
     for record in collection.find({'BioProject': {'$exists': True}}, {'BioProject': True}):
         accn = record['BioProject']['accn']
         dt = record['BioProject']['sramongo_last_updated']
@@ -245,7 +245,7 @@ def get_biosample_ids(collection):
         ids.add(record['sample']['biosample'])
 
     # If BioSample is already there, don't update if it was added today.
-    now = datetime.now()
+    now = datetime.utcnow()
     for record in collection.find({'BioSample': {'$exists': True}}, {'BioSample': True}):
         accn = record['BioSample']['accn']
         dt = record['BioSample']['sramongo_last_updated']
@@ -312,7 +312,7 @@ def get_pubmed_ids(collection):
         ids |= set(record['study']['pubmed'])
 
     # If Pubmed is already there, don't update if it was added today.
-    now = datetime.now()
+    now = datetime.utcnow()
     for record in collection.find({'papers': {'$ne': []}}, {'papers': True}):
         for rec in record['papers']:
             accn = rec['accn']
