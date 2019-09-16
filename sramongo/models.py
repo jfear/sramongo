@@ -2,7 +2,15 @@
 from datetime import datetime
 
 from mongoengine import Document, EmbeddedDocument
-from mongoengine import StringField, IntField, FloatField, ListField, DictField, DateTimeField, MapField
+from mongoengine import (
+    StringField,
+    IntField,
+    FloatField,
+    ListField,
+    DictField,
+    DateTimeField,
+    MapField,
+)
 from mongoengine import EmbeddedDocumentField
 
 
@@ -40,6 +48,7 @@ class Organization(EmbeddedDocument):
         First name of the person who submitted the data.
 
     """
+
     organization_type = StringField()
     abbreviation = StringField()
     name = StringField()
@@ -88,6 +97,7 @@ class Study(EmbeddedDocument):
         Additional text describing the study.
 
     """
+
     accn = StringField()
 
     # External IDs
@@ -140,6 +150,7 @@ class Sample(EmbeddedDocument):
         or sex:female.
 
     """
+
     # SRS/DRS/ERS
     accn = StringField()
 
@@ -206,6 +217,7 @@ class Run(EmbeddedDocument):
         the XML.
 
     """
+
     # SRR/DRR/ERR
     srr = StringField()
 
@@ -231,7 +243,7 @@ class Geo(EmbeddedDocument):
     # TODO add geo parser
     accn = StringField()
     GEO_Dataset = StringField()
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
 
 class BioProject(EmbeddedDocument):
@@ -267,6 +279,7 @@ class BioProject(EmbeddedDocument):
         Date the BioProject was submitted.
 
     """
+
     accn = StringField()
     bioproject_id = IntField()
     name = StringField()
@@ -275,7 +288,7 @@ class BioProject(EmbeddedDocument):
     last_update = DateTimeField()
     submission_date = DateTimeField()
 
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
 
 class BioSample(EmbeddedDocument):
@@ -315,6 +328,7 @@ class BioSample(EmbeddedDocument):
         'value': value}. This was done to make querying easier.
 
     """
+
     accn = StringField()
     biosample_id = IntField()
     title = StringField()
@@ -323,7 +337,7 @@ class BioSample(EmbeddedDocument):
     submission_date = StringField()
     contacts = ListField(DictField(), default=list)
     attributes = ListField(EmbeddedDocumentField(Attribute), default=list)
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
 
 class Pubmed(EmbeddedDocument):
@@ -359,6 +373,7 @@ class Pubmed(EmbeddedDocument):
         Date the pubmed entry was last updated.
 
     """
+
     accn = StringField()
     title = StringField()
     abstract = StringField()
@@ -367,7 +382,7 @@ class Pubmed(EmbeddedDocument):
     date_created = DateTimeField()
     date_completed = DateTimeField()
     date_revised = DateTimeField()
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
 
 class SraDocument(Document):
@@ -376,7 +391,7 @@ class SraDocument(Document):
     title = StringField()
     design = StringField()
 
-    sramongo_last_updated = DateTimeField(default=datetime.now())
+    sramongo_last_updated = DateTimeField(default=datetime.utcnow())
 
     sra_create_date = DateTimeField()
     sra_update_date = DateTimeField()
@@ -441,6 +456,7 @@ class TaxAnalysis(Document):
         'subspeciies':
         ...
     """
+
     srr = StringField()
     nspot_analyze = IntField()
     total_spots = IntField()

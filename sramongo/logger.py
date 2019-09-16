@@ -11,13 +11,15 @@ class InfoFilter(logging.Filter):
     http://stackoverflow.com/questions/16061641/python-logging-split-between-stdout-and-stderr
 
     """
+
     def filter(self, rec):
         return rec.levelno in (logging.DEBUG, logging.INFO)
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
 # Error handler to stderr
 h1 = logging.StreamHandler(stream=stderr)

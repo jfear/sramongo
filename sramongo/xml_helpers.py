@@ -16,7 +16,9 @@ def valid_path(function=None, rettype=dict):
                 return rettype()
             else:
                 return f(*args, **kwargs)
+
         return wrapper
+
     if function is not None:
         return actual_decorator(function)
     return actual_decorator
@@ -52,17 +54,16 @@ def parse_tree_from_dict(node, locs):
     d = dict()
     for n, l in locs.items():
         try:
-            if l[1] == 'text':
+            if l[1] == "text":
                 d[n] = node.find(l[0]).text
-            elif l[1] == 'child':
+            elif l[1] == "child":
                 child = node.find(l[0]).getchildren()
 
                 if len(child) > 1:
-                    raise AmbiguousElementException(
-                            'There are too many elements')
-                elif l[2] == 'text':
+                    raise AmbiguousElementException("There are too many elements")
+                elif l[2] == "text":
                     d[n] = child[0].text
-                elif l[2] == 'tag':
+                elif l[2] == "tag":
                     d[n] = child[0].tag
             else:
                 d[n] = node.find(l[0]).get(l[1])
@@ -86,7 +87,7 @@ def xml_to_root(xml: Union[str, IO]) -> ElementTree.Element:
 
     """
     if isinstance(xml, str):
-        if '<' in xml:
+        if "<" in xml:
             return ElementTree.fromstring(xml)
         else:
             with open(xml) as fh:
@@ -99,11 +100,11 @@ def get_xml_text(root, path):
     try:
         return root.find(path).text
     except:
-        return ''
+        return ""
 
 
 def get_xml_attribute(root, path, attribute):
     try:
         return root.find(path).attrib[attribute]
     except:
-        return ''
+        return ""
