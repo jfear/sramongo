@@ -217,10 +217,6 @@ def update_sramongo_bioproject_records(docs, collection):
             pymongo.UpdateMany(
                 {
                     'study.bioproject': doc.accn,
-                    '$or': [
-                        {'BioProject': {'$exists': False}},
-                        {'BioProject.last_update': {'$ne': doc.last_update}},
-                    ]
                 },
                 {'$set': {'BioProject': doc.to_mongo()}}
             )
@@ -284,10 +280,6 @@ def update_sramongo_biosample_records(docs, collection):
             pymongo.UpdateMany(
                 {
                     'sample.biosample': doc.accn,
-                    '$or': [
-                        {'BioSample.accn': {'$exists': False}},
-                        {'BioSample.last_update': {'$ne': doc.last_update}},
-                    ]
                 },
                 {'$set': {'BioSample': doc.to_mongo()}}
             )
@@ -352,10 +344,6 @@ def update_sramongo_pubmed_records(docs, collection):
             pymongo.UpdateMany(
                 {
                     'study.pubmed': doc.accn,
-                    '$or': [
-                        {'papers': {'$eq': []}},
-                        {'papers.date_revised': {'$elemMatch': {'$ne': doc.date_revised}}}
-                    ]
                 },
                 {'$addToSet': {'papers': doc.to_mongo()}}
             )
