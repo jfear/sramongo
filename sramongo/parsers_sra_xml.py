@@ -168,7 +168,7 @@ def add_study_pubmed(root, study):
         if db == "pubmed":
             id = xref.find("ID").text
             pmids.append(id)
-    if len(pmids) > 0:
+    if pmids:
         study.pubmed = list(set(pmids))
 
 

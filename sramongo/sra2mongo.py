@@ -137,11 +137,7 @@ def check_sra_for_updated_ids(query, collection, defaults):
     webenv = esearch_result.webenv
     query_key = esearch_result.query_key
 
-    if _DEBUG:
-        count = DEBUG_SIZE
-    else:
-        count = esearch_result.count
-
+    count = DEBUG_SIZE if _DEBUG else esearch_result.count
     logger.info("SRA - Checking for Updates")
     ids_to_update = []
     for esummary_result in sra_esummary(webenv, query_key, count, defaults):
@@ -189,7 +185,7 @@ def update_sramongo_sra_records(docs, collection):
             logger.debug(res.bulk_api_result)
             db_operations = []
 
-    if len(db_operations) > 0:
+    if db_operations:
         res = collection.bulk_write(db_operations)
         logger.debug(res.bulk_api_result)
 
@@ -223,9 +219,9 @@ def get_bioproject_ids(collection):
     # If BioProject is already there, don't update if it was added today.
     now = datetime.utcnow()
     for record in collection.find({"BioProject": {"$exists": True}}, {"BioProject": True}):
-        accn = record["BioProject"]["accn"]
         dt = record["BioProject"]["sramongo_last_updated"]
         if (now - dt).days > 7:
+            accn = record["BioProject"]["accn"]
             bioproject_ids.add(accn)
 
     logger.info(f"BioProject - {len(bioproject_ids):,} IDs.")
@@ -271,7 +267,7 @@ def update_sramongo_bioproject_records(docs, collection):
             logger.debug(res.bulk_api_result)
             db_operations = []
 
-    if len(db_operations) > 0:
+    if db_operations:
         res = collection.bulk_write(db_operations)
         logger.debug(res.bulk_api_result)
 
@@ -288,9 +284,9 @@ def get_biosample_ids(collection):
     # If BioSample is already there, don't update if it was added today.
     now = datetime.utcnow()
     for record in collection.find({"BioSample": {"$exists": True}}, {"BioSample": True}):
-        accn = record["BioSample"]["accn"]
         dt = record["BioSample"]["sramongo_last_updated"]
         if (now - dt).days > 7:
+            accn = record["BioSample"]["accn"]
             ids.add(accn)
     logger.info(f"BioSample - {len(ids):,} IDs.")
     return ids
@@ -335,7 +331,7 @@ def update_sramongo_biosample_records(docs, collection):
             logger.debug(res.bulk_api_result)
             db_operations = []
 
-    if len(db_operations) > 0:
+    if db_operations:
         res = collection.bulk_write(db_operations)
         logger.debug(res.bulk_api_result)
 
@@ -352,9 +348,9 @@ def get_pubmed_ids(collection):
     now = datetime.utcnow()
     for record in collection.find({"papers": {"$ne": []}}, {"papers": True}):
         for rec in record["papers"]:
-            accn = rec["accn"]
             dt = rec["sramongo_last_updated"]
             if (now - dt).days > 7:
+                accn = rec["accn"]
                 ids.add(accn)
 
     logger.info(f"Pubmed - {len(ids):,} IDs.")
@@ -399,7 +395,7 @@ def update_sramongo_pubmed_records(docs, collection):
             logger.debug(res.bulk_api_result)
             db_operations = []
 
-    if len(db_operations) > 0:
+    if db_operations:
         res = collection.bulk_write(db_operations)
         logger.debug(res.bulk_api_result)
 

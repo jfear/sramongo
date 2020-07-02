@@ -51,7 +51,7 @@ def parse_tree_from_dict(node, locs):
             * str: Any other string will be treated as an attribute lookup
                    of the path.
     """
-    d = dict()
+    d = {}
     for n, l in locs.items():
         try:
             if l[1] == "text":

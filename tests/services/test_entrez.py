@@ -20,13 +20,12 @@ API_KEY = os.environ.get("ENTREZ_API_KEY", False)
 
 @pytest.fixture(scope="module")
 def small_esearch_results() -> entrez.EsearchResult:
-    esearch_results = entrez.esearch(DB, QUERY, retmax=RETMAX, api_key=API_KEY)
-    return esearch_results
+    return entrez.esearch(DB, QUERY, retmax=RETMAX, api_key=API_KEY)
 
 
 @pytest.fixture(scope="module")
 def experiment_set_xml() -> str:
-    xml = dedent(
+    return dedent(
         """<?xml version="1.0"?>
         <EXPERIMENT_PACKAGE_SET>
           <EXPERIMENT_PACKAGE>
@@ -57,7 +56,6 @@ def experiment_set_xml() -> str:
         </EXPERIMENT_PACKAGE_SET>
     """
     )
-    return xml
 
 
 def test_urlencode_query():

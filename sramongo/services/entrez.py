@@ -169,10 +169,7 @@ def elink(
     url = check_email(email, url)
 
     if ids:
-        if isinstance(ids, str):
-            id = ids
-        else:
-            id = ",".join(ids)
+        id = ids if isinstance(ids, str) else ",".join(ids)
         url += f"&id={id}"
 
     time.sleep(PAUSE)
@@ -239,10 +236,7 @@ def esummary(
     url = check_email(email, url)
 
     if ids:
-        if isinstance(ids, str):
-            id = ids
-        else:
-            id = ",".join(ids)
+        id = ids if isinstance(ids, str) else ",".join(ids)
         url += f"&id={id}"
         count = len(id.split(","))
 
@@ -306,10 +300,7 @@ def efetch(
     url = check_email(email, url)
 
     if ids:
-        if isinstance(ids, str):
-            id = ids
-        else:
-            id = ",".join(ids)
+        id = ids if isinstance(ids, str) else ",".join(ids)
         url += f"&id={id}"
         count = len(id.split(","))
 
@@ -446,12 +437,10 @@ def entrez_sets_of_results(
 
 
 def entrez_try_get_multiple_times(url, num_tries=3) -> Optional[requests.Response]:
-    attempt = 0
-    while attempt < num_tries:
+    for _ in range(num_tries):
         resp = requests.get(url)
         if resp.status_code == 200:
             return resp
-        attempt += 1
         time.sleep(PAUSE)
 
     print("There were multiple server errors")

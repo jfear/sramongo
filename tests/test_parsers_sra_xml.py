@@ -89,7 +89,7 @@ def test_parse_sra_experiment(sra_xml_root):
     sra = parsers_sra_xml.parse_sra_experiment(root)
     assert sra.srx == "SRX971855"
     assert sra.title == "GSM1646282: AH_dsxNullM_3; Drosophila melanogaster; RNA-Seq"
-    assert sra.design == None
+    assert sra.design is None
     assert sra.library_name == ""
     assert sra.library_strategy == "RNA-Seq"
     assert sra.library_source == "TRANSCRIPTOMIC"

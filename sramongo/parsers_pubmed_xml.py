@@ -45,24 +45,22 @@ def get_abstract(root):
         for paragraph in root.findall("MedlineCitation/Article/Abstract/AbstractText")
     ]
 
-    if len(text) == 0 or text[0] is None:
+    if not text or text[0] is None:
         return ""
 
     return "\n".join(text)
 
 
 def get_authors(root):
-    authors = []
-    for author in root.findall("MedlineCitation/Article/AuthorList/Author"):
-        authors.append(
-            {
-                "first_name": get_xml_text(author, "ForeName"),
-                "last_name": get_xml_text(author, "LastName"),
-                "initials": get_xml_text(author, "Initials"),
-                "affiliation": get_xml_text(author, "AffiliationInfo/Affiliation"),
-            }
-        )
-    return authors
+    return [
+        {
+            "first_name": get_xml_text(author, "ForeName"),
+            "last_name": get_xml_text(author, "LastName"),
+            "initials": get_xml_text(author, "Initials"),
+            "affiliation": get_xml_text(author, "AffiliationInfo/Affiliation"),
+        }
+        for author in root.findall("MedlineCitation/Article/AuthorList/Author")
+    ]
 
 
 def get_date(root, path):
